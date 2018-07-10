@@ -50,7 +50,7 @@ bool MainWindow::mapParmsMainSectionText()
             QTextStream qinFile(parameters);
             int i = 0;
             int charCount = 0;
-            while (!qinFile.atEnd())                                        // <- reads batch to QStringList line if found
+            while (!qinFile.atEnd())                               // <- reads batch to QStringList line if found
             {
                 QString readLine = qinFile.readLine();
                 charCount += readLine.length() + 2;
