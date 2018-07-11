@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 QMap<QString, QMap<QString, QString>> MainWindow::keyword_Exten_MainSecTitle;
+QMap<QString, QMap<QString, QString>> MainWindow::speciesMSTAbbreviationName;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -38,6 +39,7 @@ bool MainWindow::mapParmsMainSectionText()
         qDebug() << preferences->value("General Preferences/defaultParametersFileName").toString();
         qDebug() << PreferencesFilePath + "/" + preferences->value("General Preferences/defaultParametersFileName").toString();
         parameters = new QFile(PreferencesFilePath + "/" + preferences->value("General Preferences/defaultParametersFileName").toString());
+        variant = preferences->value("General Preferences/defaultVariant").toString();
         qDebug() << "File name held in parameters variable:";
         qDebug() << parameters->fileName();
         if(parameters->exists())
@@ -70,6 +72,15 @@ bool MainWindow::mapParmsMainSectionText()
                         //qDebug() << keyword_Exten_MainSecTitle.value(keywordTemp);
                         exten_MainSectionTitleTemp.clear();
                     }
+                    else if(readLine.contains("species_"))
+                    {
+                        QMap<QString, QString> *speciesAbbreviationName = new QMap<QString, QString>;
+                        speciesAbbreviationName->insert("All", "All species");
+                        qDebug() << readLine << "at position" << charCount;
+                        makeDictionaryFromSection(speciesAbbreviationName, readSectionFromMappedLoc(*parameters, charCount), QRegularExpression(" ?{\\d+} ?:{"));
+                        speciesMSTAbbreviationName.insert(readLine, *speciesAbbreviationName);
+                        qDebug() << speciesMSTAbbreviationName.value(readLine).keys();
+                    }
                     else
                         qDebug() << readLine << " at position " << charCount;
                     i++;
@@ -78,6 +89,12 @@ bool MainWindow::mapParmsMainSectionText()
             qDebug() << "(" << i << ") ParmReader::mapParmsMainSectionText: Parms read Successful!\n";
             parameters->close();
             mapSuccess = true;
+            variantExtensions = new QMap<QString, QString>;
+            if(parmMainSectionMap.contains("programs"))
+                makeDictionaryFromSection(variantExtensions, readSectionFromMappedLoc(*parameters, qint64(parmMainSectionMap.value("programs"))), QRegularExpression("\\s* {"), QRegularExpression("}\\s*:{}"), QRegularExpression(""), true);
+            variantAbbreviationNames = new QMap<QString, QString>;
+            if(parmMainSectionMap.contains("variants"))
+                makeDictionaryFromSection(variantAbbreviationNames, readSectionFromMappedLoc(*parameters, qint64(parmMainSectionMap.value("variants"))), QRegularExpression(": +{"));
         }
         else{
             qDebug() << "CRITICAL ERROR: Specified Parameters File not found! (MainWindow::mapParmsMainSectionText)";
@@ -152,18 +169,34 @@ QStringList MainWindow::readSectionFromMappedLoc(QIODevice &parms, qint64 locati
 }
 
 // create a one-to-one(121) word(key) to definition(value) dictionary(QMap)
-void MainWindow::make121DictionaryFromSection(QMap<QString, QString> *dictionary, QStringList wordDefinitionsRaw, QRegularExpression separater, QRegularExpression wordExcess, QRegularExpression definitionExcess)
+//void MainWindow::make121DictionaryFromSection(QMap<QString, QString> *dictionary, QStringList wordDefinitionsRaw, QRegularExpression separater, QRegularExpression wordExcess, QRegularExpression definitionExcess)
+//{
+//    QStringList wordAndDefinitions;
+//    foreach (QString line, wordDefinitionsRaw) {
+//        if(line.contains(separater))
+//        {
+//            wordAndDefinitions = line.split(separater);
+//            QString word = QString(wordAndDefinitions.at(0)).remove(wordExcess);
+//            QString definition = QString(wordAndDefinitions.at(1)).remove(QRegularExpression(definitionExcess));
+//            qDebug() << "Word: " << word << "\tDefinition" << definition;
+//            if(!QStringList(dictionary->keys()).contains(word))
+//                dictionary->insert(word, definition);
+//        }
+//    }
+//}
+
+// create a word(key) to definition(value) dictionary(QMap)
+void MainWindow::makeDictionaryFromSection(QMap<QString, QString> *dictionary, QStringList wordDefinitionsRaw, QRegularExpression separater, QRegularExpression definitionExcess, QRegularExpression wordExcess, bool oneToMany)
 {
-    QStringList wordAndDefinitions;
     foreach (QString line, wordDefinitionsRaw) {
         if(line.contains(separater))
         {
-            wordAndDefinitions = line.split(separater);
+            QStringList wordAndDefinitions = line.split(separater);
             QString word = QString(wordAndDefinitions.at(0)).remove(wordExcess);
-            QString definition = QString(wordAndDefinitions.at(1)).remove(QRegularExpression(definitionExcess));
+            QString definition = QString(wordAndDefinitions.at(1)).remove(definitionExcess);
 //            qDebug() << "Word: " << word << "\tDefinition" << definition;
-            if(!QStringList(dictionary->keys()).contains(word))
-                dictionary->insert(word, definition);
+            if(!QStringList(dictionary->keys()).contains(word) || oneToMany)
+                dictionary->insertMulti(word, definition);
         }
     }
 }
