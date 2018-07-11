@@ -9,6 +9,7 @@
 #include <QSettings>
 #include <QStringListModel>
 #include <QRegularExpression>
+#include "variantextension.h"
 #include "fvskeywordswindow.h"
 #include "managementactions.h"
 #include "modifypreferenceswindow.h"
@@ -35,6 +36,7 @@ public:
     QString preferencesFileName;
     static QString *variant;
     QSettings *preferences;
+    bool variantLocked;
     QFile *parameters;
 
 private slots:
@@ -59,6 +61,8 @@ private slots:
     void on_button_SelectPostProcessors_clicked();
 
     void on_button_SelectModifiers_clicked();
+
+    void on_actionSelect_Variant_and_Extension_triggered();
 
 private:
     Ui::MainWindow *ui;

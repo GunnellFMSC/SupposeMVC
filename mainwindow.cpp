@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    variantLocked = false;
     ui->button_RunSim->setEnabled(false);
 //    PreferencesModel = new QStringListModel(this);
     preferencesFileName = "/example.prf";
@@ -262,4 +263,12 @@ void MainWindow::on_button_SelectPostProcessors_clicked()
 void MainWindow::on_button_SelectModifiers_clicked()
 {
     qDebug() << "Select Modifiers Button clicked";
+}
+
+void MainWindow::on_actionSelect_Variant_and_Extension_triggered()
+{
+    qDebug() << "Select Variant and Extension clicked";
+    VariantExtension selectVariantExtensionWindow(variant, variantExtensions, variantAbbreviationNames, extensionAbbreviationNames, &variantLocked);
+    selectVariantExtensionWindow.setWindowTitle("Select Variant and Extension");
+    selectVariantExtensionWindow.exec();
 }
