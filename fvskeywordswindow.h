@@ -50,7 +50,7 @@ private:
     QMap<QString, QStringList> *extensionCategories/*, *categoryKeywords*/;
     QMap<QString, QMap<QString, QString>> *keywordDictionary, *keyword_E_MST;
     QStringList *extensions, *categories,/* *keywords,*/ *extensionCategoryKeywords;
-    QMap<QString, QString> *extensionAbbreviationNames, *categoryAbbreviationNames, *categoryKeywords, *keywordExtension/*, *keywordDefinition*/;
+    QMap<QString, QString> *extenAbbrevName, *categoryAbbreviationNames, *categoryKeywords, *keywordExtension, *varExten;
     QStringListModel *extensionsModel, *categoriesModel, *keywordsModel;
 };
 

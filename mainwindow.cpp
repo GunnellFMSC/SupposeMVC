@@ -3,6 +3,9 @@
 
 QMap<QString, QMap<QString, QString>> MainWindow::keyword_Exten_MainSecTitle;
 QMap<QString, QMap<QString, QString>> MainWindow::speciesMSTAbbreviationName;
+QMap<QString, QString>* MainWindow::extensionAbbreviationNames;
+QMap<QString, QString>* MainWindow::variantAbbreviationNames;
+QMap<QString, QString>* MainWindow::variantExtensions;
 QString* MainWindow::variant;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -172,7 +175,7 @@ void MainWindow::on_actionSuppose_Preferences_triggered()
     }
     else
          qDebug() << "Parameters unchanged";
-    if(*variant != preferences->value("General Preferences/defaultVariant").toString())
+    if(*variant != preferences->value("General Preferences/defaultVariant").toString() && !variantLocked)
     {
         qDebug() << "Refresh Variant";
         qDebug() << "Before: " + *variant;
@@ -181,6 +184,8 @@ void MainWindow::on_actionSuppose_Preferences_triggered()
         if (*variant == preferences->value("General Preferences/defaultVariant").toString())
             qDebug() << "Successful Variant Refresh!";
     }
+    else if(*variant != preferences->value("General Preferences/defaultVariant").toString() && variantLocked)
+        qDebug() << "Default Variant saved as" << preferences->value("General Preferences/defaultVariant").toString() << "but running Variant locked in as" << *variant;
     else
         qDebug() << "Variant unchanged";
 }
