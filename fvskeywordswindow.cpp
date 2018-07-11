@@ -5,63 +5,33 @@ FVSKeywordsWindow::FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, 
     QDialog(parent),
     ui(new Ui::FVSKeywordsWindow)
 {
+    qDebug() << "Inside FVSKeywordsWindow Constructor";
     ui->setupUi(this);
     parm = parameters;
     parmMap = parmMainSectionMap;
-    keyword_E_MST = &(MainWindow::keyword_Exten_MainSecTitle);
-//    parmMap = &MainWindow::parmMainSectionMap;
     setWindowTitle("Use FVS Keywords");
+    varExten = MainWindow::variantExtensions;
+    keyword_E_MST = &(MainWindow::keyword_Exten_MainSecTitle);
     extenAbbrevName = MainWindow::extensionAbbreviationNames;
-//    extensionAbbreviationNames = new QMap<QString, QString>;
-//    MainWindow::makeDictionaryFromSection(extensionAbbreviationNames, MainWindow::readSectionFromMappedLoc(*parameters, qint64(this->parmMap->value("extensions"))));
-//    MainWindow::make121DictionaryFromSection(extensionAbbreviationNames, MainWindow::readSectionFromMappedLoc(*parameters, qint64(parmMap->value("extensions"))), QRegularExpression(": +{"), QRegularExpression("\\s"), QRegularExpression("}"));
-//    QStringList extensionsRaw = MainWindow::readSectionFromMappedLoc(*parameters, qint64(parmMap->value("extensions")));
-//    qDebug() << "Raw Extensions: " << extensionsRaw;
-//    QStringList abbreviationAndName;
-//    QRegularExpression separater(": +{");
-//    //
-//    foreach (QString line, extensionsRaw) {
-//        if(line.contains(separater))
-//        {
-//            abbreviationAndName = line.split(separater);
-//            qDebug() << "Extension abbreviated: " << abbreviationAndName.at(0);
-//            qDebug() << "Extension Full Name: " << QString(abbreviationAndName.at(1)).remove("}");
-//            bool unique = true;
-//            foreach(QString abv, extensionAbbreviationNames->keys())
-//                if(abbreviationAndName.at(0) == abv) unique = false; //qDebug() << "abbreviationAndName.at(0) = " << abbreviationAndName.at(0) << ", abbreviation to input = " << abv;
-//            if(unique && abbreviationAndName.at(0) != "bgc")
-//                *extensionAbbreviationNames->insert(abbreviationAndName.at(0), QString(abbreviationAndName.at(1)).remove("}"));
-//        }
-//    }
-    extensions = new QStringList;
+    extensions = new QStringList();
     keywordsModel = new QStringListModel(this);
     extensionsModel = new QStringListModel(this);
     categoriesModel = new QStringListModel(this);
-    *extensions = QStringList(extenAbbrevName->values());
+    /*     Add base if defined     */
+    if(extenAbbrevName->keys().contains("base")) extensions->append(extenAbbrevName->value("base"));
+    /*     loop through the variant's extensions, ignore variants, add the full extension name to QStringList extensions    */
+    foreach (QString extenAbbrev, (varExten->value("FVS" + *MainWindow::variant)).split(" "))
+        if(!varExten->contains("FVS" + extenAbbrev))
+        {
+            qDebug() << "The Extension abbreviation" << extenAbbrev << "has the full name" << extenAbbrevName->value(extenAbbrev);
+            extensions->append(extenAbbrevName->value(extenAbbrev)); // add the full extension name to QStringList
+        }
     extensions->sort(Qt::CaseInsensitive);
     extensionsModel->setStringList(*extensions);
 //    extensionsModel->sort(0);
     categoryAbbreviationNames = new QMap<QString, QString>;
     categoryAbbreviationNames->insert("all", "All keywords");
     MainWindow::makeDictionaryFromSection(categoryAbbreviationNames, MainWindow::readSectionFromMappedLoc(*parameters, qint64(parmMap->value("keyword_categories"))));
-//    MainWindow::make121DictionaryFromSection(categoryAbbreviationNames, MainWindow::readSectionFromMappedLoc(*parameters, qint64(parmMap->value("keyword_categories"))), QRegularExpression(": +{"), QRegularExpression("\\s"), QRegularExpression("}"));
-//    QStringList categoriesRaw = MainWindow::readSectionFromMappedLoc(*parameters, qint64(parmMap->value("keyword_categories")));
-//    qDebug() << "Raw Categories: " << categoriesRaw;
-//    QRegularExpression separater(": +{");
-//    categoryAbbreviationNames->insert("all", "All keywords");
-//    foreach (QString line, categoriesRaw) {
-//        if(line.contains(separater))
-//        {
-//            QStringList abbreviationAndName = line.split(separater);
-//            qDebug() << "Category abbreviated: " << QString(abbreviationAndName.at(0)).remove(" ");
-//            qDebug() << "Category Full Name: " << QString(abbreviationAndName.at(1)).remove("}");
-//            bool unique = true;
-//            foreach(QString abv, categoryAbbreviationNames->keys())
-//                if(abbreviationAndName.at(0) == abv) unique = false;
-//            if(unique)
-//                *categoryAbbreviationNames->insert(QString(abbreviationAndName.at(0)).remove(" "), QString(abbreviationAndName.at(1)).remove("}"));
-//        }
-//    }
     extensionCategories = new QMap<QString, QStringList>;
     categoryKeywords = new QMap<QString, QString/*List*/>;
     keywordDictionary = new QMap<QString, QMap<QString, QString>>;
@@ -104,15 +74,8 @@ FVSKeywordsWindow::FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, 
                             {
 //                                qDebug() << line.mid(line.indexOf(bracket1) + 1, (line.indexOf(bracket2) - (line.indexOf("{") +1)));
                                 extenDefTemp = keywordDictionary->value(keywordTemp);
-//                                qDebug() << ":P";
-//                                extenDefTemp.insert(line.mid(line.indexOf(bracket1) + 1, (line.indexOf(bracket2) - (line.indexOf(bracket1) +1))), defTemp.mid(0));
-//                                keywordDictionary->insert(keywordTemp, extenDefTemp);
-//                                keywordDictionary->insert(keywordTemp, QMap<QString, QString>(line.mid(line.indexOf(bracket1) + 1, (line.indexOf(bracket2) - (line.indexOf(bracket1) +1))), defTemp.mid(0)));
-//                                qDebug() << keywordDictionary->value(keywordTemp);
-//                                extenDefTemp.clear();
                             }
-//                            else
-                            qDebug() << ":D" << line.mid(line.indexOf(bracket1) + 1, (line.indexOf(bracket2) - (line.indexOf("{") +1)));
+                            qDebug() << line.mid(line.indexOf(bracket1) + 1, (line.indexOf(bracket2) - (line.indexOf("{") +1)));
                             // Get the name of the Extension by finding the first instance of both brackets and extracting the string inside, place that string in a QMap with definition
                             extenDefTemp.insert(line.mid(line.indexOf(bracket1) + 1, (line.indexOf(bracket2) - (line.indexOf(bracket1) +1))), defTemp.mid(0));
                             keywordDictionary->insert(keywordTemp, extenDefTemp);
