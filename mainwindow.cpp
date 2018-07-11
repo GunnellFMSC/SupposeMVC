@@ -3,6 +3,9 @@
 
 QMap<QString, QMap<QString, QString>> MainWindow::keyword_Exten_MainSecTitle;
 QMap<QString, QMap<QString, QString>> MainWindow::speciesMSTAbbreviationName;
+QMap<QString, QString>* MainWindow::extensionAbbreviationNames;
+QMap<QString, QString>* MainWindow::variantAbbreviationNames;
+QMap<QString, QString>* MainWindow::variantExtensions;
 QString* MainWindow::variant;
 
 MainWindow::MainWindow(QWidget *parent) :

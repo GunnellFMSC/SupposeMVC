@@ -11,9 +11,9 @@ FVSKeywordsWindow::FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, 
     keyword_E_MST = &(MainWindow::keyword_Exten_MainSecTitle);
 //    parmMap = &MainWindow::parmMainSectionMap;
     setWindowTitle("Use FVS Keywords");
-
-    extensionAbbreviationNames = new QMap<QString, QString>;
-    MainWindow::makeDictionaryFromSection(extensionAbbreviationNames, MainWindow::readSectionFromMappedLoc(*parameters, qint64(this->parmMap->value("extensions"))));
+    extenAbbrevName = MainWindow::extensionAbbreviationNames;
+//    extensionAbbreviationNames = new QMap<QString, QString>;
+//    MainWindow::makeDictionaryFromSection(extensionAbbreviationNames, MainWindow::readSectionFromMappedLoc(*parameters, qint64(this->parmMap->value("extensions"))));
 //    MainWindow::make121DictionaryFromSection(extensionAbbreviationNames, MainWindow::readSectionFromMappedLoc(*parameters, qint64(parmMap->value("extensions"))), QRegularExpression(": +{"), QRegularExpression("\\s"), QRegularExpression("}"));
 //    QStringList extensionsRaw = MainWindow::readSectionFromMappedLoc(*parameters, qint64(parmMap->value("extensions")));
 //    qDebug() << "Raw Extensions: " << extensionsRaw;
@@ -37,7 +37,7 @@ FVSKeywordsWindow::FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, 
     keywordsModel = new QStringListModel(this);
     extensionsModel = new QStringListModel(this);
     categoriesModel = new QStringListModel(this);
-    *extensions = QStringList(extensionAbbreviationNames->values());
+    *extensions = QStringList(extenAbbrevName->values());
     extensions->sort(Qt::CaseInsensitive);
     extensionsModel->setStringList(*extensions);
 //    extensionsModel->sort(0);
@@ -221,7 +221,6 @@ FVSKeywordsWindow::FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, 
 
 FVSKeywordsWindow::~FVSKeywordsWindow()
 {
-    delete extensionAbbreviationNames;
     delete extensionCategoryKeywords;
     delete categoryAbbreviationNames;
     delete extensionCategories;
@@ -239,7 +238,7 @@ void FVSKeywordsWindow::on_extension_listView_clicked(const QModelIndex &index)
 {
     qDebug() << "FVSKeywords Window Extension " << extensionsModel->data(index).toString() << " clicked.";
     ui->extension_listView->setCurrentIndex(index);
-    categoriesModel->setStringList(extensionCategories->value(extensionAbbreviationNames->key(extensionsModel->data(index).toString())));
+    categoriesModel->setStringList(extensionCategories->value(extenAbbrevName->key(extensionsModel->data(index).toString())));
     categoriesModel->sort(0);
     ui->category_listView->setModel(categoriesModel);
     ui->category_listView->setCurrentIndex(categoriesModel->index(0));
@@ -254,7 +253,7 @@ void FVSKeywordsWindow::on_category_listView_clicked(const QModelIndex &index)
     delete extensionCategoryKeywords;
     extensionCategoryKeywords = new QStringList;
     foreach (QString keyword, categoryKeywords->values(categoriesModel->data(index).toString())) {
-        if (keywordExtension->values(keyword).contains(extensionAbbreviationNames->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString()))){
+        if (keywordExtension->values(keyword).contains(extenAbbrevName->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString()))){
 //            qDebug() << keyword << "found in " << extensionAbbreviationNames->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString());
             if (!extensionCategoryKeywords->contains(keyword)) extensionCategoryKeywords->prepend(keyword);
         }
@@ -268,7 +267,7 @@ void FVSKeywordsWindow::on_category_listView_clicked(const QModelIndex &index)
 void FVSKeywordsWindow::on_keyword_listView_clicked(const QModelIndex &index)
 {
     qDebug() << "FVSKeywords Window Keyword" << keywordsModel->data(index).toString() <<  "Clicked.";
-    QString selectedExtension = extensionAbbreviationNames->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString());
+    QString selectedExtension = extenAbbrevName->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString());
 //    qDebug() << "Extension abbreviation: " << selectedExtension;
     QString selectedKeyword = keywordsModel->data(index).toString();
 //    qDebug() << "Keyword" << selectedKeyword << "has the associated extensions: " << keywordDictionary->value(selectedKeyword).keys() << "\nand the corresponding definition is:" << keywordDictionary->value(selectedKeyword).value(selectedExtension)/*value(selectedExtension)*/;
@@ -284,7 +283,7 @@ void FVSKeywordsWindow::on_keyword_listView_doubleClicked(const QModelIndex &ind
     ui->selectKeyword_lineEdit->returnPressed();
 
     //↓ finds Main Sectin Text using keyword_E_MST QMap
-    QString extensionTemp = extensionAbbreviationNames->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString());
+    QString extensionTemp = extenAbbrevName->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString());
     qDebug() << extensionTemp;
     if(extensionTemp == "estb" || extensionTemp ==  "strp")
         if (keyword_E_MST->value(keywordsModel->data(index).toString()).value(extensionTemp).isEmpty())
@@ -297,7 +296,7 @@ void FVSKeywordsWindow::on_keyword_listView_doubleClicked(const QModelIndex &ind
     foreach(QString mainSection, mainSections)
     {
         if(mainSection.contains("."+keywordsModel->data(index).toString()))
-            if(mainSection.contains(extensionAbbreviationNames->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString())))
+            if(mainSection.contains(extenAbbrevName->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString())))
                 qDebug() << "Main Section Title:" << mainSection;
     }
 }
@@ -305,7 +304,7 @@ void FVSKeywordsWindow::on_keyword_listView_doubleClicked(const QModelIndex &ind
 void FVSKeywordsWindow::on_selectKeyword_lineEdit_returnPressed()
 {
     qDebug() << "FVSKeywords Window select keyword line edit entered.";
-    QString selectedExtension = extensionAbbreviationNames->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString());
+    QString selectedExtension = extenAbbrevName->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString());
     QString selectedKeyword = keywordsModel->data(ui->keyword_listView->currentIndex()).toString();
     qDebug() << "Extension: " + selectedExtension + ", Keyword: " + selectedKeyword + ", Keyword textbox contains: " + ui->selectKeyword_lineEdit->text();
     (extensionCategoryKeywords->contains(ui->selectKeyword_lineEdit->text()))?( qDebug() << ui->selectKeyword_lineEdit->text() << "Found"):( qDebug() << ui->selectKeyword_lineEdit->text() << "not found");
