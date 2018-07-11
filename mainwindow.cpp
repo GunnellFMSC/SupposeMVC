@@ -36,12 +36,18 @@ MainWindow::MainWindow(QWidget *parent) :
         foreach (QString var, variantAbbreviationNames->keys())
             qDebug() << ++count << "Variant abbreviated: " << var << "Variant Full Name: " << variantAbbreviationNames->value(var);
     }
+    else
+        qDebug() << "CRITICAL ERROR: Mapping Unsuccessful!";
 }
 
 MainWindow::~MainWindow()
 {
+    delete extensionAbbreviationNames;
+    delete variantAbbreviationNames;
+    delete variantExtensions;
     delete preferences;
     delete parameters;
+    delete variant;
     delete ui;
 }
 /********************* MainWindow::mapParmsMainSectionText() *********************
@@ -161,10 +167,21 @@ void MainWindow::on_actionSuppose_Preferences_triggered()
         qDebug() << "After: " + parameters->fileName();
         mapParmsMainSectionText();
         if (parameters->fileName() == PreferencesFilePath + "/" + preferences->value("General Preferences/defaultParametersFileName").toString())
-            qDebug() << "Success!";
+            qDebug() << "Successful Parameters Refresh!";
     }
     else
          qDebug() << "Parameters unchanged";
+    if(*variant != preferences->value("General Preferences/defaultVariant").toString())
+    {
+        qDebug() << "Refresh Variant";
+        qDebug() << "Before: " + *variant;
+        *variant = preferences->value("General Preferences/defaultVariant").toString();
+        qDebug() << "After: " + *variant;
+        if (*variant == preferences->value("General Preferences/defaultVariant").toString())
+            qDebug() << "Successful Variant Refresh!";
+    }
+    else
+        qDebug() << "Variant unchanged";
 }
 
 void MainWindow::on_button_SelectStands_clicked()
