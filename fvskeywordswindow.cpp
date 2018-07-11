@@ -13,7 +13,8 @@ FVSKeywordsWindow::FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, 
     setWindowTitle("Use FVS Keywords");
 
     extensionAbbreviationNames = new QMap<QString, QString>;
-    MainWindow::make121DictionaryFromSection(extensionAbbreviationNames, MainWindow::readSectionFromMappedLoc(*parameters, qint64(parmMap->value("extensions"))), QRegularExpression(": +{"), QRegularExpression("\\s"), QRegularExpression("}"));
+    MainWindow::makeDictionaryFromSection(extensionAbbreviationNames, MainWindow::readSectionFromMappedLoc(*parameters, qint64(this->parmMap->value("extensions"))));
+//    MainWindow::make121DictionaryFromSection(extensionAbbreviationNames, MainWindow::readSectionFromMappedLoc(*parameters, qint64(parmMap->value("extensions"))), QRegularExpression(": +{"), QRegularExpression("\\s"), QRegularExpression("}"));
 //    QStringList extensionsRaw = MainWindow::readSectionFromMappedLoc(*parameters, qint64(parmMap->value("extensions")));
 //    qDebug() << "Raw Extensions: " << extensionsRaw;
 //    QStringList abbreviationAndName;
@@ -42,7 +43,8 @@ FVSKeywordsWindow::FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, 
 //    extensionsModel->sort(0);
     categoryAbbreviationNames = new QMap<QString, QString>;
     categoryAbbreviationNames->insert("all", "All keywords");
-    MainWindow::make121DictionaryFromSection(categoryAbbreviationNames, MainWindow::readSectionFromMappedLoc(*parameters, qint64(parmMap->value("keyword_categories"))), QRegularExpression(": +{"), QRegularExpression("\\s"), QRegularExpression("}"));
+    MainWindow::makeDictionaryFromSection(categoryAbbreviationNames, MainWindow::readSectionFromMappedLoc(*parameters, qint64(parmMap->value("keyword_categories"))));
+//    MainWindow::make121DictionaryFromSection(categoryAbbreviationNames, MainWindow::readSectionFromMappedLoc(*parameters, qint64(parmMap->value("keyword_categories"))), QRegularExpression(": +{"), QRegularExpression("\\s"), QRegularExpression("}"));
 //    QStringList categoriesRaw = MainWindow::readSectionFromMappedLoc(*parameters, qint64(parmMap->value("keyword_categories")));
 //    qDebug() << "Raw Categories: " << categoriesRaw;
 //    QRegularExpression separater(": +{");

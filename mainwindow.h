@@ -8,6 +8,8 @@
 #include <QFile>
 #include <QSettings>
 #include <QStringListModel>
+#include <QRegularExpression>
+#include "variantextension.h"
 #include "fvskeywordswindow.h"
 #include "managementactions.h"
 #include "modifypreferenceswindow.h"
@@ -27,11 +29,14 @@ public:
 
     bool mapParmsMainSectionText();
     static QStringList readSectionFromMappedLoc(QIODevice &parms, qint64 location);
-    static void make121DictionaryFromSection(QMap<QString, QString> *dictionary, QStringList wordDefinitionsRaw, QRegularExpression separater, QRegularExpression wordExcess, QRegularExpression definitionExcess);
-    static QMap<QString, QMap<QString, QString>> keyword_Exten_MainSecTitle;
+    static void makeDictionaryFromSection(QMap<QString, QString> *dictionary, QStringList wordDefinitionsRaw, QRegularExpression separater =  QRegularExpression(": +{"), QRegularExpression definitionExcess = QRegularExpression("}"), QRegularExpression wordExcess = QRegularExpression("\\s"), bool oneToMany = false);
+    static QMap<QString, QMap<QString, QString>> keyword_Exten_MainSecTitle, speciesMSTAbbreviationName;
+    QMap<QString, QString> *variantExtensions, *extensionAbbreviationNames, *variantAbbreviationNames;
     QMap<QString, qint64> parmMainSectionMap;
     QString preferencesFileName;
+    static QString *variant;
     QSettings *preferences;
+    bool variantLocked;
     QFile *parameters;
 
 private slots:
@@ -57,9 +62,10 @@ private slots:
 
     void on_button_SelectModifiers_clicked();
 
+    void on_actionSelect_Variant_and_Extension_triggered();
+
 private:
     Ui::MainWindow *ui;
-//    QStringListModel *PreferencesModel;
 };
 
 #endif // MAINWINDOW_H

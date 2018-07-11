@@ -10,7 +10,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    variantLocked = false;
     ui->button_RunSim->setEnabled(false);
 //    PreferencesModel = new QStringListModel(this);
     preferencesFileName = "/example.prf";
@@ -43,12 +42,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete extensionAbbreviationNames;
-    delete variantAbbreviationNames;
-    delete variantExtensions;
     delete preferences;
     delete parameters;
-    delete variant;
     delete ui;
 }
 /********************* MainWindow::mapParmsMainSectionText() *********************
@@ -168,21 +163,10 @@ void MainWindow::on_actionSuppose_Preferences_triggered()
         qDebug() << "After: " + parameters->fileName();
         mapParmsMainSectionText();
         if (parameters->fileName() == PreferencesFilePath + "/" + preferences->value("General Preferences/defaultParametersFileName").toString())
-            qDebug() << "Successful Parameters Refresh!";
+            qDebug() << "Success!";
     }
     else
          qDebug() << "Parameters unchanged";
-    if(*variant != preferences->value("General Preferences/defaultVariant").toString())
-    {
-        qDebug() << "Refresh Variant";
-        qDebug() << "Before: " + *variant;
-        *variant = preferences->value("General Preferences/defaultVariant").toString();
-        qDebug() << "After: " + *variant;
-        if (*variant == preferences->value("General Preferences/defaultVariant").toString())
-            qDebug() << "Successful Variant Refresh!";
-    }
-    else
-        qDebug() << "Variant unchanged";
 }
 
 void MainWindow::on_button_SelectStands_clicked()
@@ -263,12 +247,4 @@ void MainWindow::on_button_SelectPostProcessors_clicked()
 void MainWindow::on_button_SelectModifiers_clicked()
 {
     qDebug() << "Select Modifiers Button clicked";
-}
-
-void MainWindow::on_actionSelect_Variant_and_Extension_triggered()
-{
-    qDebug() << "Select Variant and Extension clicked";
-    VariantExtension selectVariantExtensionWindow(variant, variantExtensions, variantAbbreviationNames, extensionAbbreviationNames, &variantLocked);
-    selectVariantExtensionWindow.setWindowTitle("Select Variant and Extension");
-    selectVariantExtensionWindow.exec();
 }
