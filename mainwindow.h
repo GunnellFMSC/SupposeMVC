@@ -28,12 +28,12 @@ public:
 
     bool mapParmsMainSectionText();
     static QStringList readSectionFromMappedLoc(QIODevice &parms, qint64 location);
-//    static void make121DictionaryFromSection(QMap<QString, QString> *dictionary, QStringList wordDefinitionsRaw, QRegularExpression separater, QRegularExpression wordExcess, QRegularExpression definitionExcess);
     static void makeDictionaryFromSection(QMap<QString, QString> *dictionary, QStringList wordDefinitionsRaw, QRegularExpression separater =  QRegularExpression(": +{"), QRegularExpression definitionExcess = QRegularExpression("}"), QRegularExpression wordExcess = QRegularExpression("\\s"), bool oneToMany = false);
     static QMap<QString, QMap<QString, QString>> keyword_Exten_MainSecTitle, speciesMSTAbbreviationName;
     QMap<QString, QString> *variantExtensions, *extensionAbbreviationNames, *variantAbbreviationNames;
     QMap<QString, qint64> parmMainSectionMap;
-    QString preferencesFileName, variant;
+    QString preferencesFileName;
+    static QString *variant;
     QSettings *preferences;
     QFile *parameters;
 

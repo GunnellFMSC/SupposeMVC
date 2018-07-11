@@ -36,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent) :
         foreach (QString var, variantAbbreviationNames->keys())
             qDebug() << ++count << "Variant abbreviated: " << var << "Variant Full Name: " << variantAbbreviationNames->value(var);
     }
+    else
+        qDebug() << "CRITICAL ERROR: Mapping Unsuccessful!";
 }
 
 MainWindow::~MainWindow()
