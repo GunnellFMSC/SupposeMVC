@@ -31,3 +31,4 @@
 *.out
 *.app
 mainwindow.cpp.autosave
+*.autosave
