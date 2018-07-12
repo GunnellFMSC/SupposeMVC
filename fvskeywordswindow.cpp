@@ -110,7 +110,8 @@ FVSKeywordsWindow::FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, 
                         for(int i = 2; i < keywordExtensionCategories.size(); i++)
                             extenCatetemp.append(categoryAbbreviationNames->value(keywordExtensionCategories.at(i)));
                         foreach (QString category, extenCatetemp) {
-                            categoryKeywords->insertMulti(category, keywordTemp);
+                            // the extension name is prepended to the category in categoryKeywords to insure respective behavior
+                            categoryKeywords->insertMulti(extenTemp + category, keywordTemp);
                         }
                         QStringList ectempTemp = extensionCategories->value(extenTemp);
                         qDebug() << ectempTemp;
@@ -215,13 +216,12 @@ void FVSKeywordsWindow::on_category_listView_clicked(const QModelIndex &index)
     qDebug() << "FVSKeywords Window Category " << categoriesModel->data(index).toString() << " clicked.";
     delete extensionCategoryKeywords;
     extensionCategoryKeywords = new QStringList;
-    foreach (QString keyword, categoryKeywords->values(categoriesModel->data(index).toString())) {
+    foreach (QString keyword, categoryKeywords->values(extenAbbrevName->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString()) + categoriesModel->data(index).toString())) {
         if (keywordExtension->values(keyword).contains(extenAbbrevName->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString()))){
-//            qDebug() << keyword << "found in " << extensionAbbreviationNames->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString());
+            qDebug() << keyword << "found in " << categoriesModel->data(index).toString() << "of" << extensionsModel->data(ui->extension_listView->currentIndex()).toString();
             if (!extensionCategoryKeywords->contains(keyword)) extensionCategoryKeywords->prepend(keyword);
         }
     }
-//    qDebug() << *extensionCategoryKeywords;
     extensionCategoryKeywords->sort(Qt::CaseInsensitive);
     keywordsModel->setStringList(*extensionCategoryKeywords);
     ui->keyword_listView->setModel(keywordsModel);

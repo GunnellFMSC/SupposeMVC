@@ -47,9 +47,9 @@ private:
     QFile *parm;
     Ui::FVSKeywordsWindow *ui;
     QMap<QString, qint64> *parmMap;
-    QMap<QString, QStringList> *extensionCategories/*, *categoryKeywords*/;
+    QMap<QString, QStringList> *extensionCategories;
+    QStringList *extensions, *categories, *extensionCategoryKeywords;
     QMap<QString, QMap<QString, QString>> *keywordDictionary, *keyword_E_MST;
-    QStringList *extensions, *categories,/* *keywords,*/ *extensionCategoryKeywords;
     QMap<QString, QString> *extenAbbrevName, *categoryAbbreviationNames, *categoryKeywords, *keywordExtension, *varExten;
     QStringListModel *extensionsModel, *categoriesModel, *keywordsModel;
 };
