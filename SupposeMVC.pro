@@ -29,14 +29,16 @@ SOURCES += \
     modifypreferenceswindow.cpp \
     managementactions.cpp \
     fvskeywordswindow.cpp \
-    variantextension.cpp
+    variantextension.cpp \
+    generalpurposescreenbuilder.cpp
 
 HEADERS += \
         mainwindow.h \
     modifypreferenceswindow.h \
     managementactions.h \
     fvskeywordswindow.h \
-    variantextension.h
+    variantextension.h \
+    generalpurposescreenbuilder.h
 
 FORMS += \
         mainwindow.ui \
