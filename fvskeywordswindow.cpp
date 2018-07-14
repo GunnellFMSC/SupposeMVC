@@ -242,26 +242,36 @@ void FVSKeywordsWindow::on_keyword_listView_clicked(const QModelIndex &index)
 
 void FVSKeywordsWindow::on_keyword_listView_doubleClicked(const QModelIndex &index)
 {
-    qDebug() << "FVSKeywords Window Keyword" << keywordsModel->data(index).toString() <<  "Double-Clicked.";
+    QString keyword = keywordsModel->data(index).toString();
+    qDebug() << "FVSKeywords Window Keyword" << keyword <<  "Double-Clicked.";
     ui->selectKeyword_lineEdit->returnPressed();
 
+    QString extensionName = extensionsModel->data(ui->extension_listView->currentIndex()).toString();
+    qDebug() << "Extension: " << extensionName;
     //↓ finds Main Sectin Text using keyword_E_MST QMap
     QString extensionTemp = extenAbbrevName->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString());
     qDebug() << extensionTemp;
     if(extensionTemp == "estb" || extensionTemp ==  "strp")
-        if (keyword_E_MST->value(keywordsModel->data(index).toString()).value(extensionTemp).isEmpty())
+        if (keyword_E_MST->value(keyword).value(extensionTemp).isEmpty())
             extensionTemp = "estbstrp";
-    qDebug() << "Main Section Title:" << keyword_E_MST->value(keywordsModel->data(index).toString()).value(extensionTemp) << ":P";
+    qDebug() << "Main Section Title:" << keyword_E_MST->value(keyword).value(extensionTemp);
 
     //↓ finds Main Sectin Text by checking for keyword in every single Main Section text
     QStringList mainSections = parmMap->keys();
 //    qDebug() << mainSections.at(mainSections.indexOf(QRegularExpression(keywordExtension->value(keywordsModel->data(index).toString())+"."+keywordsModel->data(index).toString())));
     foreach(QString mainSection, mainSections)
     {
-        if(mainSection.contains("."+keywordsModel->data(index).toString()))
+        if(mainSection.contains("."+ keyword))
             if(mainSection.contains(extenAbbrevName->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString())))
                 qDebug() << "Main Section Title:" << mainSection;
     }
+    description = new QStringList();
+    mainSectionText = new QStringList();
+    qDebug() << keyword <<  parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp));
+    *mainSectionText = MainWindow::readSectionFromMappedLoc(*parm, parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp)));
+    MainWindow::readSectionToLists(mainSectionText, description);
+    GeneralPurposeScreenBuilder dynamWin(QString(extensionName + ": " + keyword), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, &MainWindow::speciesMSTAbbreviationName, MainWindow::variantAbbreviationNames, 2018, this);
+    dynamWin.exec();
 }
 
 void FVSKeywordsWindow::on_selectKeyword_lineEdit_returnPressed()
@@ -305,5 +315,5 @@ void FVSKeywordsWindow::on_category_listView_activated(const QModelIndex &index)
 void FVSKeywordsWindow::on_keyword_listView_activated(const QModelIndex &index)
 {
     ui->keyword_listView->clicked(index);
-    ui->keyword_listView->doubleClicked(index);
+//    ui->keyword_listView->doubleClicked(index);
 }

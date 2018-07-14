@@ -1,10 +1,10 @@
 #ifndef FVSKEYWORDSWINDOW_H
 #define FVSKEYWORDSWINDOW_H
 
+#include "generalpurposescreenbuilder.h"
 #include <QStringListModel>
 #include "mainwindow.h"
 #include <QDialog>
-//#include <QVector>
 #include <QDebug>
 #include <QFile>
 
@@ -48,10 +48,10 @@ private:
     Ui::FVSKeywordsWindow *ui;
     QMap<QString, qint64> *parmMap;
     QMap<QString, QStringList> *extensionCategories;
-    QStringList *extensions, *categories, *extensionCategoryKeywords;
-    QMap<QString, QMap<QString, QString>> *keywordDictionary, *keyword_E_MST;
-    QMap<QString, QString> *extenAbbrevName, *categoryAbbreviationNames, *categoryKeywords, *keywordExtension, *varExten;
     QStringListModel *extensionsModel, *categoriesModel, *keywordsModel;
+    QMap<QString, QMap<QString, QString>> *keywordDictionary, *keyword_E_MST;
+    QStringList *extensions, *categories, *extensionCategoryKeywords, *description, *mainSectionText;
+    QMap<QString, QString> *extenAbbrevName, *categoryAbbreviationNames, *categoryKeywords, *keywordExtension, *varExten;
 };
 
 #endif // FVSKEYWORDSWINDOW_H

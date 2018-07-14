@@ -54,7 +54,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     QLineEdit *tempLineEdit;
     QLabel *tempLabel;
     foreach (QString line, MSText) {
-//        qDebug() << line;
+        qDebug() << ":P" << line;
         if(line.contains(field) || inField || line.contains(fieldVar))
         {
             bool valid = true;/*7*/
