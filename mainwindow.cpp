@@ -199,6 +199,32 @@ void MainWindow::on_button_SetTimeScale_clicked()
 {
     qDebug() << "Set Time Scale Button clicked";
 }
+
+void MainWindow::readSectionToLists(QStringList *mainSectionText, QStringList *description)
+{
+    int descriptionBegin = -1, descriptionEnd = -1;
+    for (int i = 0; i < mainSectionText->size()-1; i++) // Locates and stores description
+    {
+        if(QString(mainSectionText->at(i)).contains("description:"))
+            descriptionBegin = i;
+        if(descriptionBegin > 0 && descriptionEnd < 0)
+            description->append(mainSectionText->at(i));
+        if(QString(mainSectionText->at(i)).contains('}') && descriptionEnd < 0)
+            descriptionEnd = i;
+        if(descriptionEnd > 0)
+            break;
+    }
+    for (int i = descriptionEnd; i >= descriptionBegin; i--) // removes description
+        mainSectionText->removeAt(i);
+    mainSectionText->removeAll(QString("")); // removes spaces
+    for (int i = 0; i < description->size(); ++i) {
+        if(QString(description->at(i)).contains("description:")) description->replace(i, QString(description->at(i)).remove("description:"));
+        if(QString(description->at(i)).contains("{")) description->replace(i, QString(description->at(i)).remove("{"));
+        if(QString(description->at(i)).contains("}")) description->replace(i, QString(description->at(i)).remove("}"));
+    }
+    description->prepend("Description:");
+}
+
 // CONSIDER MOVING THIS FUNCTION TO SEPARATE FILE
 QStringList MainWindow::readSectionFromMappedLoc(QIODevice &parms, qint64 location)
 {

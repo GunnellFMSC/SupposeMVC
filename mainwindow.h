@@ -29,6 +29,7 @@ public:
 
     bool mapParmsMainSectionText();
     static QStringList readSectionFromMappedLoc(QIODevice &parms, qint64 location);
+    static void readSectionToLists(QStringList *mainSectionText, QStringList *description);
     static void makeDictionaryFromSection(QMap<QString, QString> *dictionary, QStringList wordDefinitionsRaw, QRegularExpression separater =  QRegularExpression(": +{"), QRegularExpression definitionExcess = QRegularExpression("}"), QRegularExpression wordExcess = QRegularExpression("\\s"), bool oneToMany = false);
     static QMap<QString, QString> *variantExtensions, *extensionAbbreviationNames, *variantAbbreviationNames;
     static QMap<QString, QMap<QString, QString>> keyword_Exten_MainSecTitle, speciesMSTAbbreviationName;

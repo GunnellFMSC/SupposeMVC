@@ -22,14 +22,14 @@ VariantExtension::VariantExtension(QString *variant, QMap<QString, QString> *var
     {
         QString program = variantExtensions->key(var);
 //        qDebug() << program;
-        if((program.size() > 5 && climate) || (program.size() > 5 && b))
+        if(((program.size() > 5 && climate) || (program.size() > 5 && b)) && !fvsPrograms.contains(program))
         {
             if (program.at(5) == 'b' && b)
                 fvsPrograms.append(program);
             if(program.at(5) == 'c' && climate)
                 fvsPrograms.append(program);
         }
-        else if(program.size() == 5)
+        else if(program.size() == 5 && !fvsPrograms.contains(program))
             fvsPrograms.append(program);
 //        qDebug() << "Variant program: " << program << "Variant short Name: " << var.left(2);
         programVariant->insertMulti(program, var.left(2));
@@ -39,7 +39,7 @@ VariantExtension::VariantExtension(QString *variant, QMap<QString, QString> *var
         if(!programVariant->values().contains(var)){ qDebug() << "Removing" << var;
             variantAbbreviationNamesMap->remove(var);}
     }
-
+    qDebug() <<programVariant->values() << programVariant->keys() << "\n" << programExtensions->keys() << programExtensions->values();
     variantModel->setStringList(variantAbbreviationNames->values());
     variantModel->sort(0);
     programModel->setStringList(fvsPrograms);
