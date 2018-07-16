@@ -340,12 +340,15 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     qDebug() << "default number box amount altered to " + boxProperties.at(0);
                     tempLineEdit->setText(boxProperties.at(0));
                     // Defines textbox to limit user input to numbers, with customized Lowest and Highest
-                    QDoubleValidator *custom = new QDoubleValidator(QString(boxProperties.at(1)).toInt(), QString(boxProperties.at(2)).toInt(), 10 - QString(boxProperties.at(2)).toInt());
-                    custom->setNotation(QDoubleValidator::StandardNotation);
-                    tempLineEdit->setValidator(custom);
-                    tempLineEdit->setObjectName(QString::number(dynamLineEdits.size()));
-                    connect(dynamLineEdits.value(dynamLineEdits.size()-1),  SIGNAL(textEdited(QString)), this, SLOT(inputMod(QString)));
-                    qDebug() << "Sync attempted";
+                    if(boxProperties.size() > 2)
+                    {
+                        QDoubleValidator *custom = new QDoubleValidator(QString(boxProperties.at(1)).toInt(), QString(boxProperties.at(2)).toInt(), 10 - QString(boxProperties.at(2)).toInt());
+                        custom->setNotation(QDoubleValidator::StandardNotation);
+                        tempLineEdit->setValidator(custom);
+                        tempLineEdit->setObjectName(QString::number(dynamLineEdits.size()));
+                        connect(dynamLineEdits.value(dynamLineEdits.size()-1),  SIGNAL(textEdited(QString)), this, SLOT(inputMod(QString)));
+                        qDebug() << "Sync attempted";
+                    }
                     defaultLineValue.replace(defaultLineValue.size()-1, boxProperties.at(0));
                 }
                 else if(currentField->contains("textEdit", Qt::CaseInsensitive) && valid) // catches both longTextEdit and textEdit
