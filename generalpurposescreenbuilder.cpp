@@ -63,7 +63,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
             {
                 qDebug() << "Field located: " << line.mid(line.indexOf("{") + 1);
                 fieldNum = line.left(line.indexOf(":"));
-                qDebug() << "Variant Field Num:" << fieldNum;
+                qDebug() << "Field Num:" << fieldNum;
             }
             else if(line.contains(fieldVar))
             {
@@ -159,14 +159,14 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     qDebug() << "selected" << *currentField << "value:" << selected;
                     QStringListModel *comboBoxPropertiesModel = new QStringListModel;
                     comboBoxPropertiesModel->setStringList(comboBoxProperties);
-                    dynamComboBoxes.append(new QComboBox);
-                    int comboBoxLocation = dynamComboBoxes.size() - 1;
                     bool duplicate = false;
-                    if(dynamComboBoxes.size() > 1)
-                        if(dynamComboBoxes.value(dynamComboBoxes.size() - 2)->objectName() == fieldNum)
+                    if(dynamComboBoxes.size() > 0)
+                        if(dynamComboBoxes.value(dynamComboBoxes.size() - 1)->objectName() == fieldNum)
                             duplicate = true;
                     if(!duplicate)
                     {
+                        dynamComboBoxes.append(new QComboBox);
+                        int comboBoxLocation = dynamComboBoxes.size() - 1;
                         dynamComboBoxes.value(comboBoxLocation)->setModel(comboBoxPropertiesModel);
                         dynamComboBoxes.value(comboBoxLocation)->setCurrentText(selected);
                         dynamComboBoxes.value(comboBoxLocation)->setFont(*font);
@@ -187,6 +187,15 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     if(line.size() > 0)
                         longTitleTemp.append(line);
                     QListView *longTitle = new QListView();
+                    for (int i = 0; i < longTitleTemp.size(); i++) {
+                        if(QString(longTitleTemp.at(i)).contains("\\"))
+                            if((i + 1) < longTitleTemp.size())
+                            {
+                                longTitleTemp.replace(i, QString(longTitleTemp.value(i)).remove("\\").append(longTitleTemp.value(i+1)));
+                                longTitleTemp.removeAt(i+1);
+                                i--;
+                            }
+                    }
                     longTitle->setModel(new QStringListModel(longTitleTemp));
                     longTitle->setFont(*font);
                     longTitle->setMinimumWidth(longTitle->sizeHintForColumn(0) + 24);
@@ -218,7 +227,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     else
                     {
                         qDebug() << "Inside title" << line;
-                        longTitleTemp.append(line.remove("{").remove("\\"));
+                        longTitleTemp.append(line.remove("{"));
                     }
                 }
                 else if(currentField->contains("listButton", Qt::CaseInsensitive))/*7*/
@@ -256,15 +265,24 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                         tempLineEdit->setValidator(new QIntValidator());
                     if(fieldType.contains("numberBox"))
                         tempLineEdit->setValidator(new QDoubleValidator());
-                    if(fieldType.contains("longTextEdit"))
+                    bool duplicate = false;
+                    if(dynamLineEdits.size() > 1)
+                        if(dynamLineEdits.value(dynamLineEdits.size() - 1)->objectName() == fieldNum)
+                            duplicate = true;
+                    if(!duplicate)
                     {
-                        dynamBody->addRow(tempLabel);
-                        dynamBody->addRow(tempLineEdit);
+                        if(fieldType.contains("longTextEdit"))
+                        {
+                            dynamBody->addRow(tempLabel);
+                            dynamBody->addRow(tempLineEdit);
+                        }
+                        else
+                            dynamBody->addRow(tempLabel, tempLineEdit);
+                        dynamLineEdits.append(tempLineEdit);
+                        dynamLineEdits.value(dynamLineEdits.size() - 1)->setObjectName(fieldNum);
+                        qDebug() << "Line Edit #" + QString(dynamLineEdits.size() - 1) + " has the Object name:" << dynamLineEdits.last()->objectName();
+                        defaultLineValue.append("");
                     }
-                    else
-                        dynamBody->addRow(tempLabel, tempLineEdit);
-                    dynamLineEdits.append(tempLineEdit);
-                    defaultLineValue.append("");
                     fieldDescription.clear();
                 }
                 else
