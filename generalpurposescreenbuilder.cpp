@@ -50,7 +50,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     QRegularExpression fieldValueVar("f(\\d)+v{[\\w+\\s?]+}:");
     QRegularExpression fieldTitle("f(\\d)+title:");
     QStringList comboBoxProperties, longTitleTemp;
-    QString fieldDescription, fieldType;
+    QString fieldDescription, fieldType, fieldNum;
     QLineEdit *tempLineEdit;
     QLabel *tempLabel;
     foreach (QString line, MSText) {
@@ -60,10 +60,16 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
             bool valid = true;/*7*/
             QStringList variantList; // <- consider placing above during revision, and variantList.clear(); here
             if(line.contains(field))
+            {
                 qDebug() << "Field located: " << line.mid(line.indexOf("{") + 1);
+                fieldNum = line.left(line.indexOf(":"));
+                qDebug() << "Field Num:" << fieldNum;
+            }
             else if(line.contains(fieldVar))
             {
                 qDebug() << "Variant Field located: " << line.mid(line.lastIndexOf("{") + 1);
+                fieldNum = line.left(line.indexOf("{"));
+                qDebug() << "Variant Field Num:" << fieldNum;
                 variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
                 qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}");
                 valid = variantList.contains(*variantFVS);
@@ -153,14 +159,22 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     qDebug() << "selected" << *currentField << "value:" << selected;
                     QStringListModel *comboBoxPropertiesModel = new QStringListModel;
                     comboBoxPropertiesModel->setStringList(comboBoxProperties);
-                    dynamComboBoxes.append(new QComboBox);
-                    int comboBoxLocation = dynamComboBoxes.size() - 1;
-                    dynamComboBoxes.value(comboBoxLocation)->setModel(comboBoxPropertiesModel);
-                    dynamComboBoxes.value(comboBoxLocation)->setCurrentText(selected);
-                    dynamComboBoxes.value(comboBoxLocation)->setFont(*font);
-                    dynamComboBoxes.value(comboBoxLocation)->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-                    (currentField->contains("long")) ? dynamBody->addRow(dynamComboBoxes.value(comboBoxLocation)) : dynamBody->addRow(tempLabel, dynamComboBoxes.value(comboBoxLocation));
-                    defaultComboValue.append(selected);
+                    bool duplicate = false;
+                    if(dynamComboBoxes.size() > 0)
+                        if(dynamComboBoxes.value(dynamComboBoxes.size() - 1)->objectName() == fieldNum)
+                            duplicate = true;
+                    if(!duplicate)
+                    {
+                        dynamComboBoxes.append(new QComboBox);
+                        int comboBoxLocation = dynamComboBoxes.size() - 1;
+                        dynamComboBoxes.value(comboBoxLocation)->setModel(comboBoxPropertiesModel);
+                        dynamComboBoxes.value(comboBoxLocation)->setCurrentText(selected);
+                        dynamComboBoxes.value(comboBoxLocation)->setFont(*font);
+                        dynamComboBoxes.value(comboBoxLocation)->setObjectName(fieldNum);
+                        dynamComboBoxes.value(comboBoxLocation)->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+                        (currentField->contains("long")) ? dynamBody->addRow(dynamComboBoxes.value(comboBoxLocation)) : dynamBody->addRow(tempLabel, dynamComboBoxes.value(comboBoxLocation));
+                        defaultComboValue.append(selected);
+                    }
                     fieldAdded = true;
                 }
             }
@@ -173,6 +187,15 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     if(line.size() > 0)
                         longTitleTemp.append(line);
                     QListView *longTitle = new QListView();
+                    for (int i = 0; i < longTitleTemp.size(); i++) {
+                        if(QString(longTitleTemp.at(i)).contains("\\"))
+                            if((i + 1) < longTitleTemp.size())
+                            {
+                                longTitleTemp.replace(i, QString(longTitleTemp.value(i)).remove("\\").append(longTitleTemp.value(i+1)));
+                                longTitleTemp.removeAt(i+1);
+                                i--;
+                            }
+                    }
                     longTitle->setModel(new QStringListModel(longTitleTemp));
                     longTitle->setFont(*font);
                     longTitle->setMinimumWidth(longTitle->sizeHintForColumn(0) + 24);
@@ -203,7 +226,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     }
                     else
                     {
-                        qDebug() << "Potential Error" << line;
+                        qDebug() << "Inside title" << line;
+                        longTitleTemp.append(line.remove("{"));
                     }
                 }
                 else if(currentField->contains("listButton", Qt::CaseInsensitive))/*7*/
@@ -241,15 +265,24 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                         tempLineEdit->setValidator(new QIntValidator());
                     if(fieldType.contains("numberBox"))
                         tempLineEdit->setValidator(new QDoubleValidator());
-                    if(fieldType.contains("longTextEdit"))
+                    bool duplicate = false;
+                    if(dynamLineEdits.size() > 1)
+                        if(dynamLineEdits.value(dynamLineEdits.size() - 1)->objectName() == fieldNum)
+                            duplicate = true;
+                    if(!duplicate)
                     {
-                        dynamBody->addRow(tempLabel);
-                        dynamBody->addRow(tempLineEdit);
+                        if(fieldType.contains("longTextEdit"))
+                        {
+                            dynamBody->addRow(tempLabel);
+                            dynamBody->addRow(tempLineEdit);
+                        }
+                        else
+                            dynamBody->addRow(tempLabel, tempLineEdit);
+                        dynamLineEdits.append(tempLineEdit);
+                        dynamLineEdits.value(dynamLineEdits.size() - 1)->setObjectName(fieldNum);
+                        qDebug() << "Line Edit #" + QString(dynamLineEdits.size() - 1) + " has the Object name:" << dynamLineEdits.last()->objectName();
+                        defaultLineValue.append("");
                     }
-                    else
-                        dynamBody->addRow(tempLabel, tempLineEdit);
-                    dynamLineEdits.append(tempLineEdit);
-                    defaultLineValue.append("");
                     fieldDescription.clear();
                 }
                 else
@@ -279,7 +312,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 *currentField = "title";
                 inField = true;
                 longTitleTemp.clear();
-                longTitleTemp.append(line.mid(line.indexOf("{")+1));
+                if(line.indexOf(":") + 2 < line.size())
+                    longTitleTemp.append(line.mid(line.indexOf("{")+1));
             }
         }
         if(line.contains(fieldValue) || line.contains(fieldValueVar))/*7*/
@@ -289,6 +323,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
             QStringList variantList;
             if(line.contains(fieldValueVar))/*7*/
             {
+                fieldNum = line.left(line.indexOf("{"));
+                qDebug() << "Variant Field Num:" << fieldNum;
                 variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
                 (line.size() > (line.indexOf(":")+1)) ? qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}") : qDebug() << "Variant(s):" << variantList;
                 valid = variantList.contains(*variantFVS);
@@ -319,6 +355,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
             else/*7*/
             {
                 (line.contains(fieldValue)) ? qDebug() << "Field value located" << (value = line.mid(line.indexOf("{")+1).remove("}")) : qDebug() << "Variant dependent Field value located" << (value = line.mid(line.lastIndexOf("{")+1).remove("}"));
+                (line.contains(fieldValue)) ? fieldNum = line.left(line.indexOf(":")) : fieldNum = line.left(line.indexOf("{"));
+                qDebug() << "Variant Field Num:" << fieldNum;
                 if(*currentField == "scheduleBox" && valid)
                 {
                     qDebug() << value;

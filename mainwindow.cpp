@@ -205,11 +205,21 @@ void MainWindow::readSectionToLists(QStringList *mainSectionText, QStringList *d
     int descriptionBegin = -1, descriptionEnd = -1;
     for (int i = 0; i < mainSectionText->size()-1; i++) // Locates and stores description
     {
+        qDebug() << "Main Section Text line" << i << "holds the value" << QString(mainSectionText->at(i));
         if(QString(mainSectionText->at(i)).contains("description:"))
             descriptionBegin = i;
+        else if(QString(mainSectionText->at(i)).contains(QRegularExpression("description{[\\w+\\s?]+}:")))
+        {
+            qDebug() << "Variant dependant description found.";
+            QString line = mainSectionText->at(i);
+            QStringList variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
+            (line.size() > (line.indexOf(":")+1)) ? qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}") : qDebug() << "Variant(s):" << variantList;
+            if(variantList.contains(*variant))
+                descriptionBegin = i++;
+        }
         if(descriptionBegin > 0 && descriptionEnd < 0)
             description->append(mainSectionText->at(i));
-        if(QString(mainSectionText->at(i)).contains('}') && descriptionEnd < 0)
+        if(QString(mainSectionText->at(i)).contains('}') && descriptionBegin > 0 && descriptionEnd < 0)
             descriptionEnd = i;
         if(descriptionEnd > 0)
             break;
@@ -222,7 +232,8 @@ void MainWindow::readSectionToLists(QStringList *mainSectionText, QStringList *d
         if(QString(description->at(i)).contains("{")) description->replace(i, QString(description->at(i)).remove("{"));
         if(QString(description->at(i)).contains("}")) description->replace(i, QString(description->at(i)).remove("}"));
     }
-    description->prepend("Description:");
+    if(description->size() > 0)
+        description->prepend("Description:");
 }
 
 // CONSIDER MOVING THIS FUNCTION TO SEPARATE FILE
