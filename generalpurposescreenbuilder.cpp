@@ -108,7 +108,10 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 else if(fieldType == "noInput")
                 {
                     qDebug() << "noInput";
-                    dynamBody->addRow(new QLabel("\t\t\t\t"));
+                    if(fieldDescription.contains(QRegularExpression("\\w")))
+                        dynamBody->addRow(new QLabel(fieldDescription));
+                    else
+                        dynamBody->addRow(new QLabel("\t\t\t\t"));
                     fieldDescription.clear();
                     fieldAdded = true;
                 }
@@ -129,6 +132,9 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
             }
             else if(!line.contains("{") && inField && currentField->contains("listButton", Qt::CaseInsensitive) && valid)/*7*/
             {/*7*/   // read lines that fill QComboxBox, place them in QStringList
+                if(line.contains(QRegularExpression("\\w")))
+                    while(line.at(0) == " ")
+                        line.remove(0, 1);
                 if(line.contains("}"))/*7*/
                 {
                     inField = false;
@@ -145,8 +151,6 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                         }
                         else if(line.contains(QRegularExpression("\\w")))
                         {
-                            while(line.at(0) == " ")
-                                line.remove(0, 1);
                             comboBoxProperties.append(line);
                             qDebug() << *currentField << "inField:" << line;
                         }
@@ -377,7 +381,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     QStringList boxProperties = value.split(" ");
                     qDebug() << "default number box amount altered to " + boxProperties.at(0);
                     if(boxProperties.at(0) != "blank")
-                    tempLineEdit->setText(boxProperties.at(0));
+                        tempLineEdit->setText(boxProperties.at(0));
                     // Defines textbox to limit user input to numbers, with customized Lowest and Highest
                     if(boxProperties.size() > 2)
                     {
