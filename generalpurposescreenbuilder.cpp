@@ -333,6 +333,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 (line.size() > (line.indexOf(":")+1)) ? qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}") : qDebug() << "Variant(s):" << variantList;
                 valid = variantList.contains(*variantFVS);
             }
+            else
+                fieldNum = line.left(line.indexOf(":"));
             if(currentField->contains("listButton", Qt::CaseInsensitive) && valid)/*7*/
             {   // first value in dynamic comboBox
                 qDebug() << "Variant" << *currentField << "Field located: " << line;
