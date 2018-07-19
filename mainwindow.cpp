@@ -217,7 +217,7 @@ void MainWindow::readSectionToLists(QStringList *mainSectionText, QStringList *d
             if(variantList.contains(*variant))
                 descriptionBegin = i++;
         }
-        if(descriptionBegin > 0 && descriptionEnd < 0)
+        if(descriptionBegin >= 0 && descriptionEnd < 0)
             description->append(mainSectionText->at(i));
         if(QString(mainSectionText->at(i)).contains('}') && descriptionBegin > 0 && descriptionEnd < 0)
             descriptionEnd = i;
@@ -228,7 +228,8 @@ void MainWindow::readSectionToLists(QStringList *mainSectionText, QStringList *d
         mainSectionText->removeAt(i);
     mainSectionText->removeAll(QString("")); // removes spaces
     for (int i = 0; i < description->size(); ++i) {
-        if(QString(description->at(i)).contains("description:")) description->replace(i, QString(description->at(i)).remove("description:"));
+        if(description->at(i) == "description:" || description->at(i) == "description:{\\") description->removeAt(i);
+        else if(QString(description->at(i)).contains("description:")) description->replace(i, QString(description->at(i)).remove("description:"));
         if(QString(description->at(i)).contains("{")) description->replace(i, QString(description->at(i)).remove("{"));
         if(QString(description->at(i)).contains("}")) description->replace(i, QString(description->at(i)).remove("}"));
     }
