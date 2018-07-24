@@ -88,7 +88,7 @@ bool MainWindow::mapParmsMainSectionText()
             while (!qinFile.atEnd())                               // <- reads batch to QStringList line if found
             {
                 QString readLine = qinFile.readLine();
-                charCount += readLine.length() + 2;
+                charCount += readLine.length() + 2;                // <- +2 due to \r\n? +1 for Unix?
                 if(readLine.contains("//start "))
                 {
                     readLine.remove("//start ", Qt::CaseSensitive);
