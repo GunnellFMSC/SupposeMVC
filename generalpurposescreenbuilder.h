@@ -11,6 +11,7 @@
 #include <QStringList>
 #include <QRadioButton>
 #include <QStringListModel>
+#include "mainwindow.h"
 
 QT_BEGIN_NAMESPACE
 class QDialogButtonBox;
