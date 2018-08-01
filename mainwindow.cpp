@@ -300,7 +300,7 @@ bool MainWindow::addDynamComboBox(QString *currentField, QStringList comboBoxPro
                     {
                         qDebug() << "Combo Box selection specified as" << QString(newLineCatcher.value(j)).mid(QString(newLineCatcher.value(j)).indexOf(">")+1);
                         currentField->prepend(">");
-                        if(QString(newLineCatcher.value(j)).size() > QString(newLineCatcher.value(j)).indexOf(">")+1)/*7*/
+                        if(QString(newLineCatcher.value(j)).size() > QString(newLineCatcher.value(j)).indexOf(">")+1)
                         {
                             if(j == 0)
                                 comboBoxProperties.replace(i, QString(newLineCatcher.value(j)).mid(QString(newLineCatcher.value(j)).indexOf(">")+1));
