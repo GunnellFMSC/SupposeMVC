@@ -273,7 +273,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
             }
 
         }
-        else if(line.contains("speciesCode"))
+        else if(line.contains("speciesCode{"))
         {
             QStringList variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
             if(variantList.contains(*variantFVS))
