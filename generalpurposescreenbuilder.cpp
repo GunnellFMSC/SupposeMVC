@@ -45,7 +45,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     keyDesc->setMinimumHeight(descModel->rowCount()*keyDesc->sizeHintForRow(0)); // <-- get product of rows and rows size, use for ListView size
     bool inField = false/*, inFieldValue = false, inFieldTitle = false*/, fieldAdded = false;
     QRegularExpression field("f([0-9]+): ?({.*})?");
-    QRegularExpression fieldVar("f([0-9]+){[\\w+\\s?]+}: ?({.*})?");/*7*/
+    QRegularExpression fieldVar("f([0-9]+){[\\w+\\s?]+}: ?({.*})?");
     QRegularExpression fieldValue("f(\\d)+v:");
     QRegularExpression fieldValueVar("f(\\d)+v{[\\w+\\s?]+}:");
     QRegularExpression fieldTitle("f(\\d)+title:");
@@ -57,7 +57,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
         qDebug() << ":P" << line;
         if(line.contains(field) || inField || line.contains(fieldVar))
         {
-            bool valid = true;/*7*/
+            bool valid = true;
             QStringList variantList; // <- consider placing above during revision, and variantList.clear(); here
             if(line.contains(field))
             {
@@ -115,8 +115,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     fieldDescription.clear();
                     fieldAdded = true;
                 }
-                else if(fieldType.contains("listButton", Qt::CaseInsensitive))/*7*/
-                {/*7*/
+                else if(fieldType.contains("listButton", Qt::CaseInsensitive))
+                {
                     qDebug() << fieldType;
                     tempLabel = new QLabel(fieldDescription);
                     tempLabel->setFont(*font);
@@ -130,19 +130,19 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 else
                     *currentField = fieldType;
             }
-            else if(!line.contains("{") && inField && currentField->contains("listButton", Qt::CaseInsensitive) && valid)/*7*/
-            {/*7*/   // read lines that fill QComboxBox, place them in QStringList
+            else if(!line.contains("{") && inField && currentField->contains("listButton", Qt::CaseInsensitive) && valid)
+            {   // read lines that fill QComboxBox, place them in QStringList
                 if(line.contains(QRegularExpression("\\w")))//
                     while(line.at(0) == " ")//
                         line.remove(0, 1);//
-                if(line.contains("}"))/*7*/
+                if(line.contains("}"))
                 {
                     inField = false;
                     line.remove("}");
                 }
                 if(line.size() > 0)
                 {
-                    if(line.at(0) == ">")/*7*/
+                    if(line.at(0) == ">")
                     {
                         currentField->prepend(">");
                         comboBoxProperties.append(line.right(line.size()-1));
@@ -213,7 +213,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                         longTitleTemp.append(line.remove("{"));
                     }
                 }
-                else if(currentField->contains("listButton", Qt::CaseInsensitive))/*7*/
+                else if(currentField->contains("listButton", Qt::CaseInsensitive))
                 {
                     line.remove("{");
                     if(!line.contains("}") && comboBoxProperties.size() == 0)
@@ -273,7 +273,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
             }
 
         }
-        else if(line.contains("speciesCode"))/*7*/
+        else if(line.contains("speciesCode"))
         {
             QStringList variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
             if(variantList.contains(*variantFVS))
@@ -299,12 +299,12 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     longTitleTemp.append(line.mid(line.indexOf("{")+1));
             }
         }
-        if(line.contains(fieldValue) || line.contains(fieldValueVar))/*7*/
+        if(line.contains(fieldValue) || line.contains(fieldValueVar))
         {
             QString value;
             bool valid = true;
             QStringList variantList;
-            if(line.contains(fieldValueVar))/*7*/
+            if(line.contains(fieldValueVar))
             {
                 qDebug() << "Variant dependent Field value located" << (value = line.mid(line.lastIndexOf("{")+1).remove("}"));
                 fieldNum = line.left(line.indexOf("{"));
@@ -322,7 +322,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 if(line.size() == 0) valid = false;
                 if(valid) line.remove("{");
             }
-            if(currentField->contains("listButton", Qt::CaseInsensitive) && valid)/*7*/
+            if(currentField->contains("listButton", Qt::CaseInsensitive) && valid)
             {   // first value in dynamic comboBox
                 qDebug() << "Variant" << *currentField << "Field located: " << line;
                 if(line.contains("}"))
@@ -335,7 +335,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 if(line.at(0) == ">" && inField)
                 {
                     currentField->prepend(">");
-                    if(line.size() > line.indexOf(">")+1)/*7*/
+                    if(line.size() > line.indexOf(">")+1)
                     {
                         comboBoxProperties.append(line.mid(line.indexOf(">")+1));
                         comboBoxProperties.prepend(line.mid(line.indexOf(">")+1));
@@ -344,7 +344,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                         comboBoxProperties.prepend(" ");
                     (line.size() > line.indexOf(">")+1) ? qDebug() << *currentField << "value to be selected:" << line.mid(line.indexOf(">")+1) : qDebug() << "Blank longListButton value to be selected";
                 }
-                else if(inField)/*7*/
+                else if(inField)
                 {
                     if(line.size() > line.indexOf(":")+1)
                         (line.mid(line.lastIndexOf("{")+1) == "\\" || line.mid(line.lastIndexOf("{")+1) == "\\n") ? qDebug() << "blank found" : qDebug() << *currentField << "starts with:" << line.mid(line.lastIndexOf("{")+1);
