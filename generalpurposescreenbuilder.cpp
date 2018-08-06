@@ -92,6 +92,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     yearCycleRButton->setFont(*font);
                     conditionRButton->setFont(*font);
                     *currentField = conditionLine->objectName();
+                    dynamLineEdits.value(dynamLineEdits.size() - 1)->setObjectName(fieldNum);
                     fieldDescription.clear();
                     fieldAdded = true;
                 }
@@ -107,11 +108,18 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 }
                 else if(fieldType == "noInput")
                 {
-                    qDebug() << "noInput";
-                    if(fieldDescription.contains(QRegularExpression("\\w")))
-                        dynamBody->addRow(new QLabel(fieldDescription));
-                    else
-                        dynamBody->addRow(new QLabel("\t\t\t\t"));
+                    qDebug() << "noInput" << dynamLineEdits.value(dynamLineEdits.size() - 1)->objectName() << ":D";
+                    if(!dynamLineEdits.value(dynamLineEdits.size() - 1)->objectName().contains(fieldNum))
+                    {
+                        QLabel *noInputText = new QLabel();
+                        if(fieldDescription.contains(QRegularExpression("\\w")))
+                            noInputText->setText(fieldDescription);
+                        else
+                            noInputText->setText("\t\t\t\t");
+                        noInputText->setFont(*font);
+                        noInputText->setObjectName("noInput"+fieldNum);
+                        dynamBody->addRow(noInputText);
+                    }
                     fieldDescription.clear();
                     fieldAdded = true;
                 }
@@ -159,6 +167,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 {
                     fieldAdded = MainWindow::addDynamComboBox(currentField, comboBoxProperties, dynamComboBoxes, defaultComboValue, dynamBody, tempLabel, fieldNum);
                     dynamComboBoxes.value(dynamComboBoxes.size()-1)->setFont(*font);
+                    valid = fieldAdded;
                 }
             }
             else if(!line.contains("{") && inField && *currentField == "title" && valid)
@@ -224,7 +233,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     else
                         qDebug() << "Uncaught listButton" << line;
                 }
-                else/*7*/
+                else
                 {
                     qDebug() << "Field Description:" << line.right(line.size() - (line.indexOf(" ")+1));
                     fieldDescription.append(line.right(line.size() - (line.indexOf(" ")+1)));
@@ -249,9 +258,17 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     if(fieldType.contains("numberBox"))
                         tempLineEdit->setValidator(new QDoubleValidator());
                     bool duplicate = false;
+                    if(dynamBody->rowCount() > 1)
+                    {
+                        qDebug()<< "Row Count ";
+                        if(dynamBody->itemAt(dynamBody->rowCount() - 1)->widget()->objectName().contains("noInput"+fieldNum) /*&& dynamLineEdits.value(dynamLineEdits.size() - 1)->objectName().contains(fieldNum)*/)
+                            qDebug()<< ":D d:";
+                    }
                     if(dynamLineEdits.size() > 1)
+                    {
                         if(dynamLineEdits.value(dynamLineEdits.size() - 1)->objectName() == fieldNum)
                             duplicate = true;
+                    }
                     if(!duplicate)
                     {
                         if(fieldType.contains("longTextEdit"))
@@ -340,7 +357,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                         comboBoxProperties.append(line.mid(line.indexOf(">")+1));
                         comboBoxProperties.prepend(line.mid(line.indexOf(">")+1));
                     }
-                    else/*7*/
+                    else
                         comboBoxProperties.prepend(" ");
                     (line.size() > line.indexOf(">")+1) ? qDebug() << *currentField << "value to be selected:" << line.mid(line.indexOf(">")+1) : qDebug() << "Blank longListButton value to be selected";
                 }
@@ -351,7 +368,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     if(line.mid(line.lastIndexOf("{")+1) != "\\" && line.mid(line.lastIndexOf("{")+1) != "\\n" && line.size() > line.indexOf(":")+1) comboBoxProperties.append(line.mid(line.lastIndexOf("{")+1));
                 }
             }
-            else/*7*/
+            else
             {
 //                (line.contains(fieldValue)) ? qDebug() << "Field value located" << (value = line.mid(line.indexOf("{")+1).remove("}")) : qDebug() << "Variant dependent Field value located" << (value = line.mid(line.lastIndexOf("{")+1).remove("}"));
 //                (line.contains(fieldValue)) ? fieldNum = line.left(line.indexOf(":")) : fieldNum = line.left(line.indexOf("{"));
@@ -604,6 +621,7 @@ void GeneralPurposeScreenBuilder::createScheduleBox(QFormLayout *dynamicBody)
     conditionButton = new QPushButton;
     yearCycleButton->setText(" Select Year ");
     yearCycleButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
+    yearCycleLine->setObjectName("scheduleBox");
     yearCycleLine->setText(QString::number(*year));
     defaultLineValue.append(QString::number(*year));                 // for yearCycleLine
     yearCycleLine->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -613,7 +631,6 @@ void GeneralPurposeScreenBuilder::createScheduleBox(QFormLayout *dynamicBody)
     defaultLineValue.append("");                    // for conditionLine
     conditionLine->setText("0");
     conditionLine->setEnabled(false);
-    conditionLine->setObjectName("scheduleBox");
     conditionLine->setMaximumSize(conditionLine->sizeHint()*4);
     conditionLine->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     yearCycleRButton->setChecked(true);
