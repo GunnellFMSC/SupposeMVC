@@ -21,7 +21,7 @@ FVSKeywordsWindow::FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, 
     if(extenAbbrevName->keys().contains("base")) extensions->append(extenAbbrevName->value("base"));
     /*     loop through the variant's extensions, ignore variants, add the full extension name to QStringList extensions    */
     foreach (QString extenAbbrev, (varExten->value("FVS" + *MainWindow::variant)).split(" "))
-        if(!varExten->contains("FVS" + extenAbbrev))
+        if(!MainWindow::variantAbbreviationNames->contains(extenAbbrev))
         {
             qDebug() << "The Extension abbreviation" << extenAbbrev << "has the full name" << extenAbbrevName->value(extenAbbrev);
             extensions->append(extenAbbrevName->value(extenAbbrev)); // add the full extension name to QStringList

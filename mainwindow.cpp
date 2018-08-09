@@ -332,7 +332,7 @@ bool MainWindow::addDynamComboBox(QString *currentField, QStringList comboBoxPro
     QString selected = comboBoxProperties.first();
     if(currentField->contains(">"))
         comboBoxProperties.removeFirst();
-    qDebug() << "selected" << *currentField << "value:" << selected;
+    qDebug() << "Selected" << *currentField << "value:" << selected;
     QStringListModel *comboBoxPropertiesModel = new QStringListModel;
     comboBoxPropertiesModel->setStringList(comboBoxProperties);
     bool duplicate = false;
