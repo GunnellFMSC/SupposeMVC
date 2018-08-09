@@ -39,6 +39,7 @@ private:
     void createButtonBox();
     void createScheduleBox(QFormLayout *dynamicBody);
     void createSpeciesSelectionComboBox(QString fieldDesc);
+    void noInputRemovalCheck(QFormLayout *dynamicBody, QString fieldNum);
 
     // Generic
     int *year;

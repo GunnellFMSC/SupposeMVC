@@ -49,40 +49,45 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     QRegularExpression fieldValue("f(\\d)+v:");
     QRegularExpression fieldValueVar("f(\\d)+v{[\\w+\\s?]+}:");
     QRegularExpression fieldTitle("f(\\d)+title:");
+    QRegularExpression fieldTitleVar("f(\\d)+title{[\\w+\\s?]+}:");
     QStringList comboBoxProperties, longTitleTemp;
     QString fieldDescription, fieldType, fieldNum;
+    QStringList variantList;
     QLineEdit *tempLineEdit;
     QLabel *tempLabel;
+
     foreach (QString line, MSText) {
-        qDebug() << ":P" << line;
+        qDebug() << ":P" << line; // DEBUG outputs every line for QA
         if(line.contains(field) || inField || line.contains(fieldVar))
         {
             bool valid = true;
-            QStringList variantList; // <- consider placing above during revision, and variantList.clear(); here
+            variantList.clear();        // <- refreshes variantList
             if(line.contains(field))
-            {
+            {// sets fieldNum for regular field
                 qDebug() << "Field located: " << line.mid(line.indexOf("{") + 1);
                 fieldNum = line.left(line.indexOf(":"));
                 qDebug() << "Field Num:" << fieldNum;
             }
             else if(line.contains(fieldVar))
-            {
+            {// sets fieldNum for variant dependant field and determines field validity
                 qDebug() << "Variant Field located: " << line.mid(line.lastIndexOf("{") + 1);
                 fieldNum = line.left(line.indexOf("{"));
                 qDebug() << "Variant Field Num:" << fieldNum;
-                variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
+                variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" "); //DEDICATE FUNCTION? bool numSetVarCheck(fieldNum, variantList, line);
                 qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}");
                 valid = variantList.contains(*variantFVS);
             }
             if(line.contains("{") && line.contains("}") && valid && *currentField != "title")
-            {
+            {// if line specifies fieldType, gathers information and categorizes appropriately
                 inField = false;
                 line = line.mid(line.lastIndexOf("{")+1).remove("}");
                 qDebug() << "Type:" << line.left(line.indexOf(" "));
                 fieldType = line.left(line.indexOf(" "));
                 qDebug() << "Field Description:" << line.right(line.size() - (line.indexOf(" ")+1));
                 fieldDescription.append(line.right(line.size() - (line.indexOf(" ")+1)));
-                if(fieldDescription == "scheduleBox")
+                if(dynamBody->rowCount() > 0)
+                    noInputRemovalCheck(dynamBody, fieldNum);
+                if(fieldType == "scheduleBox")
                 {
                     createScheduleBox(dynamBody);
                     yearCycleLine->setFont(*font);
@@ -108,7 +113,6 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 }
                 else if(fieldType == "noInput")
                 {
-                    qDebug() << "noInput" << dynamLineEdits.value(dynamLineEdits.size() - 1)->objectName() << ":D";
                     if(!dynamLineEdits.value(dynamLineEdits.size() - 1)->objectName().contains(fieldNum))
                     {
                         QLabel *noInputText = new QLabel();
@@ -117,8 +121,10 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                         else
                             noInputText->setText("\t\t\t\t");
                         noInputText->setFont(*font);
-                        noInputText->setObjectName("noInput"+fieldNum);
                         dynamBody->addRow(noInputText);
+                        qDebug() << "noInput widget name: " << noInputText->objectName();
+                        dynamBody->itemAt(dynamBody->rowCount() - 1)->widget()->setObjectName("noInput"+fieldNum);
+                        qDebug() << "noInput widget name: " << dynamBody->itemAt(dynamBody->rowCount() - 1)->widget()->objectName();
                     }
                     fieldDescription.clear();
                     fieldAdded = true;
@@ -171,18 +177,19 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 }
             }
             else if(!line.contains("{") && inField && *currentField == "title" && valid)
-            {
+            {// if current line is part of a Title that takes up multiple lines in .prm file
                 if(line.contains("}"))
-                {
+                {// if end of long Title
                     inField = false;
                     line.remove("}");
                     if(line.size() > 0)
                         longTitleTemp.append(line);
                     QListView *longTitle = new QListView();
-                    for (int i = 0; i < longTitleTemp.size(); i++) {
+                    for (int i = 0; i < longTitleTemp.size(); i++)
+                    {// examine every line within the temporary QStringList
                         if(QString(longTitleTemp.at(i)).contains("\\"))
                             if((i + 1) < longTitleTemp.size())
-                            {
+                            {// If the line being examined contains a backslash and is not last, append the next line to it and reexamine
                                 longTitleTemp.replace(i, QString(longTitleTemp.value(i)).remove("\\").append(longTitleTemp.value(i+1)));
                                 longTitleTemp.removeAt(i+1);
                                 i--;
@@ -258,12 +265,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     if(fieldType.contains("numberBox"))
                         tempLineEdit->setValidator(new QDoubleValidator());
                     bool duplicate = false;
-                    if(dynamBody->rowCount() > 1)
-                    {
-                        qDebug()<< "Row Count ";
-                        if(dynamBody->itemAt(dynamBody->rowCount() - 1)->widget()->objectName().contains("noInput"+fieldNum) /*&& dynamLineEdits.value(dynamLineEdits.size() - 1)->objectName().contains(fieldNum)*/)
-                            qDebug()<< ":D d:";
-                    }
+                    if(dynamBody->rowCount() > 0)
+                        noInputRemovalCheck(dynamBody, fieldNum);
                     if(dynamLineEdits.size() > 1)
                     {
                         if(dynamLineEdits.value(dynamLineEdits.size() - 1)->objectName() == fieldNum)
@@ -316,6 +319,35 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     longTitleTemp.append(line.mid(line.indexOf("{")+1));
             }
         }
+        else if(line.contains(fieldTitleVar))
+        {
+            qDebug() << "Variant dependent Field Title located" << line;
+            fieldNum = line.left(line.indexOf("t"));
+            if(dynamBody->rowCount() > 0)
+                noInputRemovalCheck(dynamBody, fieldNum);
+            qDebug() << "Variant Field Num:" << fieldNum;
+            variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
+            (line.size() > (line.indexOf(":")+1)) ? qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}") : qDebug() << "Variant(s):" << variantList;
+            bool valid = variantList.contains(*variantFVS);
+            line = line.mid(line.indexOf(":"));
+            if(line.contains("}") && valid)
+            {
+                qDebug() << "Field title located" << line.mid(line.lastIndexOf("{")+1);
+                QString title = line.mid(line.lastIndexOf("{")+1).remove("}");
+                tempLabel = new QLabel(title);
+                tempLabel->setFont(*font);
+                dynamBody->addRow(tempLabel);
+            }
+            else if(valid)
+            {
+                qDebug() << "Field title begun" << line.mid(line.lastIndexOf("{")+1);
+                *currentField = "title";
+                inField = true;
+                longTitleTemp.clear();
+                if(line.indexOf(":") + 2 < line.size())
+                    longTitleTemp.append(line.mid(line.indexOf("{")+1));
+            }
+        }
         if(line.contains(fieldValue) || line.contains(fieldValueVar))
         {
             QString value;
@@ -344,6 +376,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 qDebug() << "Variant" << *currentField << "Field located: " << line;
                 if(line.contains("}"))
                 {
+                    line.remove(":{");
                     MainWindow::addDynamComboBox(currentField, QStringList(line.remove("}")), dynamComboBoxes, defaultComboValue, dynamBody, tempLabel, fieldNum);
                     dynamComboBoxes.value(dynamComboBoxes.size()-1)->setFont(*font);
                 }
@@ -686,4 +719,14 @@ void GeneralPurposeScreenBuilder::createSpeciesSelectionComboBox(QString fieldDe
     speciesSelectionComboBox->setMinimumHeight(24);
     dynamComboBoxes.append(speciesSelectionComboBox);
     connect(speciesSelectionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(speciesComboBoxSelection()));
+}
+
+void GeneralPurposeScreenBuilder::noInputRemovalCheck(QFormLayout *dynamBody, QString fieldNum)
+{// removes previous entry from dynamBody if it was "noInput" of same fieldNum
+    QString objectName = dynamBody->itemAt(dynamBody->rowCount() - 1)->widget()->objectName();
+    if(objectName.contains("noInput"+fieldNum))
+    {
+        dynamBody->removeRow(dynamBody->rowCount() - 1);
+        qDebug()<< "noInput removed for " << fieldNum;
+    }
 }
