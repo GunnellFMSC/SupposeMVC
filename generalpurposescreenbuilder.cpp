@@ -73,7 +73,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 qDebug() << "Variant Field located: " << line.mid(line.lastIndexOf("{") + 1);
                 fieldNum = line.left(line.indexOf("{"));
                 qDebug() << "Variant Field Num:" << fieldNum;
-                variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" "); //DEDICATE FUNCTION? bool numSetVarCheck(fieldNum, variantList, line);
+                variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" "); // DEDICATE FUNCTION? bool variantListCheck(QString &line, QStringList &variantList, QString &fieldNum = null);
                 qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}");
                 valid = variantList.contains(*variantFVS);
             }
@@ -156,14 +156,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 }
                 if(line.size() > 0)
                 {
-                    if(line.at(0) == ">")
-                    {
-                        currentField->prepend(">");
-                        comboBoxProperties.append(line.right(line.size()-1));
-                        comboBoxProperties.prepend(line.right(line.size()-1));
-                        (inField) ? qDebug() << *currentField << "inField:" << line.right(line.size()-1) : qDebug() << *currentField << "has the selected property:" << line.right(line.size()-1);
-                    }
-                    else if(line.contains(QRegularExpression("\\w")))
+                    if(line.contains(QRegularExpression("\\w")))
                     {
                         comboBoxProperties.append(line);
                         qDebug() << *currentField << "inField:" << line;
@@ -171,7 +164,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 }
                 if(!inField)
                 {
-                    fieldAdded = MainWindow::addDynamComboBox(currentField, comboBoxProperties, dynamComboBoxes, defaultComboValue, dynamBody, tempLabel, fieldNum);
+                    fieldAdded = addDynamComboBox(comboBoxProperties, dynamBody, tempLabel, fieldNum);
                     dynamComboBoxes.value(dynamComboBoxes.size()-1)->setFont(*font);
                     valid = fieldAdded;
                 }
@@ -253,7 +246,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
             }
             if(!inField && valid) // move to after Value and Title
             {
-            //try vectors of widgets to get/set entered data
+                //try vectors of widgets to get/set entered data
                 if(!fieldAdded)
                 {
                     tempLabel = new QLabel(fieldDescription);
@@ -296,7 +289,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
         else if(line.contains("speciesCode{"))
         {
             QStringList variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
-            if(variantList.contains(*variantFVS))
+            if(variantList.contains(*variantFVS))// DEDICATE FUNCTION? bool variantListCheck(QString &line, QStringList &variantList, QString &fieldNum = null);
                 dynamComboBoxes.value(dynamComboBoxes.size() - 1)->setObjectName("speciesCode");
         }
         if(line.contains(fieldTitle))
@@ -328,7 +321,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
             qDebug() << "Variant Field Num:" << fieldNum;
             variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
             (line.size() > (line.indexOf(":")+1)) ? qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}") : qDebug() << "Variant(s):" << variantList;
-            bool valid = variantList.contains(*variantFVS);
+            bool valid = variantList.contains(*variantFVS); // DEDICATE FUNCTION? bool variantListCheck(QString &line, QStringList &variantList, QString &fieldNum = null);
             line = line.mid(line.indexOf(":"));
             if(line.contains("}") && valid)
             {
@@ -360,7 +353,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 qDebug() << "Variant Field Num:" << fieldNum;
                 variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
                 (line.size() > (line.indexOf(":")+1)) ? qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}") : qDebug() << "Variant(s):" << variantList;
-                valid = variantList.contains(*variantFVS);
+                valid = variantList.contains(*variantFVS);// DEDICATE FUNCTION? bool variantListCheck(QString &line, QStringList &variantList, QString &fieldNum = null);
                 line = line.mid(line.indexOf(":"));
             }
             else
@@ -368,7 +361,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 qDebug() << "Field value located" << (value = line.mid(line.indexOf("{")+1).remove("}"));
                 fieldNum = line.left(line.indexOf(":"));
                 line.remove(fieldNum + ":");
-                if(line.size() == 0) valid = false;
+                if(line.size() <= 1) valid = false, inField = true;
                 if(valid) line.remove("{");
             }
             if(currentField->contains("listButton", Qt::CaseInsensitive) && valid)
@@ -377,34 +370,20 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 if(line.contains("}"))
                 {
                     line.remove(":{");
-                    MainWindow::addDynamComboBox(currentField, QStringList(line.remove("}")), dynamComboBoxes, defaultComboValue, dynamBody, tempLabel, fieldNum);
+                    addDynamComboBox(QStringList(line.remove("}")), dynamBody, tempLabel, fieldNum);
                     dynamComboBoxes.value(dynamComboBoxes.size()-1)->setFont(*font);
                 }
                 else
                     inField = true;
-                if(line.at(0) == ">" && inField)
-                {
-                    currentField->prepend(">");
-                    if(line.size() > line.indexOf(">")+1)
-                    {
-                        comboBoxProperties.append(line.mid(line.indexOf(">")+1));
-                        comboBoxProperties.prepend(line.mid(line.indexOf(">")+1));
-                    }
-                    else
-                        comboBoxProperties.prepend(" ");
-                    (line.size() > line.indexOf(">")+1) ? qDebug() << *currentField << "value to be selected:" << line.mid(line.indexOf(">")+1) : qDebug() << "Blank longListButton value to be selected";
-                }
-                else if(inField)
+                if(inField)
                 {
                     if(line.size() > line.indexOf(":")+1)
                         (line.mid(line.lastIndexOf("{")+1) == "\\" || line.mid(line.lastIndexOf("{")+1) == "\\n") ? qDebug() << "blank found" : qDebug() << *currentField << "starts with:" << line.mid(line.lastIndexOf("{")+1);
                     if(line.mid(line.lastIndexOf("{")+1) != "\\" && line.mid(line.lastIndexOf("{")+1) != "\\n" && line.size() > line.indexOf(":")+1) comboBoxProperties.append(line.mid(line.lastIndexOf("{")+1));
                 }
             }
-            else
+            else if(valid)
             {
-//                (line.contains(fieldValue)) ? qDebug() << "Field value located" << (value = line.mid(line.indexOf("{")+1).remove("}")) : qDebug() << "Variant dependent Field value located" << (value = line.mid(line.lastIndexOf("{")+1).remove("}"));
-//                (line.contains(fieldValue)) ? fieldNum = line.left(line.indexOf(":")) : fieldNum = line.left(line.indexOf("{"));
                 qDebug() << "Variant Field Num:" << fieldNum;
                 if(*currentField == "scheduleBox" && valid)
                 {
@@ -416,7 +395,6 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 else if(*currentField == "speciesSelection" && valid)
                 {
                     qDebug() << "Species Selection specification found:" << value;
-//                    qDebug() << speciesMSTAbbreviationName->value(*variantFVS).value(line.mid(line.indexOf("{")+1));
                     if(value != "deleteAll")
                     {
                         speciesSelectionComboBox->setCurrentText(speciesMSTAbbreviationName->value(*variantFVS).value(value));
@@ -730,3 +708,107 @@ void GeneralPurposeScreenBuilder::noInputRemovalCheck(QFormLayout *dynamBody, QS
         qDebug()<< "noInput removed for " << fieldNum;
     }
 }
+
+bool GeneralPurposeScreenBuilder::addDynamComboBox(QStringList comboBoxProperties, QFormLayout *dynamBody, QLabel *tempLabel, QString fieldNum)
+{// adds a combo box to the dynamBody if the field number is unique
+    bool fieldAdded = true, newLineCharFound = false;
+    QString selected = "NO CURRENT SELECTION";
+    QStringList comboBoxPropertiesActual;
+    QString newLine = "\\n";
+    foreach (QString option, comboBoxProperties) {
+        if(option.contains(newLine)) newLineCharFound = true; // take note of newline character discovery
+    }//replace with if(comboBoxProperties.contains(newLine)?
+    if(newLineCharFound)
+    {// break each line containing "\n" into multiple comboBox options
+        QStringList newLineCatcher;
+        for(int i = 0; i < comboBoxProperties.size(); i++)
+        {
+            if(i == 0 && currentField->contains(">") && QString((comboBoxProperties.first())).contains(newLine)) // catches "\n" in designated selection
+                comboBoxProperties.value(i) = QString(comboBoxProperties.value(i)).left(QString(comboBoxProperties.value(i)).indexOf(newLine) - 1);
+            if(QString(comboBoxProperties.value(i)).contains(newLine))
+            {
+                qDebug() << "New Line found inside comboBox line:" << QString(comboBoxProperties.value(i));
+                newLineCatcher = QString(comboBoxProperties.value(i)).split(newLine);
+                for(int j = 0; j < newLineCatcher.size(); j++)
+                {
+                    if(QString(newLineCatcher.value(j)).contains(QRegularExpression("\\w")))
+                        while(QString(newLineCatcher.value(j)).at(0) == " ") // if line contains information, remove any preceeding blank spaces
+                            newLineCatcher.replace(j, QString(newLineCatcher.value(j)).remove(0, 1));
+                    else if(QString(newLineCatcher.value(j)).size() == 0)
+                        newLineCatcher.replace(j, " ");
+                    if(QString(newLineCatcher.value(j)).at(0) == ">")
+                    {
+                        qDebug() << "Combo Box selection specified as" << QString(newLineCatcher.value(j)).mid(QString(newLineCatcher.value(j)).indexOf(">")+1);
+                        if(QString(newLineCatcher.value(j)).size() > QString(newLineCatcher.value(j)).indexOf(">")+1)
+                        {
+                            selected = QString(newLineCatcher.value(j)).mid(QString(newLineCatcher.value(j)).indexOf(">")+1);
+                            while(selected.at(0) == " ") selected.remove(0, 1);
+                            comboBoxPropertiesActual.append(selected);
+                        }
+                        else
+                        {
+                            comboBoxPropertiesActual.prepend(" ");
+                        }
+                        (QString(newLineCatcher.value(j)).size() > QString(newLineCatcher.value(j)).indexOf(">")+1) ? qDebug() << *currentField << "value to be selected:" << QString(newLineCatcher.value(j)).mid(QString(newLineCatcher.value(j)).indexOf(">")+1) : qDebug() << "Blank longListButton value to be selected";
+                    }
+                    else
+                    {
+                        comboBoxPropertiesActual.append(QString(newLineCatcher.value(j)));
+                    }
+                }
+            }
+            qDebug() << "Entry for comboBox item:" << QString(comboBoxPropertiesActual.value(i));
+        }
+    }
+    else
+    {
+        foreach (QString option, comboBoxProperties) {
+            if(option.at(0) == ">")
+            {
+                if(option.size() > option.indexOf(">")+1)
+                {
+                    selected = option.mid(option.indexOf(">")+1);
+                    while(selected.at(0) == " ") selected.remove(0, 1);
+                    comboBoxPropertiesActual.append(selected);
+                }
+                else
+                    comboBoxPropertiesActual.prepend(" ");
+            }
+            else
+                comboBoxPropertiesActual.append(option);
+        }
+    }
+    if(selected == "NO CURRENT SELECTION")
+        selected = comboBoxPropertiesActual.first();
+    qDebug() << "Selected" << *currentField << "value:" << selected;
+    QStringListModel *comboBoxPropertiesModel = new QStringListModel;
+    comboBoxPropertiesModel->setStringList(comboBoxPropertiesActual);
+    bool duplicate = false;
+    if(dynamComboBoxes.size() > 0)
+        if(dynamComboBoxes.value(dynamComboBoxes.size() - 1)->objectName() == fieldNum)
+            duplicate = true;
+    if(!duplicate)
+    {
+        dynamComboBoxes.append(new QComboBox);
+        int comboBoxLocation = dynamComboBoxes.size() - 1;
+        dynamComboBoxes.value(comboBoxLocation)->setModel(comboBoxPropertiesModel);
+        dynamComboBoxes.value(comboBoxLocation)->setCurrentText(selected);
+//        dynamComboBoxes.value(comboBoxLocation)->setFont(*font);
+        dynamComboBoxes.value(comboBoxLocation)->setObjectName(fieldNum);
+        dynamComboBoxes.value(comboBoxLocation)->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+        (currentField->contains("long")) ? dynamBody->addRow(dynamComboBoxes.value(comboBoxLocation)) : dynamBody->addRow(tempLabel, dynamComboBoxes.value(comboBoxLocation));
+        defaultComboValue.append(selected);
+    }
+    else
+        fieldAdded = false;
+    return fieldAdded;
+}
+
+//bool GeneralPurposeScreenBuilder::variantListCheck(QString &line, QStringList &variantList, QString &fieldNum)
+//{
+//    if(fieldNum != null)
+//        fieldNum = line.left(line.indexOf("{"));
+//    variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
+//    line = line.remove(line.left(line.indexOf("}")));
+//    return variantList.contains(*variantFVS);
+//}

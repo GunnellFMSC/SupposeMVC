@@ -105,15 +105,6 @@ bool MainWindow::mapParmsMainSectionText()
                         //qDebug() << keyword_Exten_MainSecTitle.value(keywordTemp);
                         exten_MainSectionTitleTemp.clear();
                     }
-//                    else if(readLine.contains("species_"))
-//                    {
-//                        QMap<QString, QString> *speciesAbbreviationName = new QMap<QString, QString>;
-//                        speciesAbbreviationName->insert("All", "All species");
-//                        qDebug() << readLine << "at position" << charCount;
-//                        makeDictionaryFromSection(speciesAbbreviationName, readSectionFromMappedLoc(*parameters, charCount), QRegularExpression(" ?{\\d+} ?:{"));
-//                        speciesMSTAbbreviationName.insert(readLine, *speciesAbbreviationName);
-//                        qDebug() << speciesMSTAbbreviationName.value(readLine).keys();
-//                    }
                     else
                         qDebug() << readLine << " at position " << charCount;
                     i++;
@@ -270,90 +261,6 @@ void MainWindow::makeDictionaryFromSection(QMap<QString, QString> *dictionary, Q
                 dictionary->insertMulti(word, definition);
         }
     }
-}
-
-// move this to GPSB?
-bool MainWindow::addDynamComboBox(QString *currentField, QStringList comboBoxProperties, QVector<QComboBox *> &dynamComboBoxes, QVector<QString> &defaultComboValue, QFormLayout *dynamBody, QLabel *tempLabel, QString fieldNum)
-{
-    bool fieldAdded = true, newLineCharFound = false;
-    QString newLine = "\\n";
-    foreach (QString option, comboBoxProperties) {
-        if(option.contains(newLine)) newLineCharFound = true;
-    }
-    if(newLineCharFound)
-    {
-        QStringList newLineCatcher;
-        for(int i = 0; i < comboBoxProperties.size(); i++)
-        {
-            if(i == 0 && currentField->contains(">") && QString((comboBoxProperties.first())).contains(newLine))
-                comboBoxProperties.value(i) = QString(comboBoxProperties.value(i)).left(QString(comboBoxProperties.value(i)).indexOf(newLine) - 1);
-            if(QString(comboBoxProperties.value(i)).contains(newLine))
-            {
-                qDebug() << "New Line found inside comboBox line:" << QString(comboBoxProperties.value(i));
-                newLineCatcher = QString(comboBoxProperties.value(i)).split(newLine);
-                for(int j = 0; j < newLineCatcher.size(); j++)
-                {
-                    if(QString(newLineCatcher.value(j)).contains(QRegularExpression("\\w")))
-                        while(QString(newLineCatcher.value(j)).at(0) == " ")
-                            newLineCatcher.replace(j, QString(newLineCatcher.value(j)).remove(0, 1));
-                    if(QString(newLineCatcher.value(j)).at(0) == ">")
-                    {
-                        qDebug() << "Combo Box selection specified as" << QString(newLineCatcher.value(j)).mid(QString(newLineCatcher.value(j)).indexOf(">")+1);
-                        currentField->prepend(">");
-                        if(QString(newLineCatcher.value(j)).size() > QString(newLineCatcher.value(j)).indexOf(">")+1)
-                        {
-                            if(j == 0)
-                                comboBoxProperties.replace(i, QString(newLineCatcher.value(j)).mid(QString(newLineCatcher.value(j)).indexOf(">")+1));
-                            else
-                                comboBoxProperties.insert(i+j+1, QString(newLineCatcher.value(j)).mid(QString(newLineCatcher.value(j)).indexOf(">")+1));
-                            comboBoxProperties.prepend(QString(newLineCatcher.value(j)).mid(QString(newLineCatcher.value(j)).indexOf(">")+1));
-                        }
-                        else/*7*/
-                        {
-                            if(j == 0)
-                                comboBoxProperties.replace(i, " ");
-                            else
-                                comboBoxProperties.insert(i+j+1, " ");
-                        }
-                        (QString(newLineCatcher.value(j)).size() > QString(newLineCatcher.value(j)).indexOf(">")+1) ? qDebug() << *currentField << "value to be selected:" << QString(newLineCatcher.value(j)).mid(QString(newLineCatcher.value(j)).indexOf(">")+1) : qDebug() << "Blank longListButton value to be selected";
-                    }
-                    else
-                    {
-                        if(j == 0)
-                            comboBoxProperties.replace(i, QString(newLineCatcher.value(j)));
-                        else
-                            comboBoxProperties.insert(i+j+1, QString(newLineCatcher.value(j)));
-                    }
-                }
-            }
-            qDebug() << "Entry for comboBox item:" << QString(comboBoxProperties.value(i));
-        }
-    }
-    QString selected = comboBoxProperties.first();
-    if(currentField->contains(">"))
-        comboBoxProperties.removeFirst();
-    qDebug() << "Selected" << *currentField << "value:" << selected;
-    QStringListModel *comboBoxPropertiesModel = new QStringListModel;
-    comboBoxPropertiesModel->setStringList(comboBoxProperties);
-    bool duplicate = false;
-    if(dynamComboBoxes.size() > 0)
-        if(dynamComboBoxes.value(dynamComboBoxes.size() - 1)->objectName() == fieldNum)
-            duplicate = true;
-    if(!duplicate)
-    {
-        dynamComboBoxes.append(new QComboBox);
-        int comboBoxLocation = dynamComboBoxes.size() - 1;
-        dynamComboBoxes.value(comboBoxLocation)->setModel(comboBoxPropertiesModel);
-        dynamComboBoxes.value(comboBoxLocation)->setCurrentText(selected);
-//        dynamComboBoxes.value(comboBoxLocation)->setFont(*font);
-        dynamComboBoxes.value(comboBoxLocation)->setObjectName(fieldNum);
-        dynamComboBoxes.value(comboBoxLocation)->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-        (currentField->contains("long")) ? dynamBody->addRow(dynamComboBoxes.value(comboBoxLocation)) : dynamBody->addRow(tempLabel, dynamComboBoxes.value(comboBoxLocation));
-        defaultComboValue.append(selected);
-    }
-    else
-        fieldAdded = false;
-    return fieldAdded;
 }
 
 void MainWindow::on_button_SelectManagement_clicked()
