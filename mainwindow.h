@@ -33,7 +33,6 @@ public:
     static QStringList readSectionFromMappedLoc(QIODevice &parms, qint64 location);
     static void readSectionToLists(QStringList *mainSectionText, QStringList *description);
     static void makeDictionaryFromSection(QMap<QString, QString> *dictionary, QStringList wordDefinitionsRaw, QRegularExpression separater =  QRegularExpression(": +{"), QRegularExpression definitionExcess = QRegularExpression("}"), QRegularExpression wordExcess = QRegularExpression("\\s"), bool oneToMany = false);
-    static bool addDynamComboBox(QString *currentField, QStringList comboBoxProperties, QVector<QComboBox *> &dynamComboBoxes, QVector<QString> &defaultComboValue, QFormLayout *dynamBody, QLabel *tempLabel, QString fieldNum);
     static QMap<QString, QString> *variantExtensions, *extensionAbbreviationNames, *variantAbbreviationNames;
     static QMap<QString, QMap<QString, QString>> keyword_Exten_MainSecTitle, speciesMSTAbbreviationName;
     QMap<QString, qint64> parmMainSectionMap;
