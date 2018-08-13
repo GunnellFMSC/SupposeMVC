@@ -92,6 +92,10 @@ FVSKeywordsWindow::FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, 
                     }
                     keywordExtensionCategories = line.split(" ", QString::SplitBehavior::SkipEmptyParts);
                     qDebug() << "keywordExtensionCategories Raw: " << keywordExtensionCategories;
+                    foreach (QString potentialRemovedExtension, keywordExtensionCategories) {
+                        if(extenAbbrevName->keys().contains("!" + potentialRemovedExtension))
+                            keywordExtensionCategories.removeOne(potentialRemovedExtension);
+                    }
                     qDebug() << "keywordExtensionCategories Reduced: " << keywordExtensionCategories;
                     qDebug() << "Keyword: " << keywordExtensionCategories.at(0);
                     keywordTemp = keywordExtensionCategories.at(0);
