@@ -21,14 +21,14 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         int count = 0;
         foreach (QString MainSectionText, parmMainSectionMap.keys())
-            if(MainSectionText.contains("species_"))
+            if(MainSectionText.contains(QRegularExpression("species_\\w\\w$")))
             {
                 QMap<QString, QString> *speciesAbbreviationName = new QMap<QString, QString>;
                 speciesAbbreviationName->insert("All", "All species");
                 qDebug() << ++count <<MainSectionText << "at position" << parmMainSectionMap.value(MainSectionText);
-                makeDictionaryFromSection(speciesAbbreviationName, readSectionFromMappedLoc(*parameters, parmMainSectionMap.value(MainSectionText)), QRegularExpression(" ?{\\d+} ?:{"));
+                makeDictionaryFromSection(speciesAbbreviationName, readSectionFromMappedLoc(*parameters, parmMainSectionMap.value(MainSectionText)), QRegularExpression(" ?{\\d+} ? ?:{"));
                 speciesMSTAbbreviationName.insert(MainSectionText, *speciesAbbreviationName);
-                qDebug() << speciesMSTAbbreviationName.value(MainSectionText).keys();
+                qDebug() << speciesMSTAbbreviationName.value(MainSectionText).keys() <<(speciesMSTAbbreviationName.value(MainSectionText).keys().size() - 1);
             }
         count = 0;
         foreach (QString ext, extensionAbbreviationNames->keys())
