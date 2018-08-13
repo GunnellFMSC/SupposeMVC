@@ -395,17 +395,24 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 else if(*currentField == "speciesSelection" && valid)
                 {
                     qDebug() << "Species Selection specification found:" << value;
-                    if(value != "deleteAll")
+                    if(!value.contains("deleteAll"))
                     {
-                        speciesSelectionComboBox->setCurrentText(speciesMSTAbbreviationName->value(*variantFVS).value(value));
+                        speciesSelectionComboBox->setCurrentText(speciesMSTAbbreviationName->value("species_" + *variantFVS).value(value));
                         defaultComboValue.replace(defaultComboValue.size()-1, speciesMSTAbbreviationName->value("species_" + *variantFVS).value(value));
                     }
-                    else
+                    else if(value == "deleteAll")
                     {
                         speciesSelectionComboBox->removeItem(speciesSelectionComboBox->findText("All species"));
-                        speciesSelectionComboBox->insertItem(0, " ");
-                        speciesSelectionComboBox->setCurrentText(" ");
-                        defaultComboValue.replace(defaultComboValue.size()-1, " ");
+//                        speciesSelectionComboBox->insertItem(0, " ");
+//                        speciesSelectionComboBox->setCurrentText(" ");
+//                        defaultComboValue.replace(defaultComboValue.size()-1, " ");
+                    }
+                    else if(value.contains("deleteAll "))
+                    {
+                        value.remove("deleteAll ");
+                        speciesSelectionComboBox->removeItem(speciesSelectionComboBox->findText("All species"));
+                        speciesSelectionComboBox->setCurrentText(speciesMSTAbbreviationName->value("species_" + *variantFVS).value(value));
+                        defaultComboValue.replace(defaultComboValue.size()-1, speciesMSTAbbreviationName->value("species_" + *variantFVS).value(value));
                     }
                     currentField->clear();
                 }
@@ -639,7 +646,7 @@ void GeneralPurposeScreenBuilder::createScheduleBox(QFormLayout *dynamicBody)
     conditionButton->setText(" years after Condition is met ");
     conditionButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
     conditionButton->setEnabled(false);
-    defaultLineValue.append("");                    // for conditionLine
+    defaultLineValue.append("0");                    // for conditionLine
     conditionLine->setText("0");
     conditionLine->setEnabled(false);
     conditionLine->setMaximumSize(conditionLine->sizeHint()*4);
