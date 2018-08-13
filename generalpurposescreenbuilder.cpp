@@ -639,7 +639,7 @@ void GeneralPurposeScreenBuilder::createScheduleBox(QFormLayout *dynamicBody)
     conditionButton->setText(" years after Condition is met ");
     conditionButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
     conditionButton->setEnabled(false);
-    defaultLineValue.append("");                    // for conditionLine
+    defaultLineValue.append("0");                    // for conditionLine
     conditionLine->setText("0");
     conditionLine->setEnabled(false);
     conditionLine->setMaximumSize(conditionLine->sizeHint()*4);
