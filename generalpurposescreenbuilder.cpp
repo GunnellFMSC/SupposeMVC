@@ -395,17 +395,24 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 else if(*currentField == "speciesSelection" && valid)
                 {
                     qDebug() << "Species Selection specification found:" << value;
-                    if(value != "deleteAll")
+                    if(!value.contains("deleteAll"))
                     {
-                        speciesSelectionComboBox->setCurrentText(speciesMSTAbbreviationName->value(*variantFVS).value(value));
+                        speciesSelectionComboBox->setCurrentText(speciesMSTAbbreviationName->value("species_" + *variantFVS).value(value));
                         defaultComboValue.replace(defaultComboValue.size()-1, speciesMSTAbbreviationName->value("species_" + *variantFVS).value(value));
                     }
-                    else
+                    else if(value == "deleteAll")
                     {
                         speciesSelectionComboBox->removeItem(speciesSelectionComboBox->findText("All species"));
-                        speciesSelectionComboBox->insertItem(0, " ");
-                        speciesSelectionComboBox->setCurrentText(" ");
-                        defaultComboValue.replace(defaultComboValue.size()-1, " ");
+//                        speciesSelectionComboBox->insertItem(0, " ");
+//                        speciesSelectionComboBox->setCurrentText(" ");
+//                        defaultComboValue.replace(defaultComboValue.size()-1, " ");
+                    }
+                    else if(value.contains("deleteAll "))
+                    {
+                        value.remove("deleteAll ");
+                        speciesSelectionComboBox->removeItem(speciesSelectionComboBox->findText("All species"));
+                        speciesSelectionComboBox->setCurrentText(speciesMSTAbbreviationName->value("species_" + *variantFVS).value(value));
+                        defaultComboValue.replace(defaultComboValue.size()-1, speciesMSTAbbreviationName->value("species_" + *variantFVS).value(value));
                     }
                     currentField->clear();
                 }
