@@ -92,7 +92,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     createScheduleBox(dynamBody);
                     yearCycleLine->setFont(*font);
                     conditionLine->setFont(*font);
-                    yearCycleButton->setFont(*font);
+                    yearCycleLabel->setFont(*font);
                     conditionButton->setFont(*font);
                     yearCycleRButton->setFont(*font);
                     conditionRButton->setFont(*font);
@@ -500,7 +500,7 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
         qDebug() << "Inside GeneralPurposeScreenBuilder scheduleBox pointer deconstructor";
         delete yearCycleLine;
         delete conditionLine;
-        delete yearCycleButton;
+        delete yearCycleLabel;
         delete conditionButton;
         delete yearCycleRButton;
         delete conditionRButton;
@@ -576,15 +576,15 @@ void GeneralPurposeScreenBuilder::scheduleBoxSelection()
     qDebug() << "Inside scheduleBoxSelection function";
     if(yearCycleRButton->isChecked())
     {
-        conditionLine->setEnabled(false);
         conditionButton->setEnabled(false);
-        yearCycleButton->setEnabled(true);
+        conditionLine->setEnabled(false);
+        yearCycleLabel->setEnabled(true);
         yearCycleLine->setEnabled(true);
     }
     else if(conditionRButton->isChecked())
     {
         yearCycleLine->setEnabled(false);
-        yearCycleButton->setEnabled(false);
+        yearCycleLabel->setEnabled(false);
         conditionButton->setEnabled(true);
         conditionLine->setEnabled(true);
     }
@@ -635,10 +635,10 @@ void GeneralPurposeScreenBuilder::createScheduleBox(QFormLayout *dynamicBody)
     conditionLine = new QLineEdit;
     dynamLineEdits.append(yearCycleLine);
     dynamLineEdits.append(conditionLine);
-    yearCycleButton = new QPushButton;
+    yearCycleLabel = new QLabel;
     conditionButton = new QPushButton;
-    yearCycleButton->setText(" Select Year ");
-    yearCycleButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
+    yearCycleLabel->setText(" Select Year ");
+    yearCycleLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
     yearCycleLine->setObjectName("scheduleBox");
     yearCycleLine->setText(QString::number(*year));
     defaultLineValue.append(QString::number(*year));                 // for yearCycleLine
@@ -655,7 +655,7 @@ void GeneralPurposeScreenBuilder::createScheduleBox(QFormLayout *dynamicBody)
     yearCycleRButton->setText("Schedule by Year/Cycle");
     conditionRButton->setText("Schedule by Condition");
     dynamicBody->addRow(yearCycleRButton, conditionRButton);
-    selectYear->addRow(yearCycleLine, yearCycleButton);
+    selectYear->addRow(yearCycleLine, yearCycleLabel);
     selectYearWidget->setLayout(selectYear);
     conditionSelect->addRow(conditionLine, conditionButton);
     conditionSelectWidget->setLayout(conditionSelect);

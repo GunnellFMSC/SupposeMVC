@@ -66,10 +66,11 @@ private:
     QMap<QString, QMap<QString, QString>> *speciesMSTAN;
 
     // Schedule Box
+    QLabel *yearCycleLabel;
     bool scheduleBox = false;
     QWidget *scheduleBoxWidget;
+    QPushButton *conditionButton;
     QLineEdit *yearCycleLine, *conditionLine;
-    QPushButton *yearCycleButton, *conditionButton;
     QRadioButton *yearCycleRButton, *conditionRButton;
 };
 
