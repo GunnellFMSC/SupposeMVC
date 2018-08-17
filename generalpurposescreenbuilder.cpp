@@ -416,7 +416,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     }
                     currentField->clear();
                 }
-                else if(*currentField == "sliderBox" && valid)
+                else if(currentField->contains("sliderBox", Qt::CaseInsensitive) && valid)
                 {
                     QStringList boxProperties = value.split(" ");
                     qDebug() << "default number box amount altered to " + boxProperties.at(0);
@@ -616,6 +616,11 @@ void GeneralPurposeScreenBuilder::inputMod(QString lineEditValue)
         {
             if(lineEditValue.left(lineEditValue.indexOf(".")).toInt() < low)
                 dynamLineEdits.value(lineEditNum)->setText(QString::number(low) + ".");
+        }
+        else if(userInput < low)
+        {
+            qDebug() << "User input of" << userInput << "is lower than" << low;
+            dynamLineEdits.value(lineEditNum)->setText(QString::number(low));
         }
     }
 }
