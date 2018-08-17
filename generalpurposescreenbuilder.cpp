@@ -416,7 +416,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     }
                     currentField->clear();
                 }
-                else if(*currentField == "sliderBox" && valid)
+                else if(currentField->contains("sliderBox", Qt::CaseInsensitive) && valid)
                 {
                     QStringList boxProperties = value.split(" ");
                     qDebug() << "default number box amount altered to " + boxProperties.at(0);
@@ -593,6 +593,7 @@ void GeneralPurposeScreenBuilder::scheduleBoxSelection()
 void GeneralPurposeScreenBuilder::inputMod(QString lineEditValue)
 {
     QWidget *selected = this->focusWidget();
+    bool blank = lineEditValue == "";
     double userInput = lineEditValue.toDouble();
     qDebug() << "Inside inputMod function with lineEdit " + selected->objectName() + " and value" << lineEditValue;
     if(selected->objectName().toInt() <= dynamLineEdits.size())
@@ -616,7 +617,7 @@ void GeneralPurposeScreenBuilder::inputMod(QString lineEditValue)
         {
             if(lineEditValue.left(lineEditValue.indexOf(".")).toInt() < low)
                 dynamLineEdits.value(lineEditNum)->setText(QString::number(low) + ".");
-        }
+        }// create catch for lower bound, maybe something like this: https://stackoverflow.com/questions/39552126/qlineedit-with-qvalidator-react-to-editing-finished-regardless-of-input-validit
     }
 }
 
