@@ -465,6 +465,9 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
         }
     }
 
+    // connects the application's focusChanged signal to this GPSB window to allow examination of user input after selection ends (http://doc.qt.io/qt-5/qapplication.html#focusChanged)
+    connect(QApplication::instance(),  SIGNAL(focusChanged(QWidget*, QWidget*)), this, SLOT(selectionChange(QWidget*, QWidget*)));
+
     dynamBodyHolder->setStyleSheet("background-color: rgb(255, 255, 255)");
     dynamBodyHolder->setFont(*font);
     dynamBody->addRow(keyDesc);
@@ -617,8 +620,43 @@ void GeneralPurposeScreenBuilder::inputMod(QString lineEditValue)
         {
             if(lineEditValue.left(lineEditValue.indexOf(".")).toInt() < low)
                 dynamLineEdits.value(lineEditNum)->setText(QString::number(low) + ".");
-        }// create catch for lower bound, maybe something like this: https://stackoverflow.com/questions/39552126/qlineedit-with-qvalidator-react-to-editing-finished-regardless-of-input-validit
+        }
     }
+}
+
+/**** GeneralPurposeScreenBuilder::selectionChange(QWidget*from, QWidget* to) ****
+ *                                                                               *
+ *                 This function catches widget selection changes.               *
+ *  This allows for alterations to user input to take place after the user has   *
+ *  deselected the text box, warning promts to apper when needed, & much more.   *
+ *  It could be used in conqunction with inputMod for all edits to user input.   *
+ *                                                                               *
+ *********************************************************************************/
+void GeneralPurposeScreenBuilder::selectionChange(QWidget* from, QWidget* to)
+{
+    qDebug() << "Inside GeneralPurposeScreenBuilder::selectionChange";
+    if(from != NULL && to != NULL)
+        if(from->inherits("QLineEdit"))
+        {
+            qDebug() << "Selection changed from" << from->objectName() << "to" << to->objectName();
+            QLineEdit *input = qobject_cast<QLineEdit*>(from);
+            if(input->validator() != 0)
+            {
+                if(input->hasAcceptableInput())
+                    qDebug() << "Valid user input";
+                else
+                {
+                    qDebug() << "Intermediate or invalid user input.";
+                    QString inputString = input->text();
+                    if(input->validator()->property("bottom").isValid()) // executes code if input's validator has the "bottom" function (doc.qt.io/qt-5/qobject.html#property)
+                        if(inputString.toDouble() < input->validator()->property("bottom").toString().toDouble())
+                        {
+                            qDebug() << "User Input of" << inputString.toDouble() << "is less than" << input->validator()->property("bottom").toString().toDouble();
+                            input->setText(QString::number(input->validator()->property("bottom").toString().toDouble()));
+                        }
+                }
+            }
+        }
 }
 
 void GeneralPurposeScreenBuilder::createScheduleBox(QFormLayout *dynamicBody)
