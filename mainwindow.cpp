@@ -210,7 +210,7 @@ void MainWindow::readSectionToLists(QStringList *mainSectionText, QStringList *d
         }
         if(descriptionBegin >= 0 && descriptionEnd < 0)
             description->append(mainSectionText->at(i));
-        if(QString(mainSectionText->at(i)).contains('}') && descriptionBegin > 0 && descriptionEnd < 0)
+        if(QString(mainSectionText->at(i)).contains('}') && descriptionBegin >= 0 && descriptionEnd < 0)
             descriptionEnd = i;
         if(descriptionEnd > 0)
             break;

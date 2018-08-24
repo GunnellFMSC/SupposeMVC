@@ -10584,7 +10584,7 @@ function of SDI.}
 
 f1:{intSliderBox The "normal" SDI (SDI at which the multiplier is 1)}
 f1v:{369 0 1000 0 1000}
-f2:{intSliderBox Slope of the relationship between SDI and multiplier}
+f2:{sliderBox Slope of the relationship between SDI and multiplier}
 f2v:{-0.0033 -10.0 10.0 -10.0 10.0}
 
 parmsForm:{
@@ -16451,7 +16451,7 @@ parmsForm=answerForm
 
 //start keyword.wpbr.BrOut
 description:
-{Controls the summary output written to the FVS output file}
+{Controls the summary output written to the FVS output file.}
 
 f1title:{Generate blister rust host reports:}
 f1:{listButton Stand Summary Statistics?}
@@ -16775,6 +16775,7 @@ parmsForm=answerForm
 //end keyword.wpbr.Ribes
 
 //start keyword.wpbr.RustIndx
+
 description:
 {Change the default value of Rust Index, Rust Index Assignment Method, 
 and Ribes species proportions of population for RI calculation.}
