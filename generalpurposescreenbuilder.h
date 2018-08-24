@@ -34,11 +34,11 @@ private slots:
     void edit();
     void scheduleBoxSelection();
     void speciesComboBoxSelection();
-    void inputMod(QString lineEditValue);
     void selectionChange(QWidget *from, QWidget *to);
 
 private:
     void createButtonBox();
+    void modifyInput(QLineEdit *input);
     void createScheduleBox(QFormLayout *dynamicBody);
     void createSpeciesSelectionComboBox(QString fieldDesc);
     void noInputRemovalCheck(QFormLayout *dynamicBody, QString fieldNum);
@@ -46,6 +46,7 @@ private:
     // Generic
     int *year;
     QFont *font;
+    bool validInput;
     QLineEdit *title;
     QString *variantFVS;
     QString *currentField;

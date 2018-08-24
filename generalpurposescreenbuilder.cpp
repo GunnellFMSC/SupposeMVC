@@ -10,8 +10,10 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     year = new int;
     *year = startYear;
     qDebug() << "Start year: " << *year;
-    variantFVS = variant;
-    speciesMSTAN = speciesMSTAbbreviationName;
+    variantFVS = new QString;
+    *variantFVS = *variant;
+    speciesMSTAN = new QMap<QString, QMap<QString, QString>>;
+    *speciesMSTAN = *speciesMSTAbbreviationName;
     createButtonBox();
     currentField = new QString;
     QWidget *extensionKeyword = new QWidget;
@@ -97,7 +99,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     yearCycleRButton->setFont(*font);
                     conditionRButton->setFont(*font);
                     *currentField = conditionLine->objectName();
-                    dynamLineEdits.value(dynamLineEdits.size() - 1)->setObjectName(fieldNum);
+                    dynamLineEdits.value(dynamLineEdits.size() - 2)->setObjectName(dynamLineEdits.value(dynamLineEdits.size() - 2)->objectName()+fieldNum);
+                    dynamLineEdits.value(dynamLineEdits.size() - 1)->setObjectName(dynamLineEdits.value(dynamLineEdits.size() - 1)->objectName()+fieldNum);
                     fieldDescription.clear();
                     fieldAdded = true;
                 }
@@ -416,31 +419,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     }
                     currentField->clear();
                 }
-                else if(currentField->contains("sliderBox", Qt::CaseInsensitive) && valid)
-                {
-                    QStringList boxProperties = value.split(" ");
-                    qDebug() << "default number box amount altered to " + boxProperties.at(0);
-                    if(boxProperties.at(0) != "blank")
-                        tempLineEdit->setText(boxProperties.at(0));
-                    // Defines textbox to limit user input to numbers, with customized Lowest and Highest
-                    if(boxProperties.size() > 2)
-                    {
-                        QDoubleValidator *custom = new QDoubleValidator(QString(boxProperties.at(1)).toDouble(), QString(boxProperties.at(2)).toDouble(), 10 - QString(boxProperties.at(2)).size());
-                        custom->setNotation(QDoubleValidator::StandardNotation);
-                        tempLineEdit->setValidator(custom);
-                        tempLineEdit->setObjectName(QString::number(dynamLineEdits.size()));
-                        connect(dynamLineEdits.value(dynamLineEdits.size()-1),  SIGNAL(textEdited(QString)), this, SLOT(inputMod(QString)));
-                        qDebug() << "Sync attempted";
-                    }
-                    defaultLineValue.replace(defaultLineValue.size()-1, boxProperties.at(0));
-                }
-                else if(currentField->contains("textEdit", Qt::CaseInsensitive) && valid) // catches both longTextEdit and textEdit
-                {
-                    tempLineEdit->setText(value);
-                    defaultLineValue.replace(defaultLineValue.size()-1, value);
-                }
-                else if(currentField->contains("numberBox", Qt::CaseInsensitive) && valid)
-                {
+                else if((currentField->contains("numberBox", Qt::CaseInsensitive) || currentField->contains("sliderBox", Qt::CaseInsensitive)) && valid)
+                {// sliderBox functionality has been merged with the various numberBoxes
                     QStringList boxProperties = value.split(" ");
                     if(boxProperties.at(0) != "blank")
                     {
@@ -452,14 +432,18 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     {
                         // Defines textbox to limit user input to numbers, with customized Lowest and Highest
                         QValidator *custom;
-                        if(*currentField == "numberBox" || QString(boxProperties.at(1)).contains("."))
-                            custom = new QDoubleValidator(QString(boxProperties.at(1)).toDouble(), QString(boxProperties.at(2)).toDouble(), 10 - QString(boxProperties.at(2)).size());
-                        else
+                        if(currentField->contains("int"))
                             custom = new QIntValidator(QString(boxProperties.at(1)).toInt(), QString(boxProperties.at(2)).toInt());
+                        else
+                            custom = new QDoubleValidator(QString(boxProperties.at(1)).toDouble(), QString(boxProperties.at(2)).toDouble(), 10 - QString(boxProperties.at(2)).size());
                         tempLineEdit->setValidator(custom);
                         tempLineEdit->setObjectName(QString::number(dynamLineEdits.size()));
-                        connect(dynamLineEdits.value(dynamLineEdits.size()-1),  SIGNAL(textEdited(QString)), this, SLOT(inputMod(QString)));
                     }
+                }
+                else if(currentField->contains("textEdit", Qt::CaseInsensitive) && valid) // catches both longTextEdit and textEdit
+                {
+                    tempLineEdit->setText(value);
+                    defaultLineValue.replace(defaultLineValue.size()-1, value);
                 }
             }
         }
@@ -480,12 +464,12 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     mainLayout->addWidget(extensionKeyword, 0, 0);
     mainLayout->addWidget(dynamBodyHolder, 3, 0);
     mainLayout->addWidget(buttonBox, 4, 0);
-    setLayout(mainLayout);
     acceptButton->setFont(*font);
     cancelButton->setFont(*font);
     resetButton->setFont(*font);
     editButton->setFont(*font);
-
+    setLayout(mainLayout);
+    validInput = true;
 }
 
 GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
@@ -494,6 +478,7 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
     if(speciesSelection)
     {
         qDebug() << "Inside GeneralPurposeScreenBuilder speciesSelection pointer deconstructor";
+        delete speciesMSTAN;
         delete speciesSelectionModel;
         delete speciesSelectionQLabel;
         delete speciesSelectionComboBox;
@@ -513,40 +498,51 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
         dynamComboBoxes.clear();
     if(dynamLineEdits.size() > 0)
         dynamLineEdits.clear();
+    delete year;
     delete font;
     delete title;
     delete mainLayout;
+    delete variantFVS;
     delete editButton;
     delete resetButton;
     delete cancelButton;
     delete acceptButton;
+    delete currentField;
     delete buttonBox;
 }
 
 void GeneralPurposeScreenBuilder::accept()
 {
     qDebug() << "Inside accept function";
-    (title) ? qDebug() << "Title:" << title->text() : qDebug() << "ERROR";
-    for (int i = 0; i < dynamLineEdits.size(); i++)
+    if(validInput)
     {
-        qDebug() << "Selected value:" << dynamLineEdits.at(i)->text();
-        if(dynamLineEdits.at(i)->validator() != 0)
-            if(QVariant(dynamLineEdits.at(i)->validator()->property("top")).isValid())
-            if(dynamLineEdits.at(i)->objectName().contains("Defined Number Box "))
-                qDebug() << dynamLineEdits.at(i)->objectName() << dynamLineEdits.at(i)->validator()->property("top").toString();
-    }
-    for (int i = 0; i < dynamComboBoxes.size(); i++)
-    {
-        qDebug() << "Selected value:" << dynamComboBoxes.at(i)->currentText();
-        if(speciesSelection || dynamComboBoxes.at(i)->objectName().contains("speciesCode"))
+        (title) ? qDebug() << "Title:" << title->text() : qDebug() << "ERROR";
+        for (int i = 0; i < dynamLineEdits.size(); i++)
         {
-            if(speciesMSTAN->value("species_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
-            {
-                qDebug() << speciesMSTAN->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
-            }
-            else if(dynamComboBoxes.at(i)->currentText().contains("All affected species"))
-                qDebug() << speciesMSTAN->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText().remove(" affected"));
+            qDebug() << "Selected value:" << dynamLineEdits.at(i)->text();
+            if(dynamLineEdits.at(i)->validator() != 0)
+                if(QVariant(dynamLineEdits.at(i)->validator()->property("top")).isValid())
+                if(dynamLineEdits.at(i)->objectName().contains("Defined Number Box "))
+                    qDebug() << dynamLineEdits.at(i)->objectName() << dynamLineEdits.at(i)->validator()->property("top").toString();
         }
+        for (int i = 0; i < dynamComboBoxes.size(); i++)
+        {
+            qDebug() << "Selected value:" << dynamComboBoxes.at(i)->currentText();
+            if(speciesSelection || dynamComboBoxes.at(i)->objectName().contains("speciesCode"))
+            {
+                if(speciesMSTAN->value("species_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
+                {
+                    qDebug() << speciesMSTAN->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
+                }
+                else if(dynamComboBoxes.at(i)->currentText().contains("All affected species"))
+                    qDebug() << speciesMSTAN->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText().remove(" affected"));
+            }
+        }
+    }
+    else
+    {
+        qDebug() << "Last input by user was invalid";
+        validInput = true;
     }
 }
 
@@ -593,37 +589,6 @@ void GeneralPurposeScreenBuilder::scheduleBoxSelection()
     }
 }
 
-void GeneralPurposeScreenBuilder::inputMod(QString lineEditValue)
-{
-    QWidget *selected = this->focusWidget();
-    bool blank = lineEditValue == "";
-    double userInput = lineEditValue.toDouble();
-    qDebug() << "Inside inputMod function with lineEdit " + selected->objectName() + " and value" << lineEditValue;
-    if(selected->objectName().toInt() <= dynamLineEdits.size())
-    {
-        int lineEditNum = selected->objectName().toInt()-1;
-        double low  = dynamLineEdits.at(lineEditNum)->validator()->property("bottom").toString().toDouble();
-        double high = dynamLineEdits.at(lineEditNum)->validator()->property("top").toString().toDouble();
-        qDebug() << dynamLineEdits.at(lineEditNum)->validator()->property("top");
-        qDebug() << dynamLineEdits.at(lineEditNum)->validator()->property("bottom");
-        qDebug() << "Low:"  << dynamLineEdits.at(lineEditNum)->validator()->property("bottom").toString();
-        qDebug() << "High:" << dynamLineEdits.at(lineEditNum)->validator()->property("top").toString();
-        qDebug() << "User Input:" << userInput;
-        if(userInput > high)
-        {
-            qDebug() << "User input of" << userInput << "is higher than" << high;
-            dynamLineEdits.value(lineEditNum)->setText(QString::number(high));
-        }
-        else if(userInput <= high && userInput >= low)
-            qDebug() << "Acceptable input";
-        else if(lineEditValue.contains("."))
-        {
-            if(lineEditValue.left(lineEditValue.indexOf(".")).toInt() < low)
-                dynamLineEdits.value(lineEditNum)->setText(QString::number(low) + ".");
-        }
-    }
-}
-
 /**** GeneralPurposeScreenBuilder::selectionChange(QWidget*from, QWidget* to) ****
  *                                                                               *
  *                 This function catches widget selection changes.               *
@@ -635,6 +600,7 @@ void GeneralPurposeScreenBuilder::inputMod(QString lineEditValue)
 void GeneralPurposeScreenBuilder::selectionChange(QWidget* from, QWidget* to)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder::selectionChange";
+    validInput = true;
     if(from != NULL && to != NULL)
         if(from->inherits("QLineEdit"))
         {
@@ -643,17 +609,14 @@ void GeneralPurposeScreenBuilder::selectionChange(QWidget* from, QWidget* to)
             if(input->validator() != 0)
             {
                 if(input->hasAcceptableInput())
-                    qDebug() << "Valid user input";
+                    qDebug() << "Valid user input for" << from->objectName();
                 else
                 {
+                    validInput = false;
                     qDebug() << "Intermediate or invalid user input.";
                     QString inputString = input->text();
                     if(input->validator()->property("bottom").isValid()) // executes code if input's validator has the "bottom" function (doc.qt.io/qt-5/qobject.html#property)
-                        if(inputString.toDouble() < input->validator()->property("bottom").toString().toDouble())
-                        {
-                            qDebug() << "User Input of" << inputString.toDouble() << "is less than" << input->validator()->property("bottom").toString().toDouble();
-                            input->setText(QString::number(input->validator()->property("bottom").toString().toDouble()));
-                        }
+                        modifyInput(input);
                 }
             }
         }
@@ -670,6 +633,8 @@ void GeneralPurposeScreenBuilder::createScheduleBox(QFormLayout *dynamicBody)
     QWidget *selectYearWidget = new QWidget;
     yearCycleRButton = new QRadioButton;
     conditionRButton = new QRadioButton;
+    yearCycleRButton->setObjectName("YearRadio");
+    conditionRButton->setObjectName("ConditionRadio");
     yearCycleLine = new QLineEdit;
     conditionLine = new QLineEdit;
     dynamLineEdits.append(yearCycleLine);
@@ -678,7 +643,8 @@ void GeneralPurposeScreenBuilder::createScheduleBox(QFormLayout *dynamicBody)
     conditionButton = new QPushButton;
     yearCycleLabel->setText(" Select Year ");
     yearCycleLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
-    yearCycleLine->setObjectName("scheduleBox");
+    conditionLine->setObjectName("scheduleBoxCondition");
+    yearCycleLine->setObjectName("scheduleBoxYear");
     yearCycleLine->setText(QString::number(*year));
     defaultLineValue.append(QString::number(*year));                 // for yearCycleLine
     yearCycleLine->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -712,6 +678,10 @@ void GeneralPurposeScreenBuilder::createButtonBox()
     cancelButton = new QPushButton;
     resetButton = new QPushButton;
     editButton = new QPushButton;
+    acceptButton->setObjectName("Ok");
+    resetButton->setObjectName("Reset");
+    cancelButton->setObjectName("Cancel");
+    editButton->setObjectName("Use Editor");
     acceptButton = buttonBox->addButton("Ok", QDialogButtonBox::YesRole);
     resetButton = buttonBox->addButton("Reset", QDialogButtonBox::ActionRole);
     cancelButton = buttonBox->addButton("Cancel", QDialogButtonBox::RejectRole);
@@ -743,6 +713,38 @@ void GeneralPurposeScreenBuilder::createSpeciesSelectionComboBox(QString fieldDe
     speciesSelectionComboBox->setMinimumHeight(24);
     dynamComboBoxes.append(speciesSelectionComboBox);
     connect(speciesSelectionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(speciesComboBoxSelection()));
+}
+
+void GeneralPurposeScreenBuilder::modifyInput(QLineEdit *input)
+{
+    QString inputString = input->text();
+    double userInput = inputString.toDouble();
+    qDebug() << "Inside modifyInput function with lineEdit " + input->objectName() + " and value" << inputString;
+    if(input->objectName().toInt() <= dynamLineEdits.size())
+    {
+        input->setStyleSheet("background-color:white;");
+        input->show();
+        int lineEditNum = input->objectName().toInt()-1;
+        double low  = input->validator()->property("bottom").toString().toDouble();
+        double high = input->validator()->property("top").toString().toDouble();
+        qDebug() << "Input is inclusively bounded from"  << low << "to" << high;
+        qDebug() << "User Input:" << userInput;
+        if(userInput > high)
+        {
+            qDebug() << "User input of" << userInput << "is higher than" << high;
+            dynamLineEdits.value(lineEditNum)->setText(QString::number(high));
+        }
+        else if(userInput < low)
+        {
+            qDebug() << "User Input of" << userInput << "is less than" << low;
+            input->setText(QString::number(low));
+        }
+        else if(inputString.contains("."))
+        {
+            if(inputString.left(inputString.indexOf(".")).toInt() < low)
+                dynamLineEdits.value(lineEditNum)->setText(QString::number(low) + ".");
+        }
+    }
 }
 
 void GeneralPurposeScreenBuilder::noInputRemovalCheck(QFormLayout *dynamBody, QString fieldNum)
