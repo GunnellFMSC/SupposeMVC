@@ -409,19 +409,21 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
 //                        speciesSelectionComboBox->insertItem(0, " ");
 //                        speciesSelectionComboBox->setCurrentText(" ");
 //                        defaultComboValue.replace(defaultComboValue.size()-1, " ");
+                        defaultComboValue.replace(defaultComboValue.size()-1, speciesSelectionComboBox->currentText());
                     }
                     else if(value.contains("deleteAll "))
                     {
                         value.remove("deleteAll ");
                         speciesSelectionComboBox->removeItem(speciesSelectionComboBox->findText("All species"));
                         speciesSelectionComboBox->setCurrentText(speciesMSTAbbreviationName->value("species_" + *variantFVS).value(value));
-                        defaultComboValue.replace(defaultComboValue.size()-1, speciesMSTAbbreviationName->value("species_" + *variantFVS).value(value));
+                        defaultComboValue.replace(defaultComboValue.size()-1, speciesSelectionComboBox->currentText());
                     }
                     currentField->clear();
                 }
                 else if((currentField->contains("numberBox", Qt::CaseInsensitive) || currentField->contains("sliderBox", Qt::CaseInsensitive)) && valid)
                 {// sliderBox functionality has been merged with the various numberBoxes
                     QStringList boxProperties = value.split(" ");
+                    QValidator *custom;
                     if(boxProperties.at(0) != "blank")
                     {
                         qDebug() << "default number box amount altered to " + boxProperties.at(0);
@@ -431,14 +433,28 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     if(boxProperties.size() > 2)
                     {
                         // Defines textbox to limit user input to numbers, with customized Lowest and Highest
-                        QValidator *custom;
                         if(currentField->contains("int"))
                             custom = new QIntValidator(QString(boxProperties.at(1)).toInt(), QString(boxProperties.at(2)).toInt());
                         else
+                        {
                             custom = new QDoubleValidator(QString(boxProperties.at(1)).toDouble(), QString(boxProperties.at(2)).toDouble(), 10 - QString(boxProperties.at(2)).size());
-                        tempLineEdit->setValidator(custom);
-                        tempLineEdit->setObjectName(QString::number(dynamLineEdits.size()));
+                            custom->setProperty("setNotation", QDoubleValidator::StandardNotation);
+                        }
                     }
+                    else
+                    {
+                        // Default definition textbox to limit user input to numbers, if Lowest and Highest unspecified in parm file
+                        if(currentField->contains("int"))
+                            custom = new QIntValidator(-999999999, 9999999999);
+                        else
+                        {
+                            custom = new QDoubleValidator(-9999999.9, 99999999.9, 9);
+                            qDebug() << custom->setProperty("notation", QDoubleValidator::StandardNotation);
+                            qDebug() << "Notation:" << custom->property("notation").toString();
+                        }
+                    }
+                    tempLineEdit->setValidator(custom);
+                    tempLineEdit->setObjectName(QString::number(dynamLineEdits.size()));
                 }
                 else if(currentField->contains("textEdit", Qt::CaseInsensitive) && valid) // catches both longTextEdit and textEdit
                 {
@@ -519,11 +535,24 @@ void GeneralPurposeScreenBuilder::accept()
         (title) ? qDebug() << "Title:" << title->text() : qDebug() << "ERROR";
         for (int i = 0; i < dynamLineEdits.size(); i++)
         {
-            qDebug() << "Selected value:" << dynamLineEdits.at(i)->text();
+            qDebug() << "Selected value " + QString::number(i) + ":" << dynamLineEdits.at(i)->text();
+            if(dynamLineEdits.at(i)->objectName().contains("schedule"))
+                if((dynamLineEdits.at(i)->objectName().contains("Year") && yearCycleRButton->isChecked()) || (dynamLineEdits.at(i)->objectName().contains("Condition") && conditionRButton->isChecked()))
+                    qDebug() << "Send:" << dynamLineEdits.at(i)->text() << "for" << dynamLineEdits.at(i)->objectName();
             if(dynamLineEdits.at(i)->validator() != 0)
+            {
                 if(QVariant(dynamLineEdits.at(i)->validator()->property("top")).isValid())
-                if(dynamLineEdits.at(i)->objectName().contains("Defined Number Box "))
                     qDebug() << dynamLineEdits.at(i)->objectName() << dynamLineEdits.at(i)->validator()->property("top").toString();
+                if(QVariant(dynamLineEdits.at(i)->validator()->property("bottom")).isValid())
+                    qDebug() << dynamLineEdits.at(i)->objectName() << dynamLineEdits.at(i)->validator()->property("bottom").toString();
+                if(dynamLineEdits.at(i)->hasAcceptableInput())
+                {
+                    if(dynamLineEdits.at(i)->text().size() > 10)
+                        qDebug() << "Send:" << dynamLineEdits.at(i)->text().remove(11, 99) << "for" << dynamLineEdits.at(i)->objectName();
+                    else
+                        qDebug() << "Send:" << dynamLineEdits.at(i)->text() << "for" << dynamLineEdits.at(i)->objectName();
+                }
+            }
         }
         for (int i = 0; i < dynamComboBoxes.size(); i++)
         {
@@ -532,10 +561,10 @@ void GeneralPurposeScreenBuilder::accept()
             {
                 if(speciesMSTAN->value("species_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
                 {
-                    qDebug() << speciesMSTAN->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
+                    qDebug() << "Send:" << speciesMSTAN->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
                 }
                 else if(dynamComboBoxes.at(i)->currentText().contains("All affected species"))
-                    qDebug() << speciesMSTAN->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText().remove(" affected"));
+                    qDebug() << "Send:" << speciesMSTAN->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText().remove(" affected"));
             }
         }
     }
