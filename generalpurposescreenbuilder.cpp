@@ -423,6 +423,10 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 else if((currentField->contains("numberBox", Qt::CaseInsensitive) || currentField->contains("sliderBox", Qt::CaseInsensitive)) && valid)
                 {// sliderBox functionality has been merged with the various numberBoxes
                     QStringList boxProperties = value.split(" ");
+                    if(boxProperties.contains("Fmax"))
+                        for(int i = 0; i < boxProperties.size(); i++)
+                            if(boxProperties.at(i).contains("Fmax"))
+                                boxProperties.replace(i, "2147483647");
                     QValidator *custom;
                     if(boxProperties.at(0) != "blank")
                     {
@@ -437,15 +441,15 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                             custom = new QIntValidator(QString(boxProperties.at(1)).toInt(), QString(boxProperties.at(2)).toInt());
                         else
                         {
-                            custom = new QDoubleValidator(QString(boxProperties.at(1)).toDouble(), QString(boxProperties.at(2)).toDouble(), 10 - QString(boxProperties.at(2)).size());
-                            custom->setProperty("setNotation", QDoubleValidator::StandardNotation);
+                            custom = new QDoubleValidator(QString(boxProperties.at(1)).toDouble(), QString(boxProperties.at(2)).toDouble(), 9 - QString(boxProperties.at(2)).size());
+                            custom->setProperty("notation", QDoubleValidator::StandardNotation);
                         }
                     }
                     else
                     {
                         // Default definition textbox to limit user input to numbers, if Lowest and Highest unspecified in parm file
                         if(currentField->contains("int"))
-                            custom = new QIntValidator(-999999999, 9999999999);
+                            custom = new QIntValidator(-2147483648, 2147483647);
                         else
                         {
                             custom = new QDoubleValidator(-9999999.9, 99999999.9, 9);
@@ -476,9 +480,18 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     QFormLayout *layout = new QFormLayout;
     layout->addRow(name, title);
     extensionKeyword->setLayout(layout);
+
+    // Creates scroll area (https://forum.qt.io/topic/31890/solved-layout-with-scrollbar/8)
+    QScrollArea *scrollArea = new QScrollArea;
+    scrollArea->setHorizontalScrollBarPolicy (Qt::ScrollBarAsNeeded);
+    scrollArea->setVerticalScrollBarPolicy (Qt::ScrollBarAsNeeded);
+    scrollArea->setWidgetResizable (true);
+    scrollArea->setWidget(dynamBodyHolder); // adds dynamically created body to scroll area
+
     mainLayout = new QGridLayout;
     mainLayout->addWidget(extensionKeyword, 0, 0);
-    mainLayout->addWidget(dynamBodyHolder, 3, 0);
+    mainLayout->addWidget(scrollArea, 2, 0);
+//    mainLayout->addWidget(dynamBodyHolder, 3, 0);
     mainLayout->addWidget(buttonBox, 4, 0);
     acceptButton->setFont(*font);
     cancelButton->setFont(*font);

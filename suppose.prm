@@ -27114,22 +27114,22 @@ Mountain hemlock}
 speciesCode{wc pn}:{ALL AF RF LP DF WH MH}
 
 f3:{intNumberBox Cutting preference corresponding to DMR = 1}
-f3v:0
+f3v:{0}
 
 f4:{intNumberBox Cutting preference corresponding to DMR = 2}
-f4v:0
+f4v:{0}
 
 f5:{intNumberBox Cutting preference corresponding to DMR = 3}
-f5v:0
+f5v:{0}
 
 f6:{intNumberBox Cutting preference corresponding to DMR = 4}
-f6v:4000
+f6v:{4000}
 
 f7:{intNumberBox Cutting preference corresponding to DMR = 5}
-f7v:5000
+f7v:{5000}
 
 f8:{intNumberBox Cutting preference corresponding to DMR = 6}
-f8v:6000
+f8v:{6000}
 
 answerForm:{\
 MistPref  !1,10!!2,10,speciesCode!
