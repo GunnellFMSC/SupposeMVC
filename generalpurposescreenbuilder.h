@@ -26,8 +26,9 @@ class GeneralPurposeScreenBuilder : public QDialog
 public:
     GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *speciesMSTAbbreviationName, QMap<QString, QString> *variantAbbreviationNames, int startYear, QWidget *parent = 0);
     bool addDynamComboBox(QStringList comboBoxProperties, QFormLayout *dynamBody, QLabel *tempLabel, QString fieldNum);
-//    bool variantListCheck(QString &line, QStringList &variantList, QString &fieldNum = null);
+    QString numberToQString(double number);
     ~GeneralPurposeScreenBuilder();
+
 private slots:
     void accept();
     void reset();
