@@ -75,7 +75,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 qDebug() << "Variant Field located: " << line.mid(line.lastIndexOf("{") + 1);
                 fieldNum = line.left(line.indexOf("{"));
                 qDebug() << "Variant Field Num:" << fieldNum;
-                variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" "); // DEDICATE FUNCTION? bool variantListCheck(QString &line, QStringList &variantList, QString &fieldNum = null);
+                variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
                 qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}");
                 valid = variantList.contains(*variantFVS);
             }
@@ -256,9 +256,9 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     tempLabel->setFont(*font);
                     tempLineEdit = new QLineEdit();
                     tempLineEdit->setFont(*font);
-                    if(fieldType.contains("intNumberBox"))
-                        tempLineEdit->setValidator(new QIntValidator());
-                    if(fieldType.contains("numberBox"))
+//                    if(fieldType.contains("intNumberBox"))
+//                        tempLineEdit->setValidator(new QIntValidator());
+                    if(fieldType.contains("numberBox", Qt::CaseInsensitive))
                         tempLineEdit->setValidator(new QDoubleValidator());
                     bool duplicate = false;
                     if(dynamBody->rowCount() > 0)
@@ -292,7 +292,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
         else if(line.contains("speciesCode{"))
         {
             QStringList variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
-            if(variantList.contains(*variantFVS))// DEDICATE FUNCTION? bool variantListCheck(QString &line, QStringList &variantList, QString &fieldNum = null);
+            if(variantList.contains(*variantFVS))
                 dynamComboBoxes.value(dynamComboBoxes.size() - 1)->setObjectName("speciesCode");
         }
         if(line.contains(fieldTitle))
@@ -324,7 +324,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
             qDebug() << "Variant Field Num:" << fieldNum;
             variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
             (line.size() > (line.indexOf(":")+1)) ? qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}") : qDebug() << "Variant(s):" << variantList;
-            bool valid = variantList.contains(*variantFVS); // DEDICATE FUNCTION? bool variantListCheck(QString &line, QStringList &variantList, QString &fieldNum = null);
+            bool valid = variantList.contains(*variantFVS);
             line = line.mid(line.indexOf(":"));
             if(line.contains("}") && valid)
             {
@@ -356,7 +356,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 qDebug() << "Variant Field Num:" << fieldNum;
                 variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
                 (line.size() > (line.indexOf(":")+1)) ? qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}") : qDebug() << "Variant(s):" << variantList;
-                valid = variantList.contains(*variantFVS);// DEDICATE FUNCTION? bool variantListCheck(QString &line, QStringList &variantList, QString &fieldNum = null);
+                valid = variantList.contains(*variantFVS);
                 line = line.mid(line.indexOf(":"));
             }
             else
@@ -422,12 +422,14 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 }
                 else if((currentField->contains("numberBox", Qt::CaseInsensitive) || currentField->contains("sliderBox", Qt::CaseInsensitive)) && valid)
                 {// sliderBox functionality has been merged with the various numberBoxes
+                    QString intRange = "2147483647", doubleRange = "9999999.99";
                     QStringList boxProperties = value.split(" ");
                     if(boxProperties.contains("Fmax"))
                         for(int i = 0; i < boxProperties.size(); i++)
                             if(boxProperties.at(i).contains("Fmax"))
-                                boxProperties.replace(i, "2147483647");
-                    QValidator *custom;
+                                boxProperties.replace(i, intRange);
+                    QDoubleValidator *custom = new QDoubleValidator();
+//                    custom->setProperty("notation", QDoubleValidator::StandardNotation);
                     if(boxProperties.at(0) != "blank")
                     {
                         qDebug() << "default number box amount altered to " + boxProperties.at(0);
@@ -438,27 +440,41 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     {
                         // Defines textbox to limit user input to numbers, with customized Lowest and Highest
                         if(currentField->contains("int"))
-                            custom = new QIntValidator(QString(boxProperties.at(1)).toInt(), QString(boxProperties.at(2)).toInt());
+                        {
+                            custom->setRange(QString(boxProperties.at(1)).toDouble(), QString(boxProperties.at(2)).toDouble(), 0);
+                            custom->setObjectName("integer" + fieldNum);
+                            qDebug() << custom->objectName();
+                        }
                         else
                         {
-                            custom = new QDoubleValidator(QString(boxProperties.at(1)).toDouble(), QString(boxProperties.at(2)).toDouble(), 9 - QString(boxProperties.at(2)).size());
-                            custom->setProperty("notation", QDoubleValidator::StandardNotation);
+                            custom->setRange(QString(boxProperties.at(1)).toDouble(), QString(boxProperties.at(2)).toDouble(), 9 - QString(boxProperties.at(2)).size());
+                            custom->setObjectName("double" + fieldNum);
+                            qDebug() << custom->objectName();
                         }
                     }
                     else
                     {
                         // Default definition textbox to limit user input to numbers, if Lowest and Highest unspecified in parm file
                         if(currentField->contains("int"))
-                            custom = new QIntValidator(-2147483648, 2147483647);
+                        {
+                            custom->setRange(intRange.toDouble()*-1, intRange.toDouble(), 0);
+                            custom->setObjectName("integer" + fieldNum);
+                            qDebug() << custom->objectName();
+                        }
                         else
                         {
-                            custom = new QDoubleValidator(-9999999.9, 99999999.9, 9);
-                            qDebug() << custom->setProperty("notation", QDoubleValidator::StandardNotation);
-                            qDebug() << "Notation:" << custom->property("notation").toString();
+                            custom->setRange(doubleRange.toDouble()*-1, doubleRange.toDouble(), 9);
+                            custom->setObjectName("double" + fieldNum);
+                            qDebug() << custom->objectName();
                         }
                     }
+                    tempLineEdit->setMaxLength(14);
                     tempLineEdit->setValidator(custom);
                     tempLineEdit->setObjectName(QString::number(dynamLineEdits.size()));
+                    if(boxProperties.size() > 2)
+                        tempLineEdit->setToolTip("Input is inclusively bound from "  + QString(boxProperties.at(1)) + " to " + QString(boxProperties.at(2)));
+                    else
+                        tempLineEdit->setToolTip("Input is inclusively bound from "  + numberToQString(custom->bottom()) + " to " + numberToQString(custom->top()));
                 }
                 else if(currentField->contains("textEdit", Qt::CaseInsensitive) && valid) // catches both longTextEdit and textEdit
                 {
@@ -554,10 +570,8 @@ void GeneralPurposeScreenBuilder::accept()
                     qDebug() << "Send:" << dynamLineEdits.at(i)->text() << "for" << dynamLineEdits.at(i)->objectName();
             if(dynamLineEdits.at(i)->validator() != 0)
             {
-                if(QVariant(dynamLineEdits.at(i)->validator()->property("top")).isValid())
-                    qDebug() << dynamLineEdits.at(i)->objectName() << dynamLineEdits.at(i)->validator()->property("top").toString();
-                if(QVariant(dynamLineEdits.at(i)->validator()->property("bottom")).isValid())
-                    qDebug() << dynamLineEdits.at(i)->objectName() << dynamLineEdits.at(i)->validator()->property("bottom").toString();
+                if(QVariant(dynamLineEdits.at(i)->validator()->property("bottom")).isValid() && QVariant(dynamLineEdits.at(i)->validator()->property("top")).isValid())
+                    qDebug() << dynamLineEdits.at(i)->objectName() << "has lower bound of" << dynamLineEdits.at(i)->validator()->property("bottom").toString() << "and upper bound of" << dynamLineEdits.at(i)->validator()->property("top").toString();
                 if(dynamLineEdits.at(i)->hasAcceptableInput())
                 {
                     if(dynamLineEdits.at(i)->text().size() > 10)
@@ -591,6 +605,8 @@ void GeneralPurposeScreenBuilder::accept()
 void GeneralPurposeScreenBuilder::reset()
 {
     qDebug() << "Inside reset function";
+    if(scheduleBox)
+        yearCycleRButton->setChecked(true);
     qDebug() << "Reseting line edits";
     for (int i = 0; i < dynamLineEdits.size(); i++){
         dynamLineEdits.value(i)->setText(defaultLineValue.at(i));
@@ -650,13 +666,31 @@ void GeneralPurposeScreenBuilder::selectionChange(QWidget* from, QWidget* to)
             QLineEdit *input = qobject_cast<QLineEdit*>(from);
             if(input->validator() != 0)
             {
+                QString inputString = input->text();
+                qDebug() << input->validator()->objectName() << "was previously selected";
+                if(inputString.contains("e"))
+                {// removes errant e
+                    inputString.truncate(inputString.indexOf("e"));
+                    input->setText(inputString);
+                }
+                if(input->validator()->objectName().contains("integer"))
+                {
+                    qDebug() << "int input located";
+                    if(inputString.contains("."))
+                    {// removes errant decimal point
+                        inputString.truncate(inputString.indexOf("."));
+                        input->setText(inputString);
+                    }
+                }
+                else
+                    if(!inputString.contains(".")) // if double does not contain decimal point, add one to end to avoid FVS interpretation as "implied decimal point"
+                        input->setText(inputString + ".");
                 if(input->hasAcceptableInput())
                     qDebug() << "Valid user input for" << from->objectName();
                 else
                 {
                     validInput = false;
                     qDebug() << "Intermediate or invalid user input.";
-                    QString inputString = input->text();
                     if(input->validator()->property("bottom").isValid()) // executes code if input's validator has the "bottom" function (doc.qt.io/qt-5/qobject.html#property)
                         modifyInput(input);
                 }
@@ -767,25 +801,29 @@ void GeneralPurposeScreenBuilder::modifyInput(QLineEdit *input)
         input->setStyleSheet("background-color:white;");
         input->show();
         int lineEditNum = input->objectName().toInt()-1;
-        double low  = input->validator()->property("bottom").toString().toDouble();
-        double high = input->validator()->property("top").toString().toDouble();
-        qDebug() << "Input is inclusively bounded from"  << low << "to" << high;
-        qDebug() << "User Input:" << userInput;
+        double high = input->validator()->property("top").toDouble();
+        double low  = input->validator()->property("bottom").toDouble();
+        qDebug() << "Input is inclusively bound from"  << numberToQString(low) << "to" << numberToQString(high);
+        qDebug() << "User Input:" << numberToQString(userInput);
         if(userInput > high)
         {
-            qDebug() << "User input of" << userInput << "is higher than" << high;
-            dynamLineEdits.value(lineEditNum)->setText(QString::number(high));
+            qDebug() << "User input of" << numberToQString(userInput) << "is higher than" << numberToQString(high);
+            dynamLineEdits.value(lineEditNum)->setText(numberToQString(high));
         }
         else if(userInput < low)
         {
-            qDebug() << "User Input of" << userInput << "is less than" << low;
-            input->setText(QString::number(low));
+            qDebug() << "User Input of" << numberToQString(userInput) << "is less than" << numberToQString(low);
+            input->setText(numberToQString(low));
         }
         else if(inputString.contains("."))
         {
             if(inputString.left(inputString.indexOf(".")).toInt() < low)
-                dynamLineEdits.value(lineEditNum)->setText(QString::number(low) + ".");
+                dynamLineEdits.value(lineEditNum)->setText(numberToQString(low) + ".");
         }
+        if(userInput == 0)
+            input->setText("0");
+        if(input->validator()->objectName().contains("double") && !input->text().contains("."))
+            input->setText(input->text() + ".0");
     }
 }
 
@@ -894,11 +932,18 @@ bool GeneralPurposeScreenBuilder::addDynamComboBox(QStringList comboBoxPropertie
     return fieldAdded;
 }
 
-//bool GeneralPurposeScreenBuilder::variantListCheck(QString &line, QStringList &variantList, QString &fieldNum)
-//{
-//    if(fieldNum != null)
-//        fieldNum = line.left(line.indexOf("{"));
-//    variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
-//    line = line.remove(line.left(line.indexOf("}")));
-//    return variantList.contains(*variantFVS);
-//}
+QString GeneralPurposeScreenBuilder::numberToQString(double number)
+{
+    QString result = QString::number(number, 'f', 9); // format the number in standard notation with 9 decimals of precision
+    if(number == 0)
+        result = "0";
+    if(result.endsWith("0"))
+    {
+        while(result.endsWith("0"))
+            result.remove(result.length()-1, 1);
+
+        if(result.endsWith("."))
+            result.remove(result.length()-1, 1);
+    }
+    return result;
+}
