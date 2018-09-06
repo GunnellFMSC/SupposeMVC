@@ -35,6 +35,7 @@ private slots:
     void edit();
     void scheduleBoxSelection();
     void speciesComboBoxSelection();
+    void liveInputMod(QString lineEditValue);
     void selectionChange(QWidget *from, QWidget *to);
 
 private:

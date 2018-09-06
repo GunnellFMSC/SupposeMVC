@@ -471,6 +471,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     tempLineEdit->setMaxLength(14);
                     tempLineEdit->setValidator(custom);
                     tempLineEdit->setObjectName(QString::number(dynamLineEdits.size()));
+                    connect(dynamLineEdits.value(dynamLineEdits.size()-1), SIGNAL(textEdited(QString)), this, SLOT(liveInputMod(QString)));
                     if(boxProperties.size() > 2)
                         tempLineEdit->setToolTip("Input is inclusively bound from "  + QString(boxProperties.at(1)) + " to " + QString(boxProperties.at(2)));
                     else
@@ -644,6 +645,20 @@ void GeneralPurposeScreenBuilder::scheduleBoxSelection()
         yearCycleLabel->setEnabled(false);
         conditionButton->setEnabled(true);
         conditionLine->setEnabled(true);
+    }
+}
+
+//      Removes "e" and "+" from user input in number lines
+void GeneralPurposeScreenBuilder::liveInputMod(QString lineEditValue)
+{
+    QWidget *selected = this->focusWidget();
+    if(selected->objectName().toInt() <= dynamLineEdits.size())
+    {
+        int lineEditNum = selected->objectName().toInt()-1;
+        if(lineEditValue.contains("e"))
+            dynamLineEdits.value(lineEditNum)->setText(lineEditValue.remove("e"));
+        if(lineEditValue.contains("+"))
+            dynamLineEdits.value(lineEditNum)->setText(lineEditValue.remove("+"));
     }
 }
 
