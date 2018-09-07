@@ -1,9 +1,10 @@
 #ifndef GENERALPURPOSESCREENBUILDER_H
 #define GENERALPURPOSESCREENBUILDER_H
 
-#include <QDialog>
+#include <QTimer>
 #include <QQueue>
 #include <QVector>
+#include <QDialog>
 #include <QSettings>
 #include <QListView>
 #include <QComboBox>
@@ -24,17 +25,21 @@ class GeneralPurposeScreenBuilder : public QDialog
     Q_OBJECT
 
 public:
-    GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *speciesMSTAbbreviationName, QMap<QString, QString> *variantAbbreviationNames, int startYear, QWidget *parent = 0);
+    GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *speciesMSTAbbreviationName, int startYear, QWidget *parent = 0);
     bool addDynamComboBox(QStringList comboBoxProperties, QFormLayout *dynamBody, QLabel *tempLabel, QString fieldNum);
     QString numberToQString(double number);
     ~GeneralPurposeScreenBuilder();
 
+signals:
+    void inputError(QLineEdit *input);
+
 private slots:
-    void accept();
-    void reset();
     void edit();
+    void reset();
+    void accept();
     void scheduleBoxSelection();
     void speciesComboBoxSelection();
+    void inputErrorAlert(QLineEdit *input);
     void liveInputMod(QString lineEditValue);
     void selectionChange(QWidget *from, QWidget *to);
 
