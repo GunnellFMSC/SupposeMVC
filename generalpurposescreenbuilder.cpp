@@ -56,12 +56,12 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     QLineEdit *tempLineEdit;
     QLabel *tempLabel;
 
-    foreach (QString line, MSText) {
-        auto variantListCheck = [&]()->bool { qDebug() << "Variant list check lambda function used.";
-            variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
-            return variantList.contains(*variantFVS);};
+    auto variantListCheck = [&](QString line)->bool { qDebug() << "Variant list check lambda function used.";
+        variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
+        return variantList.contains(*variantFVS);};
 
-        qDebug() << ":P" << line; // DEBUG outputs every line for QA
+    foreach (QString line, MSText) {
+        qDebug() << "Line:" << line; // DEBUG outputs every line for QA
         if(line.contains(field) || inField || line.contains(fieldVar))
         {
             bool valid = true;
@@ -77,7 +77,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 qDebug() << "Variant Field located: " << line.mid(line.lastIndexOf("{") + 1);
                 fieldNum = line.left(line.indexOf("{"));
                 qDebug() << "Variant Field Num:" << fieldNum;
-                valid = variantListCheck();
+                valid = variantListCheck(line);
 //                variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
                 qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}");
 //                valid = variantList.contains(*variantFVS);
@@ -119,19 +119,22 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 }
                 else if(fieldType == "noInput")
                 {
-                    if(!dynamLineEdits.value(dynamLineEdits.size() - 1)->objectName().contains(fieldNum))
+                    *currentField = fieldType;
+                    if(dynamLineEdits.value(dynamLineEdits.size() - 1)->objectName().contains(fieldNum))
                     {
-                        QLabel *noInputText = new QLabel();
-                        if(fieldDescription.contains(QRegularExpression("\\w")))
-                            noInputText->setText(fieldDescription);
-                        else
-                            noInputText->setText("\t\t\t\t");
-                        noInputText->setFont(*font);
-                        dynamBody->addRow(noInputText);
-                        qDebug() << "noInput widget name: " << noInputText->objectName();
-                        dynamBody->itemAt(dynamBody->rowCount() - 1)->widget()->setObjectName("noInput"+fieldNum);
-                        qDebug() << "noInput widget name: " << dynamBody->itemAt(dynamBody->rowCount() - 1)->widget()->objectName();
+                        dynamLineEdits.remove(dynamLineEdits.size() - 1);
+                        dynamBody->removeRow((dynamBody->rowCount() - 1));
                     }
+                    QLabel *noInputText = new QLabel();
+                    if(fieldDescription.contains(QRegularExpression("\\w")))
+                        noInputText->setText(fieldDescription);
+                    else
+                        noInputText->setText("\t\t\t\t");
+                    noInputText->setFont(*font);
+                    dynamBody->addRow(noInputText);
+                    dynamBody->itemAt(dynamBody->rowCount() - 1)->widget()->setObjectName("noInput"+fieldNum);
+                    qDebug() << "noInput widget name: " << dynamBody->itemAt(dynamBody->rowCount() - 1)->widget()->objectName();
+
                     fieldDescription.clear();
                     fieldAdded = true;
                 }
@@ -175,7 +178,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     valid = fieldAdded;
                 }
             }
-            else if(!line.contains("{") && inField && *currentField == "title" && valid)
+            else if(!line.contains("{") && inField && currentField->contains("title") && valid)
             {// if current line is part of a Title that takes up multiple lines in .prm file
                 if(line.contains("}"))
                 {// if end of long Title
@@ -184,6 +187,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     if(line.size() > 0)
                         longTitleTemp.append(line);
                     QListView *longTitle = new QListView();
+                    longTitle->setObjectName(*currentField);
                     for (int i = 0; i < longTitleTemp.size(); i++)
                     {// examine every line within the temporary QStringList
                         if(QString(longTitleTemp.at(i)).contains("\\"))
@@ -211,7 +215,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
             }
             else if(line.contains("{") && valid)
             {
-                if (*currentField == "title")
+                if (currentField->contains("title"))
                 {
                     if(line.contains("{") && line.contains("}"))
                     {
@@ -296,23 +300,27 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
         {
 //            QStringList variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
 //            if(variantList.contains(*variantFVS))
-            if(variantListCheck())
+            if(variantListCheck(line))
                 dynamComboBoxes.value(dynamComboBoxes.size() - 1)->setObjectName("speciesCode");
         }
         if(line.contains(fieldTitle))
         {
-            if(line.contains("}"))
+            int itemNum = dynamBody->count() - 1;
+            QString previousObjectName = dynamBody->itemAt(itemNum)->widget()->objectName();
+            bool unique = (itemNum >= 0) ? ((previousObjectName == "titleVar" + fieldNum) ? false:true):true;
+            if(line.contains("}") && unique)
             {
                 qDebug() << "Field title located" << line.mid(line.indexOf("{")+1);
                 QString title = line.mid(line.indexOf("{")+1).remove("}");
                 tempLabel = new QLabel(title);
                 tempLabel->setFont(*font);
+                tempLabel->setObjectName("title" + fieldNum);
                 dynamBody->addRow(tempLabel);
             }
-            else
+            else if(unique)
             {
                 qDebug() << "Field title begun" << line.mid(line.indexOf("{")+1);
-                *currentField = "title";
+                *currentField = "title" + fieldNum;
                 inField = true;
                 longTitleTemp.clear();
                 if(line.indexOf(":") + 2 < line.size())
@@ -326,7 +334,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
             if(dynamBody->rowCount() > 0)
                 noInputRemovalCheck(dynamBody, fieldNum);
             qDebug() << "Variant Field Num:" << fieldNum;
-            bool valid = variantListCheck();
+            bool valid = variantListCheck(line);
 //            variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
             (line.size() > (line.indexOf(":")+1)) ? qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}") : qDebug() << "Variant(s):" << variantList;
 //            bool valid = variantList.contains(*variantFVS);
@@ -342,7 +350,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
             else if(valid)
             {
                 qDebug() << "Field title begun" << line.mid(line.lastIndexOf("{")+1);
-                *currentField = "title";
+                *currentField = "titleVar" + fieldNum;
                 inField = true;
                 longTitleTemp.clear();
                 if(line.indexOf(":") + 2 < line.size())
@@ -359,7 +367,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 qDebug() << "Variant dependent Field value located" << (value = line.mid(line.lastIndexOf("{")+1).remove("}"));
                 fieldNum = line.left(line.indexOf("{"));
                 qDebug() << "Variant Field Num:" << fieldNum;
-                valid = variantListCheck();
+                valid = variantListCheck(line);
 //                variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
                 (line.size() > (line.indexOf(":")+1)) ? qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}") : qDebug() << "Variant(s):" << variantList;
 //                valid = variantList.contains(*variantFVS);
@@ -476,11 +484,13 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     }
                     tempLineEdit->setMaxLength(14);
                     tempLineEdit->setValidator(custom);
-//                    tempLineEdit->setMinimumSize(tempLineEdit->sizeHint()*2);
+//                    tempLineEdit->setMinimumSize(tempLineEdit->sizeHint());
 //                    tempLineEdit->setMaximumSize(tempLineEdit->sizeHint()*3);
                     tempLineEdit->setObjectName(QString::number(dynamLineEdits.size()));
 //                    tempLineEdit->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
                     connect(dynamLineEdits.value(dynamLineEdits.size()-1), SIGNAL(textEdited(QString)), this, SLOT(liveInputMod(QString)));
+                    connect(tempLineEdit, &QLineEdit::editingFinished, [=]() {modifyInput(tempLineEdit);qDebug() << "EDITING FINISHED!";}); //http://doc.qt.io/qt-5/qobject.html#connect-4
+//                    connect(tempLineEdit, SIGNAL(returnPressed()), this, [=]()->void {modifyInput(*tempLineEdit);});
                     if(boxProperties.size() > 2)
                         tempLineEdit->setToolTip("Input is inclusively bound from "  + QString(boxProperties.at(1)) + " to " + QString(boxProperties.at(2)));
                     else
@@ -618,7 +628,7 @@ void GeneralPurposeScreenBuilder::accept()
     else
     {
         qDebug() << "Last input by user was invalid";
-        validInput = true;
+//        validInput = true;
     }
 }
 
@@ -702,11 +712,11 @@ void GeneralPurposeScreenBuilder::selectionChange(QWidget* from, QWidget* to)
             {
                 QString inputString = input->text();
                 qDebug() << input->validator()->objectName() << "was previously selected";
-                if(inputString.contains("e"))
-                {// removes errant e
-                    inputString.truncate(inputString.indexOf("e"));
-                    input->setText(inputString);
-                }
+//                if(inputString.contains("e"))
+//                {// removes errant e
+//                    inputString.truncate(inputString.indexOf("e"));
+//                    input->setText(inputString);
+//                }
                 if(input->validator()->objectName().contains("integer"))
                 {
                     qDebug() << "int input located";
@@ -720,13 +730,15 @@ void GeneralPurposeScreenBuilder::selectionChange(QWidget* from, QWidget* to)
                     if(!inputString.contains(".")) // if double does not contain decimal point, add one to end to avoid FVS interpretation as "implied decimal point"
                         input->setText(inputString + ".");
                 if(input->hasAcceptableInput())
+                {
                     qDebug() << "Valid user input for" << from->objectName();
+                    modifyInput(input);
+                }
                 else
                 {
                     validInput = false;
                     qDebug() << "Intermediate or invalid user input.";
                     if(input->validator()->property("bottom").isValid()) // executes code if input's validator has the "bottom" function (doc.qt.io/qt-5/qobject.html#property)
-//                        modifyInput(input);
                         emit inputError(input);
                 }
             }
@@ -826,92 +838,70 @@ void GeneralPurposeScreenBuilder::createSpeciesSelectionComboBox(QString fieldDe
     connect(speciesSelectionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(speciesComboBoxSelection()));
 }
 
+/******** GeneralPurposeScreenBuilder::inputErrorAlert(QLineEdit *input) *********
+ *                                                                               *
+ *               This function notifies user of incorrect input.                 *
+ *      When the user enters input outside of the required bounds, the text      *
+ *   contained within the box temporarily displays the inclusive boundry, its    *
+ *  font is set to red and the window's acceptButton is disabled until the user  *
+ *  enters acceptable input. The modifyInput function reverts the font to black. *
+ *      If QLineEdit is blank and 0 is valid input, modifyInput() is called.     *
+ *                                                                               *
+ *********************************************************************************/
 void GeneralPurposeScreenBuilder::inputErrorAlert(QLineEdit *input)
 {
     qDebug() << "Input Error Alert!";
     qDebug() << input->text();
-//    QString inputString = input->text();
-    QString inputString;
-    bool blank = ((input->text().size() == 0) || (input->text() == ".")) ? true : false;
-    blank ? inputString = "0" : inputString = input->text();
-    double userInput = inputString.toDouble();
-//    auto lambda = [=]()->void {input->setText(inputString);};
-//    input->setStyleSheet("QLineEdit { background: rgb(0, 255, 255); selection-background-color: rgb(233, 99, 0); }");
-    qDebug() << "Inside modifyInput function with lineEdit " + input->objectName() + " and value" << inputString;
-    if(input->objectName().toInt() <= dynamLineEdits.size())
+    if(!input->text().contains("Input bound from "))
     {
-        double high = input->validator()->property("top").toDouble();
-        double low  = input->validator()->property("bottom").toDouble();
-        if(!blank || low > 0)
+        QString inputString;
+        bool blank = ((input->text().size() == 0) || (input->text() == ".")) ? true : false;
+        blank ? inputString = "0" : inputString = input->text();
+        double userInput = inputString.toDouble();
+        qDebug() << "Inside inputErrorAlert function with lineEdit " + input->objectName() + " and value" << inputString;
+        if(input->objectName().toInt() <= dynamLineEdits.size())
         {
-            QApplication::beep();
-            QPalette palette;
-            palette.setColor(QPalette::Base, Qt::black);
-            palette.setColor(QPalette::Text, Qt::red);
-            input->setPalette(palette);
-            qDebug() << "Input is inclusively bound from"  << numberToQString(low) << "to" << numberToQString(high);
-            qDebug() << "User Input number:" << numberToQString(userInput);
-            input->setMaxLength(30);
-            input->setText("Input bound from "  + numberToQString(low) + " to " + numberToQString(high));
-        //    QTimer::singleShot(1000, Qt::CoarseTimer, this, SLOT(lambda()));
-    //        QTimer::singleShot(1000, Qt::CoarseTimer, this, [=]()->void {input->setText(inputString);});
-            QTimer::singleShot(1000, Qt::CoarseTimer, this, [=]()->void {input->setText(inputString), modifyInput(input);});
+            double high = input->validator()->property("top").toDouble();
+            double low  = input->validator()->property("bottom").toDouble();
+            if((!blank || low > 0) && !input->hasAcceptableInput())
+            {
+                QApplication::beep();
+                QPalette palette;
+                palette.setColor(QPalette::Base, Qt::black);
+                palette.setColor(QPalette::Text, Qt::red);
+                acceptButton->setDisabled(true);
+                input->setPalette(palette);
+                qDebug() << "Input is inclusively bound from"  << numberToQString(low) << "to" << numberToQString(high);
+                qDebug() << "User Input number:" << numberToQString(userInput);
+                input->setMaxLength(30);
+                input->setText("Bound from "  + numberToQString(low) + " to " + numberToQString(high));
+                QTimer::singleShot(1000, Qt::CoarseTimer, this, [=]()->void {input->setText(inputString);});
+                input->setFocus();
+            }
+            else
+                modifyInput(input);
         }
         else
-            modifyInput(input);
+            qDebug() << "Error in inputErrorAlert";
     }
-    else
-        qDebug() << "Error in inputErrorAlert";
 }
 
+// Ensures the font color is black, acceptButton is enabled, and 0 favored syntax
 void GeneralPurposeScreenBuilder::modifyInput(QLineEdit *input)
 {
     QString inputString = input->text();
     QPalette palette;
     palette.setColor(QPalette::Base, Qt::white);
     palette.setColor(QPalette::Text, Qt::black);
+    acceptButton->setDisabled(false);
     input->setPalette(palette);
     input->setMaxLength(14);
-//    QString inputString;
-//    bool blank = ((input->text().size() == 0) || (input->text() == ".")) ? true : false;
-//    blank ? inputString = "0" : inputString = input->text();
     double userInput = inputString.toDouble();
-//    qDebug() << "Inside modifyInput function with lineEdit " + input->objectName() + " and value" << inputString;
-//    if(input->objectName().toInt() <= dynamLineEdits.size())
-//    {
-//        input->setStyleSheet("background-color:white;");
-//        input->show();
-        int lineEditNum = input->objectName().toInt()-1;
-        double high = input->validator()->property("top").toDouble();
-        double low  = input->validator()->property("bottom").toDouble();
-//        qDebug() << "Input is inclusively bound from"  << numberToQString(low) << "to" << numberToQString(high);
-//        qDebug() << "User Input number:" << numberToQString(userInput);
-//        QTimer::singleShot(10 * 100, this, SLOT(inputErrorAlert(QLineEdit*)));
-//        inputAlert(numberToQString(low), numberToQString(high));
-//        if(!blank || low > 0)
-//        {
-//            emit inputError(input);
-//        }
-        if(userInput > high)
-        {
-            qDebug() << "User input of" << numberToQString(userInput) << "is higher than" << numberToQString(high);
-            dynamLineEdits.value(lineEditNum)->setText(numberToQString(high));
-        }
-        else if(userInput < low)
-        {
-            qDebug() << "User Input of" << numberToQString(userInput) << "is less than" << numberToQString(low);
-            input->setText(numberToQString(low));
-        }
-        else if(inputString.contains("."))
-        {
-            if(inputString.left(inputString.indexOf(".")).toInt() < low)
-                dynamLineEdits.value(lineEditNum)->setText(numberToQString(low) + ".");
-        }
-        if(userInput == 0)
-            input->setText("0");
-        if(input->validator()->objectName().contains("double") && !input->text().contains("."))
-            input->setText(input->text() + ".0");
-//    }
+    qDebug() << "Inside modifyInput function with lineEdit " + input->objectName() + " and value" << inputString;
+    if(userInput == 0)
+        input->setText("0");
+    if(input->validator()->objectName().contains("double") && !input->text().contains("."))
+        input->setText(input->text() + ".0");
 }
 
 void GeneralPurposeScreenBuilder::noInputRemovalCheck(QFormLayout *dynamBody, QString fieldNum)
