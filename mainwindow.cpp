@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+QMap<QString, QMap<QString, QString>> MainWindow::habitatTypePlantAssociationMSTNumberAbbreviation;
 QMap<QString, QMap<QString, QString>> MainWindow::keyword_Exten_MainSecTitle;
 QMap<QString, QMap<QString, QString>> MainWindow::speciesMSTAbbreviationName;
 QMap<QString, QString>* MainWindow::extensionAbbreviationNames;
@@ -19,8 +20,9 @@ MainWindow::MainWindow(QWidget *parent) :
     preferencesFileName = "/example.prf";
     if(mapParmsMainSectionText())
     {
-        int count = 0;
+        int count = 0, habPa = 0;
         foreach (QString MainSectionText, parmMainSectionMap.keys())
+        {
             if(MainSectionText.contains(QRegularExpression("species_\\w\\w$")))
             {
                 QMap<QString, QString> *speciesAbbreviationName = new QMap<QString, QString>;
@@ -30,6 +32,15 @@ MainWindow::MainWindow(QWidget *parent) :
                 speciesMSTAbbreviationName.insert(MainSectionText, *speciesAbbreviationName);
                 qDebug() << speciesMSTAbbreviationName.value(MainSectionText).keys() <<(speciesMSTAbbreviationName.value(MainSectionText).keys().size() - 1);
             }
+            else if(MainSectionText.contains(QRegularExpression("HabPa_\\w\\w$")))
+            {
+                QMap<QString, QString> *habitatPlantNumberAbbreviation = new QMap<QString, QString>;
+                qDebug() << ++habPa << MainSectionText << "at position" << parmMainSectionMap.value(MainSectionText);
+                makeDictionaryFromSection(habitatPlantNumberAbbreviation, readSectionFromMappedLoc(*parameters, parmMainSectionMap.value(MainSectionText)), QRegularExpression(":{"));
+                habitatTypePlantAssociationMSTNumberAbbreviation.insert(MainSectionText, *habitatPlantNumberAbbreviation);
+                qDebug() << habitatTypePlantAssociationMSTNumberAbbreviation.value(MainSectionText).keys() <<(habitatTypePlantAssociationMSTNumberAbbreviation.value(MainSectionText).keys().size() - 1);
+            }
+        }
         count = 0;
         foreach (QString ext, extensionAbbreviationNames->keys())
             qDebug() << ++count << "Extension abbreviated: " << ext << "\tExtension Full Name: " << extensionAbbreviationNames->value(ext);

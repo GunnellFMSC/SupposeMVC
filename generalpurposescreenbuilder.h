@@ -25,7 +25,7 @@ class GeneralPurposeScreenBuilder : public QDialog
     Q_OBJECT
 
 public:
-    GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *speciesMSTAbbreviationName, int startYear, QWidget *parent = 0);
+    GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *speciesMSTAbbreviationName, QMap<QString, QMap<QString, QString>> *hapPaMSTNumAbbrev, int startYear, QWidget *parent = 0);
     bool addDynamComboBox(QStringList comboBoxProperties, QFormLayout *dynamBody, QLabel *tempLabel, QString fieldNum);
     QString numberToQString(double number);
     ~GeneralPurposeScreenBuilder();
@@ -38,6 +38,7 @@ private slots:
     void reset();
     void accept();
     void scheduleBoxSelection();
+    void habPaComboBoxSelection();
     void speciesComboBoxSelection();
     void inputErrorAlert(QLineEdit *input);
     void liveInputMod(QString lineEditValue);
@@ -47,6 +48,7 @@ private:
     void createButtonBox();
     void modifyInput(QLineEdit *input);
     void createScheduleBox(QFormLayout *dynamicBody);
+    void createHabPaSelectionComboBox(QString fieldDesc);
     void createSpeciesSelectionComboBox(QString fieldDesc);
     void noInputRemovalCheck(QFormLayout *dynamicBody, QString fieldNum);
 
@@ -66,6 +68,13 @@ private:
     // Button Box
     QDialogButtonBox *buttonBox;
     QPushButton *acceptButton, *editButton, *resetButton, *cancelButton;
+
+    // Habitat Type Plant Association Selection
+    bool habPaSelection = false;
+    QLabel *habPaSelectionQLabel;
+    QComboBox *habPaSelectionComboBox;
+    QStringListModel *habPaSelectionModel;
+    QMap<QString, QMap<QString, QString>> *habPaMSTNA;
 
     // Species Selection
     bool speciesSelection = false;
