@@ -2,7 +2,7 @@
 
 #include "generalpurposescreenbuilder.h"
 
-GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *speciesMSTAbbreviationName, int startYear, QWidget *parent) : QDialog(parent)
+GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *speciesMSTAbbreviationName, QMap<QString, QMap<QString, QString> > *hapPaMSTNumAbbrev, int startYear, QWidget *parent) : QDialog(parent)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder default constructor";
     qDebug() << "Selected variant: " + *variant;
@@ -14,6 +14,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     *variantFVS = *variant;
     speciesMSTAN = new QMap<QString, QMap<QString, QString>>;
     *speciesMSTAN = *speciesMSTAbbreviationName;
+    habPaMSTNA = new QMap<QString, QMap<QString, QString>>;
+    *habPaMSTNA = *hapPaMSTNumAbbrev;
     createButtonBox();
     currentField = new QString;
     QWidget *extensionKeyword = new QWidget;
@@ -113,6 +115,17 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     dynamBody->addRow(speciesSelectionQLabel, speciesSelectionComboBox);
                     speciesSelectionComboBox->setFont(*font);
                     speciesSelectionQLabel->setFont(*font);
+                    *currentField = fieldType;
+                    fieldDescription.clear();
+                    fieldAdded = true;
+                }
+                else if(fieldType == "habPaSelection")
+                {
+                    qDebug() << "habPaSelection found";
+                    createHabPaSelectionComboBox(fieldDescription);
+                    dynamBody->addRow(habPaSelectionQLabel, habPaSelectionComboBox);
+                    habPaSelectionComboBox->setFont(*font);
+                    habPaSelectionQLabel->setFont(*font);
                     *currentField = fieldType;
                     fieldDescription.clear();
                     fieldAdded = true;
@@ -306,8 +319,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
         if(line.contains(fieldTitle))
         {
             int itemNum = dynamBody->count() - 1;
-            QString previousObjectName = dynamBody->itemAt(itemNum)->widget()->objectName();
-            bool unique = (itemNum >= 0) ? ((previousObjectName == "titleVar" + fieldNum) ? false:true):true;
+            // ternary expression returns true if title is unique or first field item
+            bool unique = (itemNum >= 0) ? ((dynamBody->itemAt(itemNum)->widget()->objectName() == "titleVar" + fieldNum) ? false:true):true;
             if(line.contains("}") && unique)
             {
                 qDebug() << "Field title located" << line.mid(line.indexOf("{")+1);
@@ -489,7 +502,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     tempLineEdit->setObjectName(QString::number(dynamLineEdits.size()));
 //                    tempLineEdit->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
                     connect(dynamLineEdits.value(dynamLineEdits.size()-1), SIGNAL(textEdited(QString)), this, SLOT(liveInputMod(QString)));
-                    connect(tempLineEdit, &QLineEdit::editingFinished, [=]() {modifyInput(tempLineEdit);qDebug() << "EDITING FINISHED!";}); //http://doc.qt.io/qt-5/qobject.html#connect-4
+                    connect(tempLineEdit, &QLineEdit::editingFinished, [=]() {modifyInput(tempLineEdit);qDebug() << "EDITING FINISHED!";}); // lambda, http://doc.qt.io/qt-5/qobject.html#connect-4
 //                    connect(tempLineEdit, SIGNAL(returnPressed()), this, [=]()->void {modifyInput(*tempLineEdit);});
                     if(boxProperties.size() > 2)
                         tempLineEdit->setToolTip("Input is inclusively bound from "  + QString(boxProperties.at(1)) + " to " + QString(boxProperties.at(2)));
@@ -549,6 +562,14 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
         delete speciesSelectionModel;
         delete speciesSelectionQLabel;
         delete speciesSelectionComboBox;
+    }
+    if(habPaSelection)
+    {
+        qDebug() << "Inside GeneralPurposeScreenBuilder habPaSelection pointer deconstructor";
+        delete habPaMSTNA;
+        delete habPaSelectionModel;
+        delete habPaSelectionQLabel;
+        delete habPaSelectionComboBox;
     }
     if(scheduleBox)
     {
@@ -613,7 +634,7 @@ void GeneralPurposeScreenBuilder::accept()
         for (int i = 0; i < dynamComboBoxes.size(); i++)
         {
             qDebug() << "Selected value:" << dynamComboBoxes.at(i)->currentText();
-            if(speciesSelection || dynamComboBoxes.at(i)->objectName().contains("speciesCode"))
+            if(speciesSelection || dynamComboBoxes.at(i)->objectName().contains("speciesCode") || habPaSelection)
             {
                 if(speciesMSTAN->value("species_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
                 {
@@ -621,6 +642,8 @@ void GeneralPurposeScreenBuilder::accept()
                 }
                 else if(dynamComboBoxes.at(i)->currentText().contains("All affected species"))
                     qDebug() << "Send:" << speciesMSTAN->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText().remove(" affected"));
+                else if(habPaMSTNA->value("HabPa_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
+                    qDebug() << "Send:" << habPaMSTNA->value("HabPa_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
             }
         }
         if(validInput) this->close();
@@ -656,6 +679,12 @@ void GeneralPurposeScreenBuilder::speciesComboBoxSelection()
 {
     qDebug() << "Inside speciesComboBoxSelection function";
     qDebug() << speciesSelectionComboBox->currentText() << speciesMSTAN->value("species_" + *variantFVS).key(speciesSelectionComboBox->currentText());
+}
+
+void GeneralPurposeScreenBuilder::habPaComboBoxSelection()
+{
+    qDebug() << "Inside habPaComboBoxSelection function";
+    qDebug() << habPaSelectionComboBox->currentText() << habPaMSTNA->value("HabPa_" + *variantFVS).key(habPaSelectionComboBox->currentText());
 }
 
 void GeneralPurposeScreenBuilder::scheduleBoxSelection()
@@ -815,6 +844,29 @@ void GeneralPurposeScreenBuilder::createButtonBox()
     connect(editButton, SIGNAL(clicked()), this, SLOT(edit()));
 }
 
+void GeneralPurposeScreenBuilder::createHabPaSelectionComboBox(QString fieldDesc)
+{
+    qDebug() << "Inside GeneralPurposeScreenBuilder::createHabPaSelectionComboBox";
+    qDebug() << "HabPa_" + *variantFVS;
+    qDebug() << habPaMSTNA->value("HabPa_" + *variantFVS).keys();
+    habPaSelection = true;
+    defaultComboValue.append(" ");
+    habPaSelectionComboBox = new QComboBox;
+    habPaSelectionModel = new QStringListModel;
+    habPaSelectionQLabel = new QLabel(fieldDesc+"\t\t\t\t");
+    habPaSelectionQLabel->setAlignment(Qt::AlignLeft);
+    habPaSelectionModel->setStringList(habPaMSTNA->value("HabPa_" + *variantFVS).values());
+    habPaSelectionModel->sort(0);
+    habPaSelectionComboBox->setModel(habPaSelectionModel);
+    habPaSelectionComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    habPaSelectionComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    habPaSelectionComboBox->setCurrentText(" ");
+    habPaSelectionComboBox->setObjectName("HabPa_Selection");
+    habPaSelectionComboBox->setMinimumHeight(24);
+    dynamComboBoxes.append(habPaSelectionComboBox);
+    connect(habPaSelectionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(habPaComboBoxSelection()));
+}
+
 void GeneralPurposeScreenBuilder::createSpeciesSelectionComboBox(QString fieldDesc)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder::createSpeciesSelectionComboBox";
@@ -873,9 +925,9 @@ void GeneralPurposeScreenBuilder::inputErrorAlert(QLineEdit *input)
                 input->setPalette(palette);
                 qDebug() << "Input is inclusively bound from"  << numberToQString(low) << "to" << numberToQString(high);
                 qDebug() << "User Input number:" << numberToQString(userInput);
-                input->setMaxLength(30);
+                input->setMaxLength(36);
                 input->setText("Bound from "  + numberToQString(low) + " to " + numberToQString(high));
-                QTimer::singleShot(1000, Qt::CoarseTimer, this, [=]()->void {input->setText(inputString);});
+                QTimer::singleShot(1000, Qt::CoarseTimer, this, [=]()->void {input->setText(inputString);}); // lambda
                 input->setFocus();
             }
             else
