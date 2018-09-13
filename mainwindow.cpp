@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
             {
                 QMap<QString, QString> *habitatPlantNumberAbbreviation = new QMap<QString, QString>;
                 qDebug() << ++habPa << MainSectionText << "at position" << parmMainSectionMap.value(MainSectionText);
-                makeDictionaryFromSection(habitatPlantNumberAbbreviation, readSectionFromMappedLoc(*parameters, parmMainSectionMap.value(MainSectionText)), QRegularExpression(":{"));
+                makeDictionaryFromSection(habitatPlantNumberAbbreviation, readSectionFromMappedLoc(*parameters, parmMainSectionMap.value(MainSectionText)), QRegularExpression("({blank})?:{"));
                 habitatTypePlantAssociationMSTNumberAbbreviation.insert(MainSectionText, *habitatPlantNumberAbbreviation);
                 qDebug() << habitatTypePlantAssociationMSTNumberAbbreviation.value(MainSectionText).keys() <<(habitatTypePlantAssociationMSTNumberAbbreviation.value(MainSectionText).keys().size() - 1);
             }
@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
             {
                 QMap<QString, QString> *forestNumberName = new QMap<QString, QString>;
                 qDebug() << ++forests << MainSectionText << "at position" << parmMainSectionMap.value(MainSectionText);
-                makeDictionaryFromSection(forestNumberName, readSectionFromMappedLoc(*parameters, parmMainSectionMap.value(MainSectionText)), QRegularExpression(":{"));
+                makeDictionaryFromSection(forestNumberName, readSectionFromMappedLoc(*parameters, parmMainSectionMap.value(MainSectionText)), QRegularExpression("({blank})?:{"));
                 forestMSTNumberName.insert(MainSectionText, *forestNumberName);
                 qDebug() << forestMSTNumberName.value(MainSectionText).keys() <<(forestMSTNumberName.value(MainSectionText).keys().size() - 1);
             }

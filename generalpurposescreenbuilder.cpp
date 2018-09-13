@@ -158,7 +158,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                         noInputText->setText("\t\t\t\t");
                     noInputText->setFont(*font);
                     dynamBody->addRow(noInputText);
-                    dynamBody->itemAt(dynamBody->rowCount() - 1)->widget()->setObjectName("noInput"+fieldNum);
+                    dynamBody->itemAt(dynamBody->count() - 1)->widget()->setObjectName("noInput"+fieldNum);
                     qDebug() << "noInput widget name: " << dynamBody->itemAt(dynamBody->rowCount() - 1)->widget()->objectName();
 
                     fieldDescription.clear();
@@ -664,7 +664,7 @@ void GeneralPurposeScreenBuilder::accept()
                 else if(dynamComboBoxes.at(i)->currentText().contains("All affected species"))
                     qDebug() << "Send:" << speciesMSTAN->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText().remove(" affected"));
                 else if(forestMSTNN->value("Forests_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
-                    qDebug() << "Send:" << forestMSTNN->value("HabPa_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
+                    qDebug() << "Send:" << forestMSTNN->value("Forests_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
                 else if(habPaMSTNA->value("HabPa_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
                     qDebug() << "Send:" << habPaMSTNA->value("HabPa_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
             }
@@ -686,9 +686,11 @@ void GeneralPurposeScreenBuilder::reset()
     qDebug() << "Reseting line edits";
     for (int i = 0; i < dynamLineEdits.size(); i++){
         dynamLineEdits.value(i)->setText(defaultLineValue.at(i));
+        modifyInput(dynamLineEdits.value(i));
     }
     qDebug() << "Reseting combo boxes";
     for (int i = 0; i < dynamComboBoxes.size(); i++){
+        qDebug() << dynamComboBoxes.at(i)->objectName();
         dynamComboBoxes.value(i)->setCurrentText(defaultComboValue.at(i));
     }
 }
@@ -770,11 +772,6 @@ void GeneralPurposeScreenBuilder::selectionChange(QWidget* from, QWidget* to)
             {
                 QString inputString = input->text();
                 qDebug() << input->validator()->objectName() << "was previously selected";
-//                if(inputString.contains("e"))
-//                {// removes errant e
-//                    inputString.truncate(inputString.indexOf("e"));
-//                    input->setText(inputString);
-//                }
                 if(input->validator()->objectName().contains("integer"))
                 {
                     qDebug() << "int input located";
@@ -879,7 +876,7 @@ void GeneralPurposeScreenBuilder::createHabPaSelectionComboBox(QString fieldDesc
     qDebug() << "HabPa_" + *variantFVS;
     qDebug() << habPaMSTNA->value("HabPa_" + *variantFVS).keys();
     habPaSelection = true;
-    defaultComboValue.append(" ");
+    defaultComboValue.append("");
     habPaSelectionComboBox = new QComboBox;
     habPaSelectionModel = new QStringListModel;
     habPaSelectionQLabel = new QLabel(fieldDesc+"\t\t\t\t");
@@ -889,7 +886,7 @@ void GeneralPurposeScreenBuilder::createHabPaSelectionComboBox(QString fieldDesc
     habPaSelectionComboBox->setModel(habPaSelectionModel);
     habPaSelectionComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     habPaSelectionComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    habPaSelectionComboBox->setCurrentText(" ");
+    habPaSelectionComboBox->setCurrentText("");
     habPaSelectionComboBox->setObjectName("HabPa_Selection");
     habPaSelectionComboBox->setMinimumHeight(24);
     dynamComboBoxes.append(habPaSelectionComboBox);
@@ -902,7 +899,7 @@ void GeneralPurposeScreenBuilder::createForestSelectionComboBox(QString fieldDes
     qDebug() << "Forests_" + *variantFVS;
     qDebug() << forestMSTNN->value("Forests_" + *variantFVS).keys();
     forestSelection = true;
-//    defaultComboValue.append(" ");
+    defaultComboValue.append(""); // for reset
     forestSelectionComboBox = new QComboBox;
     forestSelectionModel = new QStringListModel;
     forestSelectionQLabel = new QLabel(fieldDesc+"\t\t\t\t");
@@ -912,7 +909,7 @@ void GeneralPurposeScreenBuilder::createForestSelectionComboBox(QString fieldDes
     forestSelectionComboBox->setModel(forestSelectionModel);
     forestSelectionComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     forestSelectionComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-//    forestSelectionComboBox->setCurrentText(" ");
+//    forestSelectionComboBox->setCurrentText("");
     forestSelectionComboBox->setObjectName("forestSelection");
     forestSelectionComboBox->setMinimumHeight(24);
     dynamComboBoxes.append(forestSelectionComboBox);
@@ -956,7 +953,7 @@ void GeneralPurposeScreenBuilder::inputErrorAlert(QLineEdit *input)
 {
     qDebug() << "Input Error Alert!";
     qDebug() << input->text();
-    if(!input->text().contains("Input bound from "))
+    if(!input->text().contains("Bound from "))
     {
         QString inputString;
         bool blank = ((input->text().size() == 0) || (input->text() == ".")) ? true : false;
@@ -993,24 +990,27 @@ void GeneralPurposeScreenBuilder::inputErrorAlert(QLineEdit *input)
 // Ensures the font color is black, acceptButton is enabled, and 0 favored syntax
 void GeneralPurposeScreenBuilder::modifyInput(QLineEdit *input)
 {
-    QString inputString = input->text();
-    QPalette palette;
-    palette.setColor(QPalette::Base, Qt::white);
-    palette.setColor(QPalette::Text, Qt::black);
-    acceptButton->setDisabled(false);
-    input->setPalette(palette);
-    input->setMaxLength(14);
-    double userInput = inputString.toDouble();
-    qDebug() << "Inside modifyInput function with lineEdit " + input->objectName() + " and value" << inputString;
-    if(userInput == 0)
-        input->setText("0");
-    if(input->validator()->objectName().contains("double") && !input->text().contains("."))
-        input->setText(input->text() + ".0");
+    if(input->validator() != 0)
+    {
+        QString inputString = input->text();
+        QPalette palette;
+        palette.setColor(QPalette::Base, Qt::white);
+        palette.setColor(QPalette::Text, Qt::black);
+        acceptButton->setDisabled(false);
+        input->setPalette(palette);
+        input->setMaxLength(14);
+        double userInput = inputString.toDouble();
+        qDebug() << "Inside modifyInput function with lineEdit " + input->objectName() + " and value" << inputString;
+        if(userInput == 0)
+            input->setText("0");
+        if(input->validator()->objectName().contains("double") && !input->text().contains("."))
+            input->setText(input->text() + ".0");
+    }
 }
 
 void GeneralPurposeScreenBuilder::noInputRemovalCheck(QFormLayout *dynamBody, QString fieldNum)
 {// removes previous entry from dynamBody if it was "noInput" of same fieldNum
-    QString objectName = dynamBody->itemAt(dynamBody->rowCount() - 1)->widget()->objectName();
+    QString objectName = dynamBody->itemAt(dynamBody->count() - 1)->widget()->objectName();
     if(objectName.contains("noInput"+fieldNum))
     {
         dynamBody->removeRow(dynamBody->rowCount() - 1);
