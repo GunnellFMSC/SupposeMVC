@@ -4,6 +4,7 @@
 QMap<QString, QMap<QString, QString>> MainWindow::habitatTypePlantAssociationMSTNumberAbbreviation;
 QMap<QString, QMap<QString, QString>> MainWindow::keyword_Exten_MainSecTitle;
 QMap<QString, QMap<QString, QString>> MainWindow::speciesMSTAbbreviationName;
+QMap<QString, QMap<QString, QString>> MainWindow::forestMSTNumberName;
 QMap<QString, QString>* MainWindow::extensionAbbreviationNames;
 QMap<QString, QString>* MainWindow::variantAbbreviationNames;
 QMap<QString, QString>* MainWindow::variantExtensions;
@@ -20,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
     preferencesFileName = "/example.prf";
     if(mapParmsMainSectionText())
     {
-        int count = 0, habPa = 0;
+        int count = 0, habPa = 0, forests = 0;
         foreach (QString MainSectionText, parmMainSectionMap.keys())
         {
             if(MainSectionText.contains(QRegularExpression("species_\\w\\w$")))
@@ -39,6 +40,14 @@ MainWindow::MainWindow(QWidget *parent) :
                 makeDictionaryFromSection(habitatPlantNumberAbbreviation, readSectionFromMappedLoc(*parameters, parmMainSectionMap.value(MainSectionText)), QRegularExpression(":{"));
                 habitatTypePlantAssociationMSTNumberAbbreviation.insert(MainSectionText, *habitatPlantNumberAbbreviation);
                 qDebug() << habitatTypePlantAssociationMSTNumberAbbreviation.value(MainSectionText).keys() <<(habitatTypePlantAssociationMSTNumberAbbreviation.value(MainSectionText).keys().size() - 1);
+            }
+            else if(MainSectionText.contains(QRegularExpression("Forests_\\w\\w$")))
+            {
+                QMap<QString, QString> *forestNumberName = new QMap<QString, QString>;
+                qDebug() << ++forests << MainSectionText << "at position" << parmMainSectionMap.value(MainSectionText);
+                makeDictionaryFromSection(forestNumberName, readSectionFromMappedLoc(*parameters, parmMainSectionMap.value(MainSectionText)), QRegularExpression(":{"));
+                forestMSTNumberName.insert(MainSectionText, *forestNumberName);
+                qDebug() << forestMSTNumberName.value(MainSectionText).keys() <<(forestMSTNumberName.value(MainSectionText).keys().size() - 1);
             }
         }
         count = 0;
