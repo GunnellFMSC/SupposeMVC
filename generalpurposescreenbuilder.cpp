@@ -2,7 +2,7 @@
 
 #include "generalpurposescreenbuilder.h"
 
-GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *speciesMSTAbbreviationName, QMap<QString, QMap<QString, QString> > *hapPaMSTNumAbbrev, int startYear, QWidget *parent) : QDialog(parent)
+GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *speciesMSTAbbreviationName, QMap<QString, QMap<QString, QString> > *hapPaMSTNumAbbrev, QMap<QString, QMap<QString, QString>> *forestMSTNumberName, int startYear, QWidget *parent) : QDialog(parent)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder default constructor";
     qDebug() << "Selected variant: " + *variant;
@@ -14,6 +14,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     *variantFVS = *variant;
     speciesMSTAN = new QMap<QString, QMap<QString, QString>>;
     *speciesMSTAN = *speciesMSTAbbreviationName;
+    forestMSTNN = new QMap<QString, QMap<QString, QString>>;
+    *forestMSTNN = *forestMSTNumberName;
     habPaMSTNA = new QMap<QString, QMap<QString, QString>>;
     *habPaMSTNA = *hapPaMSTNumAbbrev;
     createButtonBox();
@@ -75,8 +77,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 qDebug() << "Field Num:" << fieldNum;
             }
             else if(line.contains(fieldVar))
-            {// sets fieldNum for variant dependant field and determines field validity
-                qDebug() << "Variant Field located: " << line.mid(line.lastIndexOf("{") + 1);
+            {// sets fieldNum for variant dependent field and determines field validity
+                qDebug() << "Variant Dependent Field located: " << line.mid(line.lastIndexOf("{") + 1);
                 fieldNum = line.left(line.indexOf("{"));
                 qDebug() << "Variant Field Num:" << fieldNum;
                 valid = variantListCheck(line);
@@ -115,6 +117,17 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     dynamBody->addRow(speciesSelectionQLabel, speciesSelectionComboBox);
                     speciesSelectionComboBox->setFont(*font);
                     speciesSelectionQLabel->setFont(*font);
+                    *currentField = fieldType;
+                    fieldDescription.clear();
+                    fieldAdded = true;
+                }
+                else if(fieldType == "forestSelection")
+                {
+                    qDebug() << "forestSelection found";
+                    createForestSelectionComboBox(fieldDescription);
+                    dynamBody->addRow(forestSelectionQLabel, forestSelectionComboBox);
+                    forestSelectionComboBox->setFont(*font);
+                    forestSelectionQLabel->setFont(*font);
                     *currentField = fieldType;
                     fieldDescription.clear();
                     fieldAdded = true;
@@ -563,6 +576,14 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
         delete speciesSelectionQLabel;
         delete speciesSelectionComboBox;
     }
+    if(forestSelection)
+    {
+        qDebug() << "Inside GeneralPurposeScreenBuilder forestSelection pointer deconstructor";
+        delete forestMSTNN;
+        delete forestSelectionModel;
+        delete forestSelectionQLabel;
+        delete forestSelectionComboBox;
+    }
     if(habPaSelection)
     {
         qDebug() << "Inside GeneralPurposeScreenBuilder habPaSelection pointer deconstructor";
@@ -634,7 +655,7 @@ void GeneralPurposeScreenBuilder::accept()
         for (int i = 0; i < dynamComboBoxes.size(); i++)
         {
             qDebug() << "Selected value:" << dynamComboBoxes.at(i)->currentText();
-            if(speciesSelection || dynamComboBoxes.at(i)->objectName().contains("speciesCode") || habPaSelection)
+            if(speciesSelection || dynamComboBoxes.at(i)->objectName().contains("speciesCode") || forestSelection || habPaSelection)
             {
                 if(speciesMSTAN->value("species_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
                 {
@@ -642,6 +663,8 @@ void GeneralPurposeScreenBuilder::accept()
                 }
                 else if(dynamComboBoxes.at(i)->currentText().contains("All affected species"))
                     qDebug() << "Send:" << speciesMSTAN->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText().remove(" affected"));
+                else if(forestMSTNN->value("Forests_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
+                    qDebug() << "Send:" << forestMSTNN->value("HabPa_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
                 else if(habPaMSTNA->value("HabPa_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
                     qDebug() << "Send:" << habPaMSTNA->value("HabPa_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
             }
@@ -679,6 +702,12 @@ void GeneralPurposeScreenBuilder::speciesComboBoxSelection()
 {
     qDebug() << "Inside speciesComboBoxSelection function";
     qDebug() << speciesSelectionComboBox->currentText() << speciesMSTAN->value("species_" + *variantFVS).key(speciesSelectionComboBox->currentText());
+}
+
+void GeneralPurposeScreenBuilder::forestComboBoxSelection()
+{
+    qDebug() << "Inside forestComboBoxSelection function";
+    qDebug() << forestSelectionComboBox->currentText() << forestMSTNN->value("Forests_" + *variantFVS).key(forestSelectionComboBox->currentText());
 }
 
 void GeneralPurposeScreenBuilder::habPaComboBoxSelection()
@@ -865,6 +894,29 @@ void GeneralPurposeScreenBuilder::createHabPaSelectionComboBox(QString fieldDesc
     habPaSelectionComboBox->setMinimumHeight(24);
     dynamComboBoxes.append(habPaSelectionComboBox);
     connect(habPaSelectionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(habPaComboBoxSelection()));
+}
+
+void GeneralPurposeScreenBuilder::createForestSelectionComboBox(QString fieldDesc)
+{
+    qDebug() << "Inside GeneralPurposeScreenBuilder::createForestSelectionComboBox";
+    qDebug() << "Forests_" + *variantFVS;
+    qDebug() << forestMSTNN->value("Forests_" + *variantFVS).keys();
+    forestSelection = true;
+//    defaultComboValue.append(" ");
+    forestSelectionComboBox = new QComboBox;
+    forestSelectionModel = new QStringListModel;
+    forestSelectionQLabel = new QLabel(fieldDesc+"\t\t\t\t");
+    forestSelectionQLabel->setAlignment(Qt::AlignLeft);
+    forestSelectionModel->setStringList(forestMSTNN->value("Forests_" + *variantFVS).values());
+    forestSelectionModel->sort(0);
+    forestSelectionComboBox->setModel(forestSelectionModel);
+    forestSelectionComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    forestSelectionComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+//    forestSelectionComboBox->setCurrentText(" ");
+    forestSelectionComboBox->setObjectName("forestSelection");
+    forestSelectionComboBox->setMinimumHeight(24);
+    dynamComboBoxes.append(forestSelectionComboBox);
+    connect(forestSelectionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(forestComboBoxSelection()));
 }
 
 void GeneralPurposeScreenBuilder::createSpeciesSelectionComboBox(QString fieldDesc)

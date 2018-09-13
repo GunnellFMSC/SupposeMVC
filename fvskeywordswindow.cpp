@@ -274,7 +274,7 @@ void FVSKeywordsWindow::on_keyword_listView_doubleClicked(const QModelIndex &ind
     qDebug() << keyword <<  parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp));
     *mainSectionText = MainWindow::readSectionFromMappedLoc(*parm, parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp)));
     MainWindow::readSectionToLists(mainSectionText, description);
-    GeneralPurposeScreenBuilder dynamWin(QString(extensionName + ": " + keyword), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, &MainWindow::speciesMSTAbbreviationName, &MainWindow::habitatTypePlantAssociationMSTNumberAbbreviation, 2018, this);
+    GeneralPurposeScreenBuilder dynamWin(QString(extensionName + ": " + keyword), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, &MainWindow::speciesMSTAbbreviationName, &MainWindow::habitatTypePlantAssociationMSTNumberAbbreviation, &MainWindow::forestMSTNumberName, 2018, this);
     dynamWin.exec();
 }
 
