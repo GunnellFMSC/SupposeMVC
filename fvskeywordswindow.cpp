@@ -211,7 +211,8 @@ void FVSKeywordsWindow::on_extension_listView_clicked(const QModelIndex &index)
     ui->category_listView->setModel(categoriesModel);
     ui->category_listView->setCurrentIndex(categoriesModel->index(0));
     ui->category_listView->clicked(categoriesModel->index(0));
-    ui->keywordDescription_label->setText("No keyword picked");
+    ui->keywordDescription_label->setText("No keyword selected");
+    ui->pushButton_Accept->setDisabled(true);
     ui->selectKeyword_lineEdit->setText("");
 }
 
@@ -242,13 +243,14 @@ void FVSKeywordsWindow::on_keyword_listView_clicked(const QModelIndex &index)
 //    ui->keywordDescription_label->setText(keywordDictionary->value(keywordsModel->data(index).toString()).value(selectedExtension));
     ui->keywordDescription_label->setText(keywordDictionary->value(selectedKeyword).value(selectedExtension));
     ui->selectKeyword_lineEdit->setText(keywordsModel->data(index).toString());
+    ui->pushButton_Accept->setDisabled(false);
 }
 
 void FVSKeywordsWindow::on_keyword_listView_doubleClicked(const QModelIndex &index)
 {
     QString keyword = keywordsModel->data(index).toString();
     qDebug() << "FVSKeywords Window Keyword" << keyword <<  "Double-Clicked.";
-    ui->selectKeyword_lineEdit->returnPressed();
+//    ui->selectKeyword_lineEdit->returnPressed();
 
     QString extensionName = extensionsModel->data(ui->extension_listView->currentIndex()).toString();
     qDebug() << "Extension: " << extensionName;
@@ -280,22 +282,57 @@ void FVSKeywordsWindow::on_keyword_listView_doubleClicked(const QModelIndex &ind
 
 void FVSKeywordsWindow::on_selectKeyword_lineEdit_returnPressed()
 {
-    qDebug() << "FVSKeywords Window select keyword line edit entered.";
-    QString selectedExtension = extenAbbrevName->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString());
+    qDebug() << "FVSKeywords Window selectKeyword_lineEdit entered.";
+    QString writtenKeyword = ui->selectKeyword_lineEdit->text();
     QString selectedKeyword = keywordsModel->data(ui->keyword_listView->currentIndex()).toString();
-    qDebug() << "Extension: " + selectedExtension + ", Keyword: " + selectedKeyword + ", Keyword textbox contains: " + ui->selectKeyword_lineEdit->text();
-    (extensionCategoryKeywords->contains(ui->selectKeyword_lineEdit->text()))?( qDebug() << ui->selectKeyword_lineEdit->text() << "Found"):( qDebug() << ui->selectKeyword_lineEdit->text() << "not found");
+    QString selectedExtension = extenAbbrevName->key(extensionsModel->data(ui->extension_listView->currentIndex()).toString());
+    qDebug() << "Extension: " + selectedExtension + ", Keyword: " + selectedKeyword + ", Keyword textbox contains: " + writtenKeyword;
+    QRegularExpression caselessWrittenKeyword(writtenKeyword, QRegularExpression::CaseInsensitiveOption);
+    if(selectedKeyword == writtenKeyword)
+        ui->pushButton_Accept->clicked();
+    else if(extensionCategoryKeywords->contains(writtenKeyword, Qt::CaseInsensitive))
+    {
+        qDebug() << writtenKeyword << "Found";
+        ui->keyword_listView->setCurrentIndex(keywordsModel->index(extensionCategoryKeywords->indexOf(caselessWrittenKeyword)));
+//        ui->pushButton_Accept->setDisabled(false);
+        ui->pushButton_Accept->clicked();
+    }
+    else
+    {
+        bool notFound = true;
+        QStringList extCateKeyFiltered;
+        qDebug() << writtenKeyword << "not found";
+        while(writtenKeyword.size() > 0 && notFound)
+        {
+            qDebug() << "Try:" << writtenKeyword;
+            caselessWrittenKeyword.setPattern("^" + writtenKeyword);
+            extCateKeyFiltered = extensionCategoryKeywords->filter(caselessWrittenKeyword);
+            if(extCateKeyFiltered.count() > 0)
+            {
+                caselessWrittenKeyword.setPattern(extCateKeyFiltered.at(0));
+                qDebug() << "Closest keyword to" << writtenKeyword << "found, selecting" << extCateKeyFiltered.at(0);
+                ui->keyword_listView->setCurrentIndex(keywordsModel->index(extensionCategoryKeywords->indexOf(caselessWrittenKeyword)));
+                ui->pushButton_Accept->setDisabled(false);
+                notFound = false;
+            }
+            writtenKeyword.chop(1);
+        }
+
+    }
 }
 
 void FVSKeywordsWindow::on_pushButton_Accept_clicked()
 {
     qDebug() << "FVSKeywords Window Accept Button Clicked.";
-    ui->selectKeyword_lineEdit->returnPressed();
+    ui->keyword_listView->clicked(ui->keyword_listView->currentIndex());
+    ui->keyword_listView->doubleClicked(ui->keyword_listView->currentIndex());
 }
 
 void FVSKeywordsWindow::on_pushButton_Reset_clicked()
 {
     qDebug() << "FVSKeywords Window Reset Button Clicked.";
+//    ui->extension_listView->setCurrentIndex(extensionsModel->index(0));
+    ui->extension_listView->clicked(extensionsModel->index(0));
 }
 
 void FVSKeywordsWindow::on_pushButton_Close_clicked()
