@@ -1,10 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-QMap<QString, QMap<QString, QString>> MainWindow::habitatTypePlantAssociationMSTNumberAbbreviation;
 QMap<QString, QMap<QString, QString>> MainWindow::keyword_Exten_MainSecTitle;
-QMap<QString, QMap<QString, QString>> MainWindow::speciesMSTAbbreviationName;
-QMap<QString, QMap<QString, QString>> MainWindow::forestMSTNumberName;
+QMap<QString, QMap<QString, QString>> MainWindow::mainSectionTextDictionary;
 QMap<QString, QString>* MainWindow::extensionAbbreviationNames;
 QMap<QString, QString>* MainWindow::variantAbbreviationNames;
 QMap<QString, QString>* MainWindow::variantExtensions;
@@ -25,29 +23,38 @@ MainWindow::MainWindow(QWidget *parent) :
         foreach (QString MainSectionText, parmMainSectionMap.keys())
         {
             if(MainSectionText.contains(QRegularExpression("species_\\w\\w$")))
-            {
+            {// Species MST Abbreviation/Name
                 QMap<QString, QString> *speciesAbbreviationName = new QMap<QString, QString>;
                 speciesAbbreviationName->insert("All", "All species");
                 qDebug() << ++count <<MainSectionText << "at position" << parmMainSectionMap.value(MainSectionText);
                 makeDictionaryFromSection(speciesAbbreviationName, readSectionFromMappedLoc(*parameters, parmMainSectionMap.value(MainSectionText)), QRegularExpression(" ?{\\d+} ? ?:{"));
-                speciesMSTAbbreviationName.insert(MainSectionText, *speciesAbbreviationName);
-                qDebug() << speciesMSTAbbreviationName.value(MainSectionText).keys() <<(speciesMSTAbbreviationName.value(MainSectionText).keys().size() - 1);
+                mainSectionTextDictionary.insert(MainSectionText, *speciesAbbreviationName);
+                qDebug() << mainSectionTextDictionary.value(MainSectionText).keys() <<(mainSectionTextDictionary.value(MainSectionText).keys().size() - 1);
             }
             else if(MainSectionText.contains(QRegularExpression("HabPa_\\w\\w$")))
-            {
+            {// Habitat Type Plant Association MST Number/Abbreviation
                 QMap<QString, QString> *habitatPlantNumberAbbreviation = new QMap<QString, QString>;
                 qDebug() << ++habPa << MainSectionText << "at position" << parmMainSectionMap.value(MainSectionText);
                 makeDictionaryFromSection(habitatPlantNumberAbbreviation, readSectionFromMappedLoc(*parameters, parmMainSectionMap.value(MainSectionText)), QRegularExpression("({blank})?:{"));
-                habitatTypePlantAssociationMSTNumberAbbreviation.insert(MainSectionText, *habitatPlantNumberAbbreviation);
-                qDebug() << habitatTypePlantAssociationMSTNumberAbbreviation.value(MainSectionText).keys() <<(habitatTypePlantAssociationMSTNumberAbbreviation.value(MainSectionText).keys().size() - 1);
+                mainSectionTextDictionary.insert(MainSectionText, *habitatPlantNumberAbbreviation);
+                qDebug() << mainSectionTextDictionary.value(MainSectionText).keys() <<(mainSectionTextDictionary.value(MainSectionText).keys().size() - 1);
             }
             else if(MainSectionText.contains(QRegularExpression("Forests_\\w\\w$")))
-            {
+            {// Forests MST Number/Name
                 QMap<QString, QString> *forestNumberName = new QMap<QString, QString>;
                 qDebug() << ++forests << MainSectionText << "at position" << parmMainSectionMap.value(MainSectionText);
                 makeDictionaryFromSection(forestNumberName, readSectionFromMappedLoc(*parameters, parmMainSectionMap.value(MainSectionText)), QRegularExpression("({blank})?:{"));
-                forestMSTNumberName.insert(MainSectionText, *forestNumberName);
-                qDebug() << forestMSTNumberName.value(MainSectionText).keys() <<(forestMSTNumberName.value(MainSectionText).keys().size() - 1);
+                mainSectionTextDictionary.insert(MainSectionText, *forestNumberName);
+                qDebug() << mainSectionTextDictionary.value(MainSectionText).keys() <<(mainSectionTextDictionary.value(MainSectionText).keys().size() - 1);
+            }
+            else if(MainSectionText.contains(QRegularExpression("conditions_list")))
+            {
+                QMap<QString, QString> *conditionsList = new QMap<QString, QString>;
+                conditionsList->insert("1NULL1", ">>>>> No Selected Condition <<<<<");
+                qDebug() << MainSectionText << "at position" << parmMainSectionMap.value(MainSectionText);
+                makeDictionaryFromSection(conditionsList, readSectionFromMappedLoc(*parameters, parmMainSectionMap.value(MainSectionText)), QRegularExpression(":{"));
+                mainSectionTextDictionary.insert(MainSectionText, *conditionsList);
+                qDebug() << mainSectionTextDictionary.value(MainSectionText).keys() <<(mainSectionTextDictionary.value(MainSectionText).keys().size() - 1);
             }
         }
         count = 0;

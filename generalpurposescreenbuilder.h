@@ -25,7 +25,7 @@ class GeneralPurposeScreenBuilder : public QDialog
     Q_OBJECT
 
 public:
-    GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *speciesMSTAbbreviationName, QMap<QString, QMap<QString, QString>> *hapPaMSTNumAbbrev, QMap<QString, QMap<QString, QString>> *forestMSTNumberName, int startYear, QWidget *parent = 0);
+    GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *mainSectionTextDictionary, int startYear, QWidget *parent = 0);
     bool addDynamComboBox(QStringList comboBoxProperties, QFormLayout *dynamBody, QLabel *tempLabel, QString fieldNum);
     QString numberToQString(double number);
     ~GeneralPurposeScreenBuilder();
@@ -66,6 +66,7 @@ private:
     QVector<QString> defaultComboValue;
     QVector<QLineEdit *> dynamLineEdits;
     QVector<QComboBox *> dynamComboBoxes;
+    QMap<QString, QMap<QString, QString>> *dictionaryMST;
 
     // Button Box
     QDialogButtonBox *buttonBox;
@@ -76,21 +77,18 @@ private:
     QLabel *habPaSelectionQLabel;
     QComboBox *habPaSelectionComboBox;
     QStringListModel *habPaSelectionModel;
-    QMap<QString, QMap<QString, QString>> *habPaMSTNA;
 
     // Forest Selection
     bool forestSelection = false;
     QLabel *forestSelectionQLabel;
     QComboBox *forestSelectionComboBox;
     QStringListModel *forestSelectionModel;
-    QMap<QString, QMap<QString, QString>> *forestMSTNN;
 
     // Species Selection
     bool speciesSelection = false;
     QLabel *speciesSelectionQLabel;
     QComboBox *speciesSelectionComboBox;
     QStringListModel *speciesSelectionModel;
-    QMap<QString, QMap<QString, QString>> *speciesMSTAN;
 
     // Schedule Box
     QLabel *yearCycleLabel;
