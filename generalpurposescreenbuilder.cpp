@@ -2,7 +2,7 @@
 
 #include "generalpurposescreenbuilder.h"
 
-GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *speciesMSTAbbreviationName, QMap<QString, QMap<QString, QString> > *hapPaMSTNumAbbrev, QMap<QString, QMap<QString, QString>> *forestMSTNumberName, int startYear, QWidget *parent) : QDialog(parent)
+GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *mainSectionTextDictionary, int startYear, QWidget *parent) : QDialog(parent)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder default constructor";
     qDebug() << "Selected variant: " + *variant;
@@ -12,12 +12,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     qDebug() << "Start year: " << *year;
     variantFVS = new QString;
     *variantFVS = *variant;
-    speciesMSTAN = new QMap<QString, QMap<QString, QString>>;
-    *speciesMSTAN = *speciesMSTAbbreviationName;
-    forestMSTNN = new QMap<QString, QMap<QString, QString>>;
-    *forestMSTNN = *forestMSTNumberName;
-    habPaMSTNA = new QMap<QString, QMap<QString, QString>>;
-    *habPaMSTNA = *hapPaMSTNumAbbrev;
+    dictionaryMST = new QMap<QString, QMap<QString, QString>>;
+    *dictionaryMST = *mainSectionTextDictionary;
     createButtonBox();
     currentField = new QString;
     QWidget *extensionKeyword = new QWidget;
@@ -82,9 +78,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 fieldNum = line.left(line.indexOf("{"));
                 qDebug() << "Variant Field Num:" << fieldNum;
                 valid = variantListCheck(line);
-//                variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
                 qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}");
-//                valid = variantList.contains(*variantFVS);
             }
             if(line.contains("{") && line.contains("}") && valid && *currentField != "title")
             {// if line specifies fieldType, gathers information and categorizes appropriately
@@ -224,14 +218,15 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                                 i--;
                             }
                     }
-                    longTitle->setModel(new QStringListModel(longTitleTemp));
                     longTitle->setFont(*font);
+                    longTitle->setModel(new QStringListModel(longTitleTemp));
                     longTitle->setMinimumWidth(longTitle->sizeHintForColumn(0) + 24);
                     longTitle->setMaximumHeight(longTitle->sizeHintForRow(0) * longTitleTemp.size());
+                    longTitle->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
                     longTitle->setEditTriggers(QAbstractItemView::NoEditTriggers);
+                    longTitle->setSelectionMode(QAbstractItemView::NoSelection);
                     longTitle->setStyleSheet("border-style: none");
                     longTitle->setFocusPolicy(Qt::NoFocus);
-                    longTitle->setSelectionMode(QAbstractItemView::NoSelection);
                     dynamBody->addRow(longTitle);
                     fieldAdded = true;
                     currentField->clear();
@@ -324,8 +319,6 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
         }
         else if(line.contains("speciesCode{"))
         {
-//            QStringList variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
-//            if(variantList.contains(*variantFVS))
             if(variantListCheck(line))
                 dynamComboBoxes.value(dynamComboBoxes.size() - 1)->setObjectName("speciesCode");
         }
@@ -361,9 +354,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 noInputRemovalCheck(dynamBody, fieldNum);
             qDebug() << "Variant Field Num:" << fieldNum;
             bool valid = variantListCheck(line);
-//            variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
             (line.size() > (line.indexOf(":")+1)) ? qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}") : qDebug() << "Variant(s):" << variantList;
-//            bool valid = variantList.contains(*variantFVS);
             line = line.mid(line.indexOf(":"));
             if(line.contains("}") && valid)
             {
@@ -387,16 +378,13 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
         {
             QString value;
             bool valid = true;
-//            QStringList variantList;
             if(line.contains(fieldValueVar))
             {
                 qDebug() << "Variant dependent Field value located" << (value = line.mid(line.lastIndexOf("{")+1).remove("}"));
                 fieldNum = line.left(line.indexOf("{"));
                 qDebug() << "Variant Field Num:" << fieldNum;
                 valid = variantListCheck(line);
-//                variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
                 (line.size() > (line.indexOf(":")+1)) ? qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}") : qDebug() << "Variant(s):" << variantList;
-//                valid = variantList.contains(*variantFVS);
                 line = line.mid(line.indexOf(":"));
             }
             else
@@ -440,8 +428,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     qDebug() << "Species Selection specification found:" << value;
                     if(!value.contains("deleteAll"))
                     {
-                        speciesSelectionComboBox->setCurrentText(speciesMSTAbbreviationName->value("species_" + *variantFVS).value(value));
-                        defaultComboValue.replace(defaultComboValue.size()-1, speciesMSTAbbreviationName->value("species_" + *variantFVS).value(value));
+                        speciesSelectionComboBox->setCurrentText(dictionaryMST->value("species_" + *variantFVS).value(value));
+                        defaultComboValue.replace(defaultComboValue.size()-1, dictionaryMST->value("species_" + *variantFVS).value(value));
                     }
                     else if(value == "deleteAll")
                     {
@@ -455,7 +443,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     {
                         value.remove("deleteAll ");
                         speciesSelectionComboBox->removeItem(speciesSelectionComboBox->findText("All species"));
-                        speciesSelectionComboBox->setCurrentText(speciesMSTAbbreviationName->value("species_" + *variantFVS).value(value));
+                        speciesSelectionComboBox->setCurrentText(dictionaryMST->value("species_" + *variantFVS).value(value));
                         defaultComboValue.replace(defaultComboValue.size()-1, speciesSelectionComboBox->currentText());
                     }
                     currentField->clear();
@@ -568,10 +556,10 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
 GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder deconstructor";
+    delete dictionaryMST;
     if(speciesSelection)
     {
         qDebug() << "Inside GeneralPurposeScreenBuilder speciesSelection pointer deconstructor";
-        delete speciesMSTAN;
         delete speciesSelectionModel;
         delete speciesSelectionQLabel;
         delete speciesSelectionComboBox;
@@ -579,7 +567,6 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
     if(forestSelection)
     {
         qDebug() << "Inside GeneralPurposeScreenBuilder forestSelection pointer deconstructor";
-        delete forestMSTNN;
         delete forestSelectionModel;
         delete forestSelectionQLabel;
         delete forestSelectionComboBox;
@@ -587,7 +574,6 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
     if(habPaSelection)
     {
         qDebug() << "Inside GeneralPurposeScreenBuilder habPaSelection pointer deconstructor";
-        delete habPaMSTNA;
         delete habPaSelectionModel;
         delete habPaSelectionQLabel;
         delete habPaSelectionComboBox;
@@ -657,24 +643,35 @@ void GeneralPurposeScreenBuilder::accept()
             qDebug() << "Selected value:" << dynamComboBoxes.at(i)->currentText();
             if(speciesSelection || dynamComboBoxes.at(i)->objectName().contains("speciesCode") || forestSelection || habPaSelection)
             {
-                if(speciesMSTAN->value("species_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
+                if(dictionaryMST->value("species_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
                 {
-                    qDebug() << "Send:" << speciesMSTAN->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
+                    qDebug() << "Send:" << dictionaryMST->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
                 }
                 else if(dynamComboBoxes.at(i)->currentText().contains("All affected species"))
-                    qDebug() << "Send:" << speciesMSTAN->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText().remove(" affected"));
-                else if(forestMSTNN->value("Forests_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
-                    qDebug() << "Send:" << forestMSTNN->value("Forests_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
-                else if(habPaMSTNA->value("HabPa_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
-                    qDebug() << "Send:" << habPaMSTNA->value("HabPa_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
+                    qDebug() << "Send:" << dictionaryMST->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText().remove(" affected"));
+                else if(dictionaryMST->value("Forests_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
+                    qDebug() << "Send:" << dictionaryMST->value("Forests_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
+                else if(dictionaryMST->value("HabPa_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
+                    qDebug() << "Send:" << dictionaryMST->value("HabPa_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
             }
+            else
+                qDebug() << "Send:" << dynamComboBoxes.at(i)->currentText();
         }
         if(validInput) this->close();
     }
     else
     {
-        qDebug() << "Last input by user was invalid";
-//        validInput = true;
+        bool doubleCheck = true;
+        for (int i = 0; i < dynamLineEdits.size(); i++)
+            if(!dynamLineEdits.at(i)->hasAcceptableInput())
+            {
+                doubleCheck = false;
+                inputErrorAlert(dynamLineEdits.value(i));
+            }
+        if(doubleCheck)
+            validInput = doubleCheck/*, acceptButton->clicked()*/;
+        else
+            qDebug() << "Last input by user was invalid";
     }
 }
 
@@ -703,19 +700,19 @@ void GeneralPurposeScreenBuilder::edit()
 void GeneralPurposeScreenBuilder::speciesComboBoxSelection()
 {
     qDebug() << "Inside speciesComboBoxSelection function";
-    qDebug() << speciesSelectionComboBox->currentText() << speciesMSTAN->value("species_" + *variantFVS).key(speciesSelectionComboBox->currentText());
+    qDebug() << speciesSelectionComboBox->currentText() << dictionaryMST->value("species_" + *variantFVS).key(speciesSelectionComboBox->currentText());
 }
 
 void GeneralPurposeScreenBuilder::forestComboBoxSelection()
 {
     qDebug() << "Inside forestComboBoxSelection function";
-    qDebug() << forestSelectionComboBox->currentText() << forestMSTNN->value("Forests_" + *variantFVS).key(forestSelectionComboBox->currentText());
+    qDebug() << forestSelectionComboBox->currentText() << dictionaryMST->value("Forests_" + *variantFVS).key(forestSelectionComboBox->currentText());
 }
 
 void GeneralPurposeScreenBuilder::habPaComboBoxSelection()
 {
     qDebug() << "Inside habPaComboBoxSelection function";
-    qDebug() << habPaSelectionComboBox->currentText() << habPaMSTNA->value("HabPa_" + *variantFVS).key(habPaSelectionComboBox->currentText());
+    qDebug() << habPaSelectionComboBox->currentText() << dictionaryMST->value("HabPa_" + *variantFVS).key(habPaSelectionComboBox->currentText());
 }
 
 void GeneralPurposeScreenBuilder::scheduleBoxSelection()
@@ -874,14 +871,14 @@ void GeneralPurposeScreenBuilder::createHabPaSelectionComboBox(QString fieldDesc
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder::createHabPaSelectionComboBox";
     qDebug() << "HabPa_" + *variantFVS;
-    qDebug() << habPaMSTNA->value("HabPa_" + *variantFVS).keys();
+    qDebug() << dictionaryMST->value("HabPa_" + *variantFVS).keys();
     habPaSelection = true;
     defaultComboValue.append("");
     habPaSelectionComboBox = new QComboBox;
     habPaSelectionModel = new QStringListModel;
     habPaSelectionQLabel = new QLabel(fieldDesc+"\t\t\t\t");
     habPaSelectionQLabel->setAlignment(Qt::AlignLeft);
-    habPaSelectionModel->setStringList(habPaMSTNA->value("HabPa_" + *variantFVS).values());
+    habPaSelectionModel->setStringList(dictionaryMST->value("HabPa_" + *variantFVS).values());
     habPaSelectionModel->sort(0);
     habPaSelectionComboBox->setModel(habPaSelectionModel);
     habPaSelectionComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -897,14 +894,14 @@ void GeneralPurposeScreenBuilder::createForestSelectionComboBox(QString fieldDes
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder::createForestSelectionComboBox";
     qDebug() << "Forests_" + *variantFVS;
-    qDebug() << forestMSTNN->value("Forests_" + *variantFVS).keys();
+    qDebug() << dictionaryMST->value("Forests_" + *variantFVS).keys();
     forestSelection = true;
     defaultComboValue.append(""); // for reset
     forestSelectionComboBox = new QComboBox;
     forestSelectionModel = new QStringListModel;
     forestSelectionQLabel = new QLabel(fieldDesc+"\t\t\t\t");
     forestSelectionQLabel->setAlignment(Qt::AlignLeft);
-    forestSelectionModel->setStringList(forestMSTNN->value("Forests_" + *variantFVS).values());
+    forestSelectionModel->setStringList(dictionaryMST->value("Forests_" + *variantFVS).values());
     forestSelectionModel->sort(0);
     forestSelectionComboBox->setModel(forestSelectionModel);
     forestSelectionComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -920,14 +917,14 @@ void GeneralPurposeScreenBuilder::createSpeciesSelectionComboBox(QString fieldDe
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder::createSpeciesSelectionComboBox";
     qDebug() << "species_" + *variantFVS;
-    qDebug() << speciesMSTAN->value("species_" + *variantFVS).keys();
+    qDebug() << dictionaryMST->value("species_" + *variantFVS).keys();
     speciesSelection = true;
     defaultComboValue.append("All species");
     speciesSelectionComboBox = new QComboBox;
     speciesSelectionModel = new QStringListModel;
     speciesSelectionQLabel = new QLabel(fieldDesc+"\t\t\t\t");
     speciesSelectionQLabel->setAlignment(Qt::AlignLeft);
-    speciesSelectionModel->setStringList(speciesMSTAN->value("species_" + *variantFVS).values());
+    speciesSelectionModel->setStringList(dictionaryMST->value("species_" + *variantFVS).values());
     speciesSelectionModel->sort(0);
     speciesSelectionComboBox->setModel(speciesSelectionModel);
     speciesSelectionComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
