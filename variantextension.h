@@ -17,16 +17,20 @@ class VariantExtension : public QDialog
 
 public:
     explicit VariantExtension(QString *variant, QMap<QString, QString> *variantExtensions, QMap<QString, QString> *variantAbbreviationNames, QMap<QString, QString> *extensionAbbreviationNames, bool *variantLocked, QWidget *parent = 0);
+    QString startingVariant;
     ~VariantExtension();
+
+signals:
+    void variantChanged();
 
 private slots:
     void on_comboBox_variant_activated(const QString &arg1);
 
     void on_comboBox_program_activated(const QString &arg1);
 
-    void on_pushButton_lock_clicked();
-
     void on_pushButton_close_clicked();
+
+    void on_pushButton_lock_clicked();
 
 private:
     bool *locked;

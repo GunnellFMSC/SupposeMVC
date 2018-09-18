@@ -20,6 +20,10 @@ namespace Ui {
 class MainWindow;
 }
 
+class FVSKeywordsWindow; // forward declaration
+class VariantExtension; // forward declaration
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -69,6 +73,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    FVSKeywordsWindow *FVSAddKeywordsWindow;
+    VariantExtension *selectVariantExtensionWindow;
 };
 
 #endif // MAINWINDOW_H

@@ -13,6 +13,26 @@ FVSKeywordsWindow::FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, 
     varExten = MainWindow::variantExtensions;
     keyword_E_MST = &(MainWindow::keyword_Exten_MainSecTitle);
     extenAbbrevName = MainWindow::extensionAbbreviationNames;
+    setExtensionCategoryKeywordModels();
+}
+
+FVSKeywordsWindow::~FVSKeywordsWindow()
+{
+    delete extensionCategoryKeywords;
+    delete categoryAbbreviationNames;
+    delete extensionCategories;
+    delete keywordDictionary;
+    delete keywordExtension;
+    delete categoryKeywords;
+    delete extensionsModel;
+    delete categoriesModel;
+    delete keywordsModel;
+    delete extensions;
+    delete ui;
+}
+
+void FVSKeywordsWindow::setExtensionCategoryKeywordModels()
+{
     extensions = new QStringList();
     keywordsModel = new QStringListModel(this);
     extensionsModel = new QStringListModel(this);
@@ -31,12 +51,12 @@ FVSKeywordsWindow::FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, 
 //    extensionsModel->sort(0);
     categoryAbbreviationNames = new QMap<QString, QString>;
     categoryAbbreviationNames->insert("all", "All keywords");
-    MainWindow::makeDictionaryFromSection(categoryAbbreviationNames, MainWindow::readSectionFromMappedLoc(*parameters, qint64(parmMap->value("keyword_categories"))));
+    MainWindow::makeDictionaryFromSection(categoryAbbreviationNames, MainWindow::readSectionFromMappedLoc(*parm, qint64(parmMap->value("keyword_categories"))));
     extensionCategories = new QMap<QString, QStringList>;
     categoryKeywords = new QMap<QString, QString/*List*/>;
     keywordDictionary = new QMap<QString, QMap<QString, QString>>;
     keywordExtension = new QMap<QString, QString>;
-    QStringList keywordListRaw = MainWindow::readSectionFromMappedLoc(*parameters, qint64(parmMap->value("keyword_list")));
+    QStringList keywordListRaw = MainWindow::readSectionFromMappedLoc(*parm, qint64(parmMap->value("keyword_list")));
     QStringList keywordExtensionCategories, extenCatetemp;
     bool midKeywordDefinition = false;
     bool strpToDo = false;
@@ -185,21 +205,6 @@ FVSKeywordsWindow::FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, 
     ui->extension_listView->setModel(extensionsModel);
     ui->extension_listView->setCurrentIndex(extensionsModel->index(0));
     ui->extension_listView->clicked(extensionsModel->index(0));
-}
-
-FVSKeywordsWindow::~FVSKeywordsWindow()
-{
-    delete extensionCategoryKeywords;
-    delete categoryAbbreviationNames;
-    delete extensionCategories;
-    delete keywordDictionary;
-    delete extensionsModel;
-    delete categoriesModel;
-    delete keywordsModel;
-    delete extensions;
-//    delete categories;
-//    delete keywords;
-    delete ui;
 }
 
 void FVSKeywordsWindow::on_extension_listView_clicked(const QModelIndex &index)
