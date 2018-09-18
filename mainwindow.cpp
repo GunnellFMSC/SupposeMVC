@@ -69,7 +69,9 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     else
         qDebug() << "CRITICAL ERROR: Mapping Unsuccessful!";
+    QStringList managementCategory = MainWindow::readSectionFromMappedLoc(*parameters, parmMainSectionMap["mgmtCategories"]);
     FVSAddKeywordsWindow = new FVSKeywordsWindow(&parmMainSectionMap, parameters, this);
+    ManagementActionsWindow = new ManagementActions(managementCategory, &parmMainSectionMap, parameters, this);
     selectVariantExtensionWindow = new VariantExtension(variant, variantExtensions, variantAbbreviationNames, extensionAbbreviationNames, &variantLocked);
     selectVariantExtensionWindow->setWindowTitle("Select Variant and Extension");
 //    connect(selectVariantExtensionWindow, SIGNAL(accepted()), this, SLOT(on_button_SelectModifiers_clicked()));
@@ -82,6 +84,7 @@ MainWindow::~MainWindow()
     delete selectVariantExtensionWindow;
     delete extensionAbbreviationNames;
     delete variantAbbreviationNames;
+    delete ManagementActionsWindow;
     delete FVSAddKeywordsWindow;
     delete variantExtensions;
     delete preferences;
@@ -173,8 +176,9 @@ bool MainWindow::mapParmsMainSectionText()
 
 void MainWindow::on_button_Exit_clicked()
 {
-    qDebug() << "Exit Button clicked.";
+    qDebug() << "Main Window Exit Button clicked.";
     selectVariantExtensionWindow->close();
+    ManagementActionsWindow->close();
     FVSAddKeywordsWindow->close();
     this->close();
 }
@@ -195,6 +199,7 @@ void MainWindow::on_actionSuppose_Preferences_triggered()
     {
         qDebug() << "Refresh Parameters";
         qDebug() << "Before: " + parameters->fileName();
+        delete parameters;
         parameters = new QFile(PreferencesFilePath + "/" + preferences->value("General Preferences/defaultParametersFileName").toString());
         qDebug() << "After: " + parameters->fileName();
         mapParmsMainSectionText();
@@ -303,10 +308,13 @@ void MainWindow::makeDictionaryFromSection(QMap<QString, QString> *dictionary, Q
 void MainWindow::on_button_SelectManagement_clicked()
 {
     qDebug() << "Select Management Button clicked";
-    QStringList managementCategory;
-    managementCategory = MainWindow::readSectionFromMappedLoc(*parameters, parmMainSectionMap["mgmtCategories"]);
-    ManagementActions ManagementActionsWindow(managementCategory, &parmMainSectionMap, parameters, this);
-    ManagementActionsWindow.exec();
+//    QStringList managementCategory;
+//    managementCategory = MainWindow::readSectionFromMappedLoc(*parameters, parmMainSectionMap["mgmtCategories"]);
+//    ManagementActions ManagementActionsWindow(managementCategory, &parmMainSectionMap, parameters, this);
+//    ManagementActionsWindow.exec();
+    ManagementActionsWindow->show();
+    ManagementActionsWindow->update();
+    ManagementActionsWindow->activateWindow();
 }
 
 void MainWindow::on_button_SelectOutputs_clicked()
