@@ -562,40 +562,45 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
         qDebug() << "Inside GeneralPurposeScreenBuilder speciesSelection pointer deconstructor";
         delete speciesSelectionModel;
         delete speciesSelectionQLabel;
-        delete speciesSelectionComboBox;
+//        delete speciesSelectionComboBox; // deleted in dynamComboBoxes
     }
     if(forestSelection)
     {
         qDebug() << "Inside GeneralPurposeScreenBuilder forestSelection pointer deconstructor";
         delete forestSelectionModel;
         delete forestSelectionQLabel;
-        delete forestSelectionComboBox;
+//        delete forestSelectionComboBox; // deleted in dynamComboBoxes
     }
     if(habPaSelection)
     {
         qDebug() << "Inside GeneralPurposeScreenBuilder habPaSelection pointer deconstructor";
         delete habPaSelectionModel;
         delete habPaSelectionQLabel;
-        delete habPaSelectionComboBox;
+//        delete habPaSelectionComboBox; // deleted in dynamComboBoxes
     }
     if(scheduleBox)
     {
         qDebug() << "Inside GeneralPurposeScreenBuilder scheduleBox pointer deconstructor";
-        delete yearCycleLine;
-        delete conditionLine;
+//        delete yearCycleLine; // deleted in dynamLineEdits
+//        delete conditionLine; // deleted in dynamLineEdits
         delete yearCycleLabel;
         delete conditionButton;
         delete yearCycleRButton;
         delete conditionRButton;
         delete scheduleBoxWidget;
     }
-    if(defaultComboValue.size() > 0)
-        dynamComboBoxes.clear();
-    if(dynamLineEdits.size() > 0)
-        dynamLineEdits.clear();
+    while(!dynamComboBoxes.empty())
+    {
+        delete dynamComboBoxes.back();
+        dynamComboBoxes.pop_back();
+    }
+    while(!dynamLineEdits.empty())
+    {// deletes "title" pointer
+        delete dynamLineEdits.back();
+        dynamLineEdits.pop_back();
+    }
     delete year;
     delete font;
-    delete title;
     delete mainLayout;
     delete variantFVS;
     delete editButton;
@@ -677,7 +682,7 @@ void GeneralPurposeScreenBuilder::accept()
 
 void GeneralPurposeScreenBuilder::reset()
 {
-    qDebug() << "Inside reset function";
+    qDebug() << "Inside reset function" << resetButton->objectName();
     if(scheduleBox)
         yearCycleRButton->setChecked(true);
     qDebug() << "Reseting line edits";
@@ -760,7 +765,7 @@ void GeneralPurposeScreenBuilder::selectionChange(QWidget* from, QWidget* to)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder::selectionChange";
     validInput = true;
-    if(from != NULL && to != NULL)
+    if(from != NULL && to != NULL && to != resetButton && to != cancelButton)
         if(from->inherits("QLineEdit"))
         {
             qDebug() << "Selection changed from" << from->objectName() << "to" << to->objectName();
@@ -853,14 +858,14 @@ void GeneralPurposeScreenBuilder::createButtonBox()
     cancelButton = new QPushButton;
     resetButton = new QPushButton;
     editButton = new QPushButton;
-    acceptButton->setObjectName("Ok");
-    resetButton->setObjectName("Reset");
-    cancelButton->setObjectName("Cancel");
-    editButton->setObjectName("Use Editor");
     acceptButton = buttonBox->addButton("Ok", QDialogButtonBox::YesRole);
     resetButton = buttonBox->addButton("Reset", QDialogButtonBox::ActionRole);
     cancelButton = buttonBox->addButton("Cancel", QDialogButtonBox::RejectRole);
     editButton = buttonBox->addButton("Use Editor", QDialogButtonBox::ActionRole);
+    acceptButton->setObjectName("Ok");
+    resetButton->setObjectName("Reset");
+    cancelButton->setObjectName("Cancel");
+    editButton->setObjectName("Use Editor");
     connect(acceptButton, SIGNAL(clicked()), this, SLOT(accept()));
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
     connect(resetButton, SIGNAL(clicked()), this, SLOT(reset()));
