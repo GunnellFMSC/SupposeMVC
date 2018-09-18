@@ -11,6 +11,7 @@ VariantExtension::VariantExtension(QString *variant, QMap<QString, QString> *var
     variantModel = new QStringListModel;
     programModel = new QStringListModel;
     extensionModel = new QStringListModel;
+    startingVariant = *variant;
     variantFVS = variant;
     locked = variantLocked;
     QStringList fvsPrograms;
@@ -68,6 +69,7 @@ void VariantExtension::on_comboBox_variant_activated(const QString &arg1)
     ui->comboBox_program->setCurrentText(programVariant->key(variantAbbreviationNamesMap->key(arg1)));
     qDebug() << "Variant: " + variantAbbreviationNamesMap->value(variantAbbreviationNamesMap->key(ui->comboBox_variant->currentText())) + " (" +variantAbbreviationNamesMap->key(ui->comboBox_variant->currentText()) + ") selected.";
     *variantFVS = variantAbbreviationNamesMap->key(ui->comboBox_variant->currentText());
+//    emit variantChanged(); // FVS reconstruction for every selection
     QStringList FVSExtensionsFull, FVSExtensionsAbbrev = QString(programExtensions->value(programVariant->key(variantAbbreviationNamesMap->key(arg1)))).split(" ");
 //     qDebug() << FVSExtensionsAbbrev;
     FVSExtensionsFull.append(extensionAbbreviationNamesMap->value("base"));
@@ -97,6 +99,9 @@ void VariantExtension::on_pushButton_lock_clicked()
 
 void VariantExtension::on_pushButton_close_clicked()
 {
-    qDebug() << "VariantExtension::Close clicked\n";
-    this->close();
+    qDebug() << "VariantExtension::Close clicked\n" << startingVariant << *variantFVS;
+//    this->close();
+    if(startingVariant != *variantFVS)
+        emit variantChanged();
+    this->accept();
 }

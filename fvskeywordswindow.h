@@ -18,6 +18,7 @@ class FVSKeywordsWindow : public QDialog
 
 public:
     explicit FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, QFile *parameters, QWidget *parent = 0);
+    void setExtensionCategoryKeywordModels();
     ~FVSKeywordsWindow();
 
 private slots:

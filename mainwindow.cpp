@@ -69,12 +69,20 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     else
         qDebug() << "CRITICAL ERROR: Mapping Unsuccessful!";
+    FVSAddKeywordsWindow = new FVSKeywordsWindow(&parmMainSectionMap, parameters, this);
+    selectVariantExtensionWindow = new VariantExtension(variant, variantExtensions, variantAbbreviationNames, extensionAbbreviationNames, &variantLocked);
+    selectVariantExtensionWindow->setWindowTitle("Select Variant and Extension");
+//    connect(selectVariantExtensionWindow, SIGNAL(accepted()), this, SLOT(on_button_SelectModifiers_clicked()));
+    connect(selectVariantExtensionWindow, &VariantExtension::variantChanged, [=](){FVSAddKeywordsWindow->setExtensionCategoryKeywordModels(); FVSAddKeywordsWindow->update();}); // potentially for every selection
+    connect(selectVariantExtensionWindow, &QDialog::accepted, [=](){selectVariantExtensionWindow->startingVariant = *variant;}); // for window close only
 }
 
 MainWindow::~MainWindow()
 {
+    delete selectVariantExtensionWindow;
     delete extensionAbbreviationNames;
     delete variantAbbreviationNames;
+    delete FVSAddKeywordsWindow;
     delete variantExtensions;
     delete preferences;
     delete parameters;
@@ -166,6 +174,8 @@ bool MainWindow::mapParmsMainSectionText()
 void MainWindow::on_button_Exit_clicked()
 {
     qDebug() << "Exit Button clicked.";
+    selectVariantExtensionWindow->close();
+    FVSAddKeywordsWindow->close();
     this->close();
 }
 
@@ -307,8 +317,10 @@ void MainWindow::on_button_SelectOutputs_clicked()
 void MainWindow::on_button_AddKeywords_clicked()
 {
     qDebug() << "Add Keywords Button clicked";
-    FVSKeywordsWindow FVSAddKeywordsWindow(&parmMainSectionMap, parameters, this);
-    FVSAddKeywordsWindow.exec();
+    /*FVSKeywordsWindow FVSAddKeywordsWindow(&parmMainSectionMap, parameters, this);
+    FVSAddKeywordsWindow.exec();*/ // for modal
+    FVSAddKeywordsWindow->show(); // for modeless
+    FVSAddKeywordsWindow->activateWindow();
 }
 
 void MainWindow::on_button_InsertFromFile_clicked()
@@ -329,7 +341,9 @@ void MainWindow::on_button_SelectModifiers_clicked()
 void MainWindow::on_actionSelect_Variant_and_Extension_triggered()
 {
     qDebug() << "Select Variant and Extension clicked";
-    VariantExtension selectVariantExtensionWindow(variant, variantExtensions, variantAbbreviationNames, extensionAbbreviationNames, &variantLocked);
+    /*VariantExtension selectVariantExtensionWindow(variant, variantExtensions, variantAbbreviationNames, extensionAbbreviationNames, &variantLocked);
     selectVariantExtensionWindow.setWindowTitle("Select Variant and Extension");
-    selectVariantExtensionWindow.exec();
+    selectVariantExtensionWindow.exec();*/
+    selectVariantExtensionWindow->show(); // modeless
+    selectVariantExtensionWindow->activateWindow();
 }
