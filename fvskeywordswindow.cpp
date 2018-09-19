@@ -307,6 +307,7 @@ void FVSKeywordsWindow::on_keyword_listView_doubleClicked(const QModelIndex &ind
         dynamWin = new GeneralPurposeScreenBuilder(QString(extensionName + ": " + keyword), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, &MainWindow::mainSectionTextDictionary, 2018, this);
     }
     dynamWin->exec();
+    dynamWin->deleteLater();
 }
 
 void FVSKeywordsWindow::on_selectKeyword_lineEdit_returnPressed()

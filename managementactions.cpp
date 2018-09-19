@@ -12,7 +12,8 @@ ManagementActions::ManagementActions(QStringList &managementCategory, QMap<QStri
     categoryTitlesAndActions = new QMap<QString, QStringList>;
     QStringList categoryActions;
     QRegularExpression category("[c]\\d\\d?:");
-    for (int i = 0; i < managementCategory.size()-1; ++i) {
+    for (int i = 0; i < managementCategory.size()-1; ++i)
+    {
         QString title, holder = managementCategory.at(i);
         if(holder.size() > 0)
             if(!(holder.at(0) == "!"))
@@ -38,6 +39,7 @@ ManagementActions::ManagementActions(QStringList &managementCategory, QMap<QStri
     managementActions = new QStringListModel(this);
     managementTitles->setStringList(categoryTitlesAndActions->keys());
     ui->ManagementTitles_listView->setModel(managementTitles);
+    connect(this, &QDialog::finished, [=]() {ui->ManagementTitles_listView->clearSelection(); managementActions->setStringList(QStringList());ui->ManagmentActions_listView->setModel(managementActions);});
 }
 
 ManagementActions::~ManagementActions()
@@ -102,6 +104,9 @@ void ManagementActions::on_ManagmentActions_listView_clicked(const QModelIndex &
         {
             qDebug() << "GPSB: General Purpose Screen Builder";
             qDebug() << "Management Title: " << actionInfoSplit.at(2);
+//            containerGPSB.append(new GeneralPurposeScreenBuilder(QString(actionName), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, &MainWindow::mainSectionTextDictionary, 2018, this));
+//            containerGPSB.last()->show();
+//            containerGPSB.last()->activateWindow();
         }
         else if(QString(actionInfoSplit.at(1)).contains("Win"))
         {
@@ -120,4 +125,10 @@ void ManagementActions::on_Close_clicked()
 {
     qDebug() << "Management Actions Close Button Clicked.";
     this->close();
+}
+
+void ManagementActions::on_ManagementTitles_listView_activated(const QModelIndex &index)
+{
+    qDebug() << "Management Title " << managementTitles->data(index).toString() << " activated.";
+    ui->ManagementTitles_listView->clicked(index);
 }
