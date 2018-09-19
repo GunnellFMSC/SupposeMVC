@@ -313,7 +313,6 @@ void MainWindow::on_button_SelectManagement_clicked()
 //    ManagementActions ManagementActionsWindow(managementCategory, &parmMainSectionMap, parameters, this);
 //    ManagementActionsWindow.exec();
     ManagementActionsWindow->show();
-    ManagementActionsWindow->update();
     ManagementActionsWindow->activateWindow();
 }
 
