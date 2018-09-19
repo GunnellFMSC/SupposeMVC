@@ -20,8 +20,10 @@ namespace Ui {
 class MainWindow;
 }
 
-class FVSKeywordsWindow; // forward declaration
-class VariantExtension; // forward declaration
+// forward declarations to enable pointers for window non-modality
+class FVSKeywordsWindow;
+class ManagementActions;
+class VariantExtension;
 
 
 class MainWindow : public QMainWindow
@@ -74,6 +76,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     FVSKeywordsWindow *FVSAddKeywordsWindow;
+    ManagementActions *ManagementActionsWindow;
     VariantExtension *selectVariantExtensionWindow;
 };
 
