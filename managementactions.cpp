@@ -39,7 +39,8 @@ ManagementActions::ManagementActions(QStringList &managementCategory, QMap<QStri
     managementActions = new QStringListModel(this);
     managementTitles->setStringList(categoryTitlesAndActions->keys());
     ui->ManagementTitles_listView->setModel(managementTitles);
-    connect(this, &QDialog::finished, [=]() {ui->ManagementTitles_listView->clearSelection(); managementActions->setStringList(QStringList());ui->ManagmentActions_listView->setModel(managementActions);});
+    // reverts Management Actions window to initial state
+    connect(this, &QDialog::finished, [=]() {ui->ManagementTitles_listView->clearSelection(); managementActions->setStringList(QStringList());ui->ManagmentActions_listView->setModel(managementActions); ui->ManagmentActions_listView->update();});
 }
 
 ManagementActions::~ManagementActions()
