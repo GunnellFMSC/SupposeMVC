@@ -550,6 +550,12 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     resetButton->setFont(*font);
     editButton->setFont(*font);
     setLayout(mainLayout);
+    QRect rectGPSB, screenActual = qApp->desktop()->availableGeometry();
+    rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? (dynamBody->sizeHint().width() * 1.1):(screenActual.width()*0.9));
+    rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? (mainLayout->sizeHint().height() * 1.1):(screenActual.height()*0.9));
+    this->setGeometry(rectGPSB);
+    // centers window and sets width and height
+    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), screenActual));
     validInput = true;
 }
 
