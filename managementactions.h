@@ -37,6 +37,7 @@ private:
     Ui::ManagementActions *ui;
     QMap<QString, qint64> *parmMap;
     QModelIndex *managementTitleIndex;
+    QStringList *mainSectionText, *description;
     QMap<QString, QStringList> *categoryTitlesAndActions;
     QStringListModel *managementTitles, *managementActions;
 };
