@@ -158,6 +158,15 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     fieldDescription.clear();
                     fieldAdded = true;
                 }
+                else if(fieldType == "checkBox")
+                {
+                    dynamCheckBoxes.append(new QCheckBox(fieldDescription));
+                    dynamBody->addRow(dynamCheckBoxes.last());
+                    dynamCheckBoxes.last()->setFont(*font);
+                    *currentField = fieldType;
+                    fieldDescription.clear();
+                    fieldAdded = true;
+                }
                 else if(fieldType.contains("listButton", Qt::CaseInsensitive))
                 {
                     qDebug() << fieldType;
@@ -515,6 +524,10 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     tempLineEdit->setText(value);
                     defaultLineValue.replace(defaultLineValue.size()-1, value);
                 }
+                else if(*currentField == "checkBox" && valid)
+                {// if value is 1, box is checked, else unchecked
+                    value.toInt() == 1 ? dynamCheckBoxes.last()->setChecked(true) : dynamCheckBoxes.last()->setChecked(false);
+                }
             }
         }
     }
@@ -550,12 +563,12 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     resetButton->setFont(*font);
     editButton->setFont(*font);
     setLayout(mainLayout);
+    // sets initial window size with respect to contained objects and screen
     QRect rectGPSB, screenActual = qApp->desktop()->availableGeometry();
     rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? (dynamBody->sizeHint().width() * 1.1):(screenActual.width()*0.9));
     rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? (mainLayout->sizeHint().height() * 1.1):(screenActual.height()*0.9));
     this->setGeometry(rectGPSB);
-    // centers window and sets width and height
-    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), screenActual));
+    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), screenActual)); // centers window (http://doc.qt.io/qt-5/qstyle.html#alignedRect, https://wiki.qt.io/How_to_Center_a_Window_on_the_Screen)
     validInput = true;
 }
 
@@ -564,31 +577,26 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
     qDebug() << "Inside GeneralPurposeScreenBuilder deconstructor";
     delete dictionaryMST;
     if(speciesSelection)
-    {
+    {// speciesSelectionComboBox is deleted in dynamComboBoxes
         qDebug() << "Inside GeneralPurposeScreenBuilder speciesSelection pointer deconstructor";
         delete speciesSelectionModel;
         delete speciesSelectionQLabel;
-//        delete speciesSelectionComboBox; // deleted in dynamComboBoxes
     }
     if(forestSelection)
-    {
+    {// forestSelectionComboBox is deleted in dynamComboBoxes
         qDebug() << "Inside GeneralPurposeScreenBuilder forestSelection pointer deconstructor";
         delete forestSelectionModel;
         delete forestSelectionQLabel;
-//        delete forestSelectionComboBox; // deleted in dynamComboBoxes
     }
     if(habPaSelection)
-    {
+    {// habPaSelectionComboBox is deleted in dynamComboBoxes
         qDebug() << "Inside GeneralPurposeScreenBuilder habPaSelection pointer deconstructor";
         delete habPaSelectionModel;
         delete habPaSelectionQLabel;
-//        delete habPaSelectionComboBox; // deleted in dynamComboBoxes
     }
     if(scheduleBox)
-    {
+    {// yearCycleLine & conditionLine are deleted in dynamLineEdits
         qDebug() << "Inside GeneralPurposeScreenBuilder scheduleBox pointer deconstructor";
-//        delete yearCycleLine; // deleted in dynamLineEdits
-//        delete conditionLine; // deleted in dynamLineEdits
         delete yearCycleLabel;
         delete conditionButton;
         delete yearCycleRButton;
@@ -599,6 +607,11 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
     {
         delete dynamComboBoxes.back();
         dynamComboBoxes.pop_back();
+    }
+    while(!dynamCheckBoxes.empty())
+    {
+        delete dynamCheckBoxes.back();
+        dynamCheckBoxes.pop_back();
     }
     while(!dynamLineEdits.empty())
     {// deletes "title" pointer
@@ -667,6 +680,10 @@ void GeneralPurposeScreenBuilder::accept()
             }
             else
                 qDebug() << "Send:" << dynamComboBoxes.at(i)->currentText();
+        }
+        for (int i = 0; i < dynamCheckBoxes.size(); i++)
+        {
+            qDebug() << "Check box" << i << "has the value:" << dynamCheckBoxes.at(i)->isChecked() << "for \"is checked\".";
         }
         if(validInput) this->close();
     }

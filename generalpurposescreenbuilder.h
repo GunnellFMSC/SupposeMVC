@@ -6,6 +6,7 @@
 #include <QVector>
 #include <QDialog>
 #include <QSettings>
+#include <QCheckBox>
 #include <QListView>
 #include <QComboBox>
 #include <QFormLayout>
@@ -66,6 +67,7 @@ private:
     QVector<QString> defaultComboValue;
     QVector<QLineEdit *> dynamLineEdits;
     QVector<QComboBox *> dynamComboBoxes;
+    QVector<QCheckBox *> dynamCheckBoxes;
     QMap<QString, QMap<QString, QString>> *dictionaryMST;
 
     // Button Box
