@@ -8,6 +8,8 @@ ManagementActions::ManagementActions(QStringList &managementCategory, QMap<QStri
     ui->setupUi(this);
     parm = parameters;
     parmMap = parmMainSectionMap;
+    description = new QStringList;
+    mainSectionText = new QStringList;
     setWindowTitle("Management Actions");
     categoryTitlesAndActions = new QMap<QString, QStringList>;
     QStringList categoryActions;
@@ -72,6 +74,7 @@ void ManagementActions::on_ManagementTitles_listView_clicked(const QModelIndex &
 
 void ManagementActions::on_ManagmentActions_listView_clicked(const QModelIndex &index)
 {
+    QMap<QString, QMap<QString, QString>> *keyword_E_MST = &(MainWindow::keyword_Exten_MainSecTitle);
     QString actionName = categoryTitlesAndActions->value(managementTitles->data(*managementTitleIndex).toString()).at(index.row());
     QString actionInfo = actionName;
     int indexSemicolon = actionName.indexOf(';');
@@ -103,11 +106,44 @@ void ManagementActions::on_ManagmentActions_listView_clicked(const QModelIndex &
         qDebug() << "Holder contains: " << actionInfoSplit;
         if(actionInfoSplit.at(1) == "GPSB")
         {
+            QString keyword, extension = actionInfoSplit.at(0);
             qDebug() << "GPSB: General Purpose Screen Builder";
             qDebug() << "Management Title: " << actionInfoSplit.at(2);
-//            containerGPSB.append(new GeneralPurposeScreenBuilder(QString(actionName), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, &MainWindow::mainSectionTextDictionary, 2018, this));
+            QString(actionInfoSplit.at(2)).contains("keyword")?(keyword = QString(actionInfoSplit.at(2)).right(QString(actionInfoSplit.at(2)).size() - 1 - QString(actionInfoSplit.at(2)).lastIndexOf("."))):(keyword = actionInfoSplit.at(2));
+            description->clear();
+            mainSectionText->clear();
+            if(parmMap->value(keyword_E_MST->value(keyword).value(extension)) == 0)
+            {
+                if(parmMap->value(keyword) == 0)
+                    qDebug() << "Keyword" << keyword << "not found!";
+                else
+                {
+                    qDebug() << keyword <<  parmMap->value(keyword);
+                    qDebug() << keyword << "found in parm";
+                    *mainSectionText = MainWindow::readSectionFromMappedLoc(*parm, parmMap->value(keyword));
+                }
+            }
+            else
+            {
+                qDebug() << actionInfoSplit.at(2) << "found in keyword_Exten_MainSecTitle";
+                qDebug() << keyword <<  parmMap->value(keyword_E_MST->value(keyword).value(extension));
+                *mainSectionText = MainWindow::readSectionFromMappedLoc(*parm, parmMap->value(keyword_E_MST->value(keyword).value(extension)));
+
+            }
+            MainWindow::readSectionToLists(mainSectionText, description);
+//            qDebug() << keyword <<  parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp));
+            GeneralPurposeScreenBuilder *dynamWin;
+//            if(QStringList(mainSectionText->filter("scheduleBox")).size() == 0)
+                dynamWin = new GeneralPurposeScreenBuilder(QString(actionName), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, &MainWindow::mainSectionTextDictionary, 2018, this);
+//            else
+//            {
+//                qDebug() << "Place Secondary General Purpose Screen Builder constructor containing vectors in description and mainSectionText to allow for condition window here.";
+//                containerGPSB.append(new GeneralPurposeScreenBuilder(QString(actionName), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, &MainWindow::mainSectionTextDictionary, 2018, this));
+//            }
 //            containerGPSB.last()->show();
 //            containerGPSB.last()->activateWindow();
+            dynamWin->exec();
+            dynamWin->deleteLater();
         }
         else if(QString(actionInfoSplit.at(1)).contains("Win"))
         {
