@@ -39,9 +39,6 @@ private slots:
     void reset();
     void accept();
     void scheduleBoxSelection();
-    void habPaComboBoxSelection();
-    void forestComboBoxSelection();
-    void speciesComboBoxSelection();
     void inputErrorAlert(QLineEdit *input);
     void liveInputMod(QString lineEditValue);
     void selectionChange(QWidget *from, QWidget *to);
@@ -50,9 +47,7 @@ private:
     void createButtonBox();
     void modifyInput(QLineEdit *input);
     void createScheduleBox(QFormLayout *dynamicBody);
-    void createHabPaSelectionComboBox(QString fieldDesc);
-    void createForestSelectionComboBox(QString fieldDesc);
-    void createSpeciesSelectionComboBox(QString fieldDesc);
+    void createSpecialSelectionComboBox(QString type);// for Selection of Species, Habitat Type Plant Association, Forests
     void noInputRemovalCheck(QFormLayout *dynamicBody, QString fieldNum);
 
     // Generic
@@ -62,7 +57,7 @@ private:
     QLineEdit *title;
     QString *variantFVS;
     QString *currentField;
-    QGridLayout *mainLayout;
+    QVector<bool> defaultCheckValue;
     QVector<QString> defaultLineValue;
     QVector<QString> defaultComboValue;
     QVector<QLineEdit *> dynamLineEdits;
@@ -73,24 +68,6 @@ private:
     // Button Box
     QDialogButtonBox *buttonBox;
     QPushButton *acceptButton, *editButton, *resetButton, *cancelButton;
-
-    // Habitat Type Plant Association Selection
-    bool habPaSelection = false;
-    QLabel *habPaSelectionQLabel;
-    QComboBox *habPaSelectionComboBox;
-    QStringListModel *habPaSelectionModel;
-
-    // Forest Selection
-    bool forestSelection = false;
-    QLabel *forestSelectionQLabel;
-    QComboBox *forestSelectionComboBox;
-    QStringListModel *forestSelectionModel;
-
-    // Species Selection
-    bool speciesSelection = false;
-    QLabel *speciesSelectionQLabel;
-    QComboBox *speciesSelectionComboBox;
-    QStringListModel *speciesSelectionModel;
 
     // Schedule Box
     QLabel *yearCycleLabel;

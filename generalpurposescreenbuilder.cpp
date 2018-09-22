@@ -80,7 +80,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 valid = variantListCheck(line);
                 qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}");
             }
-            if(line.contains("{") && line.contains("}") && valid && *currentField != "title")
+            if(line.contains("{") && line.contains("}") && valid && !currentField->contains("title"))
             {// if line specifies fieldType, gathers information and categorizes appropriately
                 inField = false;
                 line = line.mid(line.lastIndexOf("{")+1).remove("}");
@@ -105,34 +105,17 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     fieldDescription.clear();
                     fieldAdded = true;
                 }
-                else if(fieldType == "speciesSelection")
+                else if(fieldType == "speciesSelection" || fieldType == "habPaSelection" || fieldType == "forestSelection")
                 {
-                    createSpeciesSelectionComboBox(fieldDescription);
-                    dynamBody->addRow(speciesSelectionQLabel, speciesSelectionComboBox);
-                    speciesSelectionComboBox->setFont(*font);
-                    speciesSelectionQLabel->setFont(*font);
-                    *currentField = fieldType;
-                    fieldDescription.clear();
-                    fieldAdded = true;
-                }
-                else if(fieldType == "forestSelection")
-                {
-                    qDebug() << "forestSelection found";
-                    createForestSelectionComboBox(fieldDescription);
-                    dynamBody->addRow(forestSelectionQLabel, forestSelectionComboBox);
-                    forestSelectionComboBox->setFont(*font);
-                    forestSelectionQLabel->setFont(*font);
-                    *currentField = fieldType;
-                    fieldDescription.clear();
-                    fieldAdded = true;
-                }
-                else if(fieldType == "habPaSelection")
-                {
-                    qDebug() << "habPaSelection found";
-                    createHabPaSelectionComboBox(fieldDescription);
-                    dynamBody->addRow(habPaSelectionQLabel, habPaSelectionComboBox);
-                    habPaSelectionComboBox->setFont(*font);
-                    habPaSelectionQLabel->setFont(*font);
+                    QString type = fieldType == "speciesSelection"?"species_":(fieldType == "habPaSelection"?"HabPa_":"Forests_");
+                    qDebug() << type + "Selection found";
+                    createSpecialSelectionComboBox(type);
+                    QLabel *selectionQLabel = new QLabel(fieldDescription + "\t\t\t\t");
+                    selectionQLabel->setAlignment(Qt::AlignLeft);
+                    dynamBody->addRow(selectionQLabel, dynamComboBoxes.last());
+                    dynamComboBoxes.last()->setObjectName(type + "Selection");
+                    dynamComboBoxes.last()->setFont(*font);
+                    selectionQLabel->setFont(*font);
                     *currentField = fieldType;
                     fieldDescription.clear();
                     fieldAdded = true;
@@ -161,8 +144,10 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 else if(fieldType == "checkBox")
                 {
                     dynamCheckBoxes.append(new QCheckBox(fieldDescription));
+                    dynamCheckBoxes.last()->setObjectName("checkBox" + QString::number(dynamCheckBoxes.size()));
                     dynamBody->addRow(dynamCheckBoxes.last());
                     dynamCheckBoxes.last()->setFont(*font);
+                    defaultCheckValue.append(false);
                     *currentField = fieldType;
                     fieldDescription.clear();
                     fieldAdded = true;
@@ -293,8 +278,6 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     tempLabel->setFont(*font);
                     tempLineEdit = new QLineEdit();
                     tempLineEdit->setFont(*font);
-//                    if(fieldType.contains("intNumberBox"))
-//                        tempLineEdit->setValidator(new QIntValidator());
                     if(fieldType.contains("numberBox", Qt::CaseInsensitive))
                         tempLineEdit->setValidator(new QDoubleValidator());
                     bool duplicate = false;
@@ -302,7 +285,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                         noInputRemovalCheck(dynamBody, fieldNum);
                     if(dynamLineEdits.size() > 1)
                     {
-                        if(dynamLineEdits.value(dynamLineEdits.size() - 1)->objectName() == fieldNum)
+                        if(dynamLineEdits.value(dynamLineEdits.size() - 1)->objectName().contains(fieldNum))
                             duplicate = true;
                     }
                     if(!duplicate)
@@ -432,28 +415,28 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     defaultLineValue.replace(defaultLineValue.size()-1, conditionLine->text());
                     currentField->clear();
                 }
-                else if(*currentField == "speciesSelection" && valid)
+                else if(*currentField == "species_Selection" && valid)
                 {
                     qDebug() << "Species Selection specification found:" << value;
                     if(!value.contains("deleteAll"))
                     {
-                        speciesSelectionComboBox->setCurrentText(dictionaryMST->value("species_" + *variantFVS).value(value));
+                        dynamComboBoxes.last()->setCurrentText(dictionaryMST->value("species_" + *variantFVS).value(value));
                         defaultComboValue.replace(defaultComboValue.size()-1, dictionaryMST->value("species_" + *variantFVS).value(value));
                     }
                     else if(value == "deleteAll")
                     {
-                        speciesSelectionComboBox->removeItem(speciesSelectionComboBox->findText("All species"));
+                        dynamComboBoxes.last()->removeItem(dynamComboBoxes.last()->findText("All species"));
 //                        speciesSelectionComboBox->insertItem(0, " ");
 //                        speciesSelectionComboBox->setCurrentText(" ");
 //                        defaultComboValue.replace(defaultComboValue.size()-1, " ");
-                        defaultComboValue.replace(defaultComboValue.size()-1, speciesSelectionComboBox->currentText());
+                        defaultComboValue.replace(defaultComboValue.size()-1, dynamComboBoxes.last()->currentText());
                     }
                     else if(value.contains("deleteAll "))
                     {
                         value.remove("deleteAll ");
-                        speciesSelectionComboBox->removeItem(speciesSelectionComboBox->findText("All species"));
-                        speciesSelectionComboBox->setCurrentText(dictionaryMST->value("species_" + *variantFVS).value(value));
-                        defaultComboValue.replace(defaultComboValue.size()-1, speciesSelectionComboBox->currentText());
+                        dynamComboBoxes.last()->removeItem(dynamComboBoxes.last()->findText("All species"));
+                        dynamComboBoxes.last()->setCurrentText(dictionaryMST->value("species_" + *variantFVS).value(value));
+                        defaultComboValue.replace(defaultComboValue.size()-1, dynamComboBoxes.last()->currentText());
                     }
                     currentField->clear();
                 }
@@ -466,7 +449,6 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                             if(boxProperties.at(i).contains("Fmax"))
                                 boxProperties.replace(i, intRange);
                     QDoubleValidator *custom = new QDoubleValidator();
-//                    custom->setProperty("notation", QDoubleValidator::StandardNotation);
                     if(boxProperties.at(0) != "blank")
                     {
                         qDebug() << "default number box amount altered to " + boxProperties.at(0);
@@ -509,7 +491,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     tempLineEdit->setValidator(custom);
 //                    tempLineEdit->setMinimumSize(tempLineEdit->sizeHint());
 //                    tempLineEdit->setMaximumSize(tempLineEdit->sizeHint()*3);
-                    tempLineEdit->setObjectName(QString::number(dynamLineEdits.size()));
+                    tempLineEdit->setObjectName("numberBox" + QString::number(dynamLineEdits.size()));
 //                    tempLineEdit->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
                     connect(dynamLineEdits.value(dynamLineEdits.size()-1), SIGNAL(textEdited(QString)), this, SLOT(liveInputMod(QString)));
                     connect(tempLineEdit, &QLineEdit::editingFinished, [=]() {modifyInput(tempLineEdit);qDebug() << "EDITING FINISHED!";}); // lambda, http://doc.qt.io/qt-5/qobject.html#connect-4
@@ -527,6 +509,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 else if(*currentField == "checkBox" && valid)
                 {// if value is 1, box is checked, else unchecked
                     value.toInt() == 1 ? dynamCheckBoxes.last()->setChecked(true) : dynamCheckBoxes.last()->setChecked(false);
+                    defaultCheckValue.replace(defaultCheckValue.size()-1, value.toInt());
                 }
             }
         }
@@ -553,7 +536,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     scrollArea->setWidgetResizable (true);
     scrollArea->setWidget(dynamBodyHolder); // adds dynamically created body to scroll area
 
-    mainLayout = new QGridLayout;
+    QGridLayout *mainLayout = new QGridLayout;
     mainLayout->addWidget(extensionKeyword, 0, 0);
     mainLayout->addWidget(scrollArea, 2, 0);
 //    mainLayout->addWidget(dynamBodyHolder, 3, 0);
@@ -575,28 +558,12 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
 GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder deconstructor";
+
     delete dictionaryMST;
-    if(speciesSelection)
-    {// speciesSelectionComboBox is deleted in dynamComboBoxes
-        qDebug() << "Inside GeneralPurposeScreenBuilder speciesSelection pointer deconstructor";
-        delete speciesSelectionModel;
-        delete speciesSelectionQLabel;
-    }
-    if(forestSelection)
-    {// forestSelectionComboBox is deleted in dynamComboBoxes
-        qDebug() << "Inside GeneralPurposeScreenBuilder forestSelection pointer deconstructor";
-        delete forestSelectionModel;
-        delete forestSelectionQLabel;
-    }
-    if(habPaSelection)
-    {// habPaSelectionComboBox is deleted in dynamComboBoxes
-        qDebug() << "Inside GeneralPurposeScreenBuilder habPaSelection pointer deconstructor";
-        delete habPaSelectionModel;
-        delete habPaSelectionQLabel;
-    }
+
     if(scheduleBox)
     {// yearCycleLine & conditionLine are deleted in dynamLineEdits
-        qDebug() << "Inside GeneralPurposeScreenBuilder scheduleBox pointer deconstructor";
+//        qDebug() << "Inside GeneralPurposeScreenBuilder scheduleBox pointer deconstructor";
         delete yearCycleLabel;
         delete conditionButton;
         delete yearCycleRButton;
@@ -605,29 +572,28 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
     }
     while(!dynamComboBoxes.empty())
     {
+//        qDebug() << "Inside GeneralPurposeScreenBuilderdynamComboBoxes  deconstructor";
         delete dynamComboBoxes.back();
         dynamComboBoxes.pop_back();
     }
     while(!dynamCheckBoxes.empty())
     {
+//        qDebug() << "Inside GeneralPurposeScreenBuilder dynamCheckBoxes deconstructor";
         delete dynamCheckBoxes.back();
         dynamCheckBoxes.pop_back();
     }
     while(!dynamLineEdits.empty())
     {// deletes "title" pointer
+//        qDebug() << "Inside GeneralPurposeScreenBuilder dynamLineEdits deconstructor";
         delete dynamLineEdits.back();
         dynamLineEdits.pop_back();
     }
+//    qDebug() << "Inside GeneralPurposeScreenBuilder generic deconstructor";
     delete year;
     delete font;
-    delete mainLayout;
     delete variantFVS;
-    delete editButton;
-    delete resetButton;
-    delete cancelButton;
-    delete acceptButton;
     delete currentField;
-    delete buttonBox;
+    delete buttonBox; // deletes editButton, resetButton, acceptButton, & cancelButton
 }
 
 void GeneralPurposeScreenBuilder::accept()
@@ -665,7 +631,7 @@ void GeneralPurposeScreenBuilder::accept()
         for (int i = 0; i < dynamComboBoxes.size(); i++)
         {
             qDebug() << "Selected value:" << dynamComboBoxes.at(i)->currentText();
-            if(speciesSelection || dynamComboBoxes.at(i)->objectName().contains("speciesCode") || forestSelection || habPaSelection)
+            if(dynamComboBoxes.at(i)->objectName().contains("species_") || dynamComboBoxes.at(i)->objectName().contains("speciesCode") || dynamComboBoxes.at(i)->objectName().contains("Forests_") || dynamComboBoxes.at(i)->objectName().contains("HabPa_"))
             {
                 if(dictionaryMST->value("species_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
                 {
@@ -683,7 +649,7 @@ void GeneralPurposeScreenBuilder::accept()
         }
         for (int i = 0; i < dynamCheckBoxes.size(); i++)
         {
-            qDebug() << "Check box" << i << "has the value:" << dynamCheckBoxes.at(i)->isChecked() << "for \"is checked\".";
+            qDebug() << "Check box" << i+1 << "has the value:" << dynamCheckBoxes.at(i)->isChecked() << "for \"is checked\".";
         }
         if(validInput) this->close();
     }
@@ -718,29 +684,17 @@ void GeneralPurposeScreenBuilder::reset()
         qDebug() << dynamComboBoxes.at(i)->objectName();
         dynamComboBoxes.value(i)->setCurrentText(defaultComboValue.at(i));
     }
+    qDebug() << "Reseting check boxes";
+    for (int i = 0; i < defaultCheckValue.size(); i++)
+    {
+        qDebug() << defaultCheckValue.at(i);
+        dynamCheckBoxes.value(i)->setChecked(defaultCheckValue.at(i));
+    }
 }
 
 void GeneralPurposeScreenBuilder::edit()
 {
     qDebug() << "Inside edit function";
-}
-
-void GeneralPurposeScreenBuilder::speciesComboBoxSelection()
-{
-    qDebug() << "Inside speciesComboBoxSelection function";
-    qDebug() << speciesSelectionComboBox->currentText() << dictionaryMST->value("species_" + *variantFVS).key(speciesSelectionComboBox->currentText());
-}
-
-void GeneralPurposeScreenBuilder::forestComboBoxSelection()
-{
-    qDebug() << "Inside forestComboBoxSelection function";
-    qDebug() << forestSelectionComboBox->currentText() << dictionaryMST->value("Forests_" + *variantFVS).key(forestSelectionComboBox->currentText());
-}
-
-void GeneralPurposeScreenBuilder::habPaComboBoxSelection()
-{
-    qDebug() << "Inside habPaComboBoxSelection function";
-    qDebug() << habPaSelectionComboBox->currentText() << dictionaryMST->value("HabPa_" + *variantFVS).key(habPaSelectionComboBox->currentText());
 }
 
 void GeneralPurposeScreenBuilder::scheduleBoxSelection()
@@ -766,9 +720,9 @@ void GeneralPurposeScreenBuilder::scheduleBoxSelection()
 void GeneralPurposeScreenBuilder::liveInputMod(QString lineEditValue)
 {
     QWidget *selected = this->focusWidget();
-    if(selected->objectName().toInt() <= dynamLineEdits.size())
+    if(selected->objectName().remove("numberBox").toInt() <= dynamLineEdits.size())
     {
-        int lineEditNum = selected->objectName().toInt()-1;
+        int lineEditNum = selected->objectName().remove("numberBox").toInt()-1;
         if(lineEditValue.contains("e"))
             dynamLineEdits.value(lineEditNum)->setText(lineEditValue.remove("e"));
         if(lineEditValue.contains("+"))
@@ -895,73 +849,23 @@ void GeneralPurposeScreenBuilder::createButtonBox()
     connect(editButton, SIGNAL(clicked()), this, SLOT(edit()));
 }
 
-void GeneralPurposeScreenBuilder::createHabPaSelectionComboBox(QString fieldDesc)
+void GeneralPurposeScreenBuilder::createSpecialSelectionComboBox(QString type)
 {
-    qDebug() << "Inside GeneralPurposeScreenBuilder::createHabPaSelectionComboBox";
-    qDebug() << "HabPa_" + *variantFVS;
-    qDebug() << dictionaryMST->value("HabPa_" + *variantFVS).keys();
-    habPaSelection = true;
-    defaultComboValue.append("");
-    habPaSelectionComboBox = new QComboBox;
-    habPaSelectionModel = new QStringListModel;
-    habPaSelectionQLabel = new QLabel(fieldDesc+"\t\t\t\t");
-    habPaSelectionQLabel->setAlignment(Qt::AlignLeft);
-    habPaSelectionModel->setStringList(dictionaryMST->value("HabPa_" + *variantFVS).values());
-    habPaSelectionModel->sort(0);
-    habPaSelectionComboBox->setModel(habPaSelectionModel);
-    habPaSelectionComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    habPaSelectionComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    habPaSelectionComboBox->setCurrentText("");
-    habPaSelectionComboBox->setObjectName("HabPa_Selection");
-    habPaSelectionComboBox->setMinimumHeight(24);
-    dynamComboBoxes.append(habPaSelectionComboBox);
-    connect(habPaSelectionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(habPaComboBoxSelection()));
-}
-
-void GeneralPurposeScreenBuilder::createForestSelectionComboBox(QString fieldDesc)
-{
-    qDebug() << "Inside GeneralPurposeScreenBuilder::createForestSelectionComboBox";
-    qDebug() << "Forests_" + *variantFVS;
-    qDebug() << dictionaryMST->value("Forests_" + *variantFVS).keys();
-    forestSelection = true;
-    defaultComboValue.append(""); // for reset
-    forestSelectionComboBox = new QComboBox;
-    forestSelectionModel = new QStringListModel;
-    forestSelectionQLabel = new QLabel(fieldDesc+"\t\t\t\t");
-    forestSelectionQLabel->setAlignment(Qt::AlignLeft);
-    forestSelectionModel->setStringList(dictionaryMST->value("Forests_" + *variantFVS).values());
-    forestSelectionModel->sort(0);
-    forestSelectionComboBox->setModel(forestSelectionModel);
-    forestSelectionComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    forestSelectionComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-//    forestSelectionComboBox->setCurrentText("");
-    forestSelectionComboBox->setObjectName("forestSelection");
-    forestSelectionComboBox->setMinimumHeight(24);
-    dynamComboBoxes.append(forestSelectionComboBox);
-    connect(forestSelectionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(forestComboBoxSelection()));
-}
-
-void GeneralPurposeScreenBuilder::createSpeciesSelectionComboBox(QString fieldDesc)
-{
-    qDebug() << "Inside GeneralPurposeScreenBuilder::createSpeciesSelectionComboBox";
-    qDebug() << "species_" + *variantFVS;
-    qDebug() << dictionaryMST->value("species_" + *variantFVS).keys();
-    speciesSelection = true;
-    defaultComboValue.append("All species");
-    speciesSelectionComboBox = new QComboBox;
-    speciesSelectionModel = new QStringListModel;
-    speciesSelectionQLabel = new QLabel(fieldDesc+"\t\t\t\t");
-    speciesSelectionQLabel->setAlignment(Qt::AlignLeft);
-    speciesSelectionModel->setStringList(dictionaryMST->value("species_" + *variantFVS).values());
-    speciesSelectionModel->sort(0);
-    speciesSelectionComboBox->setModel(speciesSelectionModel);
-    speciesSelectionComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    speciesSelectionComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-    speciesSelectionComboBox->setCurrentText("All species");
-    speciesSelectionComboBox->setObjectName("speciesSelection");
-    speciesSelectionComboBox->setMinimumHeight(24);
-    dynamComboBoxes.append(speciesSelectionComboBox);
-    connect(speciesSelectionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(speciesComboBoxSelection()));
+    qDebug() << "Inside GeneralPurposeScreenBuilder::createSpecialSelectionComboBox";
+    qDebug() << type + *variantFVS;
+    qDebug() << dictionaryMST->value(type + *variantFVS).keys();
+    type == "species_" ? defaultComboValue.append("All species"):defaultComboValue.append(""); // for reset
+    QComboBox *selectionComboBox = new QComboBox;
+    QStringListModel *selectionModel = new QStringListModel;
+    selectionModel->setStringList(dictionaryMST->value(type + *variantFVS).values());
+    selectionModel->sort(0);
+    selectionComboBox->setModel(selectionModel);
+    selectionComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    selectionComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    selectionComboBox->setMinimumHeight(24);
+    dynamComboBoxes.append(selectionComboBox);
+    // lambda expression for selection changes
+    connect(selectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](){qDebug() << selectionComboBox->objectName() << "selection:" << selectionComboBox->currentText() << dictionaryMST->value(type + *variantFVS).key(selectionComboBox->currentText());});
 }
 
 /******** GeneralPurposeScreenBuilder::inputErrorAlert(QLineEdit *input) *********
@@ -985,7 +889,7 @@ void GeneralPurposeScreenBuilder::inputErrorAlert(QLineEdit *input)
         blank ? inputString = "0" : inputString = input->text();
         double userInput = inputString.toDouble();
         qDebug() << "Inside inputErrorAlert function with lineEdit " + input->objectName() + " and value" << inputString;
-        if(input->objectName().toInt() <= dynamLineEdits.size())
+        if(input->objectName().remove("numberBox").toInt() <= dynamLineEdits.size())
         {
             double high = input->validator()->property("top").toDouble();
             double low  = input->validator()->property("bottom").toDouble();
