@@ -1,7 +1,7 @@
 #include "managementactions.h"
 #include "ui_managementactions.h"
 
-ManagementActions::ManagementActions(QStringList &managementCategory, QMap<QString, qint64> *parmMainSectionMap, QFile *parameters, QWidget *parent) :
+ManagementActions::ManagementActions(QMap<QString, qint64> *parmMainSectionMap, QFile *parameters, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ManagementActions)
 {
@@ -11,8 +11,37 @@ ManagementActions::ManagementActions(QStringList &managementCategory, QMap<QStri
     description = new QStringList;
     mainSectionText = new QStringList;
     setWindowTitle("Management Actions");
+    managementTitleIndex = new QModelIndex();
+    managementTitles = new QStringListModel(this);
+    managementActions = new QStringListModel(this);
+    categoryNumberTitle = new QMap<QString, QString>;
     categoryTitlesAndActions = new QMap<QString, QStringList>;
+
+    setTitlesActions();
+
+    // reverts Management Actions window to initial state
+    connect(this, &QDialog::finished, [=]() {ui->ManagementTitles_listView->clearSelection(); managementActions->setStringList(QStringList());ui->ManagmentActions_listView->setModel(managementActions); ui->ManagmentActions_listView->update();});
+}
+
+ManagementActions::~ManagementActions()
+{
+    delete description;
+    delete mainSectionText;
+    delete managementTitles;
+    delete managementActions;
+    delete categoryNumberTitle;
+    delete managementTitleIndex;
+    delete categoryTitlesAndActions;
+    delete ui;
+}
+
+void ManagementActions::setTitlesActions()
+{
+    QStringList managementCategory = MainWindow::readSectionFromMappedLoc(*parm, parmMap->value("mgmtCategories"));
+    bool estb = MainWindow::variantExtensions->value("FVS" + *MainWindow::variant).contains("estb");
+    bool strp = MainWindow::variantExtensions->value("FVS" + *MainWindow::variant).contains("strp");
     QStringList categoryActions;
+    categoryNumberTitle->clear();
     QRegularExpression category("[c]\\d\\d?:");
     for (int i = 0; i < managementCategory.size()-1; ++i)
     {
@@ -22,41 +51,32 @@ ManagementActions::ManagementActions(QStringList &managementCategory, QMap<QStri
                 if(holder.contains(category))
                 {
                     title = managementCategory.at(++i);
+                    categoryNumberTitle->insert(holder.left(holder.indexOf(":")), title);
                     holder = managementCategory.at(++i);
                     while(holder.size() > 0 && !holder.contains(category))
                     {
                         if(holder != "}")       // catches and removes "}"
                         {
                             if(holder.contains("}")) holder.remove('}'); // catches and removes inline '}'
-                            categoryActions.append(holder);
+                            // appends only if holder does not contain estb or strp, or if it contains the one the variant has as well
+                            if ((!holder.contains("estb") && !holder.contains("strp")) || (holder.contains("estb") && estb) || (holder.contains("strp") && strp))
+                                categoryActions.append(holder);
                         }
                         holder = managementCategory.at(++i);
                     }
-                    categoryTitlesAndActions->insert(title, categoryActions);
+                    if(categoryActions.size() > 0)
+                        categoryTitlesAndActions->insert(title, categoryActions);
                     categoryActions.clear();
                 }
     }
-    managementTitleIndex = new QModelIndex();
-    managementTitles = new QStringListModel(this);
-    managementActions = new QStringListModel(this);
+    managementActions->setStringList(QStringList());
     managementTitles->setStringList(categoryTitlesAndActions->keys());
     ui->ManagementTitles_listView->setModel(managementTitles);
-    // reverts Management Actions window to initial state
-    connect(this, &QDialog::finished, [=]() {ui->ManagementTitles_listView->clearSelection(); managementActions->setStringList(QStringList());ui->ManagmentActions_listView->setModel(managementActions); ui->ManagmentActions_listView->update();});
-}
-
-ManagementActions::~ManagementActions()
-{
-    delete managementTitles;
-    delete managementActions;
-    delete managementTitleIndex;
-    delete categoryTitlesAndActions;
-    delete ui;
 }
 
 void ManagementActions::on_ManagementTitles_listView_clicked(const QModelIndex &index)
 {
-    qDebug() << "Management Title " << managementTitles->data(index).toString() << " clicked.";
+    qDebug() << "Management Title " << managementTitles->data(index).toString() << "(" + categoryNumberTitle->key(managementTitles->data(index).toString()) + ")" << " clicked.";
     *managementTitleIndex = index;
     //   Retrives title QString from index, sets value of managementActions to QStringList from mapped title
     QStringList DisplayActions;
