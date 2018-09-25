@@ -2,10 +2,52 @@
 
 #include "generalpurposescreenbuilder.h"
 
+GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString windowTitle, QString description, QWidget *parent) : QDialog (parent)
+{
+    qDebug() << "Inside GeneralPurposeScreenBuilder warning window constructor";
+
+    createButtonBox();
+    editButton->setHidden(true);
+    resetButton->setHidden(true);
+    editButton->setDisabled(true);
+    resetButton->setDisabled(true);
+    font = new QFont("MS Shell Dlg 2", 10);
+
+    font->setBold(true);
+    this->setWindowTitle(windowTitle);
+    QLabel *displayedText =  new QLabel(description);
+    QWidget *dynamBodyHolder = new QWidget;
+    QFormLayout *dynamBody = new QFormLayout;
+    dynamBodyHolder->setFont(*font);
+    displayedText->setFont(*font);
+    dynamBody->addRow(displayedText);
+    dynamBodyHolder->setLayout(dynamBody);
+    // Creates scroll area (https://forum.qt.io/topic/31890/solved-layout-with-scrollbar/8)
+    QScrollArea *scrollArea = new QScrollArea;
+    scrollArea->setHorizontalScrollBarPolicy (Qt::ScrollBarAsNeeded);
+    scrollArea->setVerticalScrollBarPolicy (Qt::ScrollBarAsNeeded);
+    scrollArea->setWidgetResizable (true);
+    scrollArea->setWidget(dynamBodyHolder); // adds dynamically created body to scroll area
+    QGridLayout *mainLayout = new QGridLayout;
+    mainLayout->addWidget(scrollArea, 0, 0);
+    mainLayout->addWidget(buttonBox, 2, 0);
+    acceptButton->setFont(*font);
+    cancelButton->setFont(*font);
+    resetButton->setFont(*font);
+    editButton->setFont(*font);
+    setLayout(mainLayout);
+    QRect rectGPSB, screenActual = qApp->desktop()->availableGeometry();
+    rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? (dynamBody->sizeHint().width() * 1.1):(screenActual.width()*0.9));
+    rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? (mainLayout->sizeHint().height() * 1.1):(screenActual.height()*0.9));
+    this->setGeometry(rectGPSB);
+    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), screenActual)); // centers window (http://doc.qt.io/qt-5/qstyle.html#alignedRect, https://wiki.qt.io/How_to_Center_a_Window_on_the_Screen)
+}
+
 GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *mainSectionTextDictionary, int startYear, QWidget *parent) : QDialog(parent)
 {
-    qDebug() << "Inside GeneralPurposeScreenBuilder default constructor";
+    qDebug() << "Inside GeneralPurposeScreenBuilder primary constructor";
     qDebug() << "Selected variant: " + *variant;
+    this->setWindowTitle(keywordExtension);
     this->setObjectName("Dynamic Window");
     year = new int;
     *year = startYear;
@@ -561,15 +603,14 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
 
     delete dictionaryMST;
 
-    if(scheduleBox)
-    {// yearCycleLine & conditionLine are deleted in dynamLineEdits
-//        qDebug() << "Inside GeneralPurposeScreenBuilder scheduleBox pointer deconstructor";
-        delete yearCycleLabel;
-        delete conditionButton;
-        delete yearCycleRButton;
-        delete conditionRButton;
-        delete scheduleBoxWidget;
-    }
+//    qDebug() << "Inside GeneralPurposeScreenBuilder scheduleBox pointer deconstructor";
+    delete yearCycleLabel;
+    delete conditionButton;
+    delete yearCycleRButton;
+    delete conditionRButton;
+    delete scheduleBoxWidget;
+    // yearCycleLine & conditionLine are deleted in dynamLineEdits
+
     while(!dynamComboBoxes.empty())
     {
 //        qDebug() << "Inside GeneralPurposeScreenBuilderdynamComboBoxes  deconstructor";
@@ -588,7 +629,7 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
         delete dynamLineEdits.back();
         dynamLineEdits.pop_back();
     }
-//    qDebug() << "Inside GeneralPurposeScreenBuilder generic deconstructor";
+    qDebug() << "Inside GeneralPurposeScreenBuilder generic deconstructor";
     delete year;
     delete font;
     delete variantFVS;
@@ -598,10 +639,10 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
 
 void GeneralPurposeScreenBuilder::accept()
 {
-    qDebug() << "Inside accept function";
+    qDebug() << "Inside" << this->windowTitle() << "accept function";
     if(validInput)
     {
-        (title) ? qDebug() << "Title:" << title->text() : qDebug() << "ERROR";
+        (title) ? qDebug() << "Title:" << title->text() : qDebug() << "ERROR or secondary construction";
         for (int i = 0; i < dynamLineEdits.size(); i++)
         {
             qDebug() << "Selected value " + QString::number(i) + ":" << dynamLineEdits.at(i)->text();
@@ -651,7 +692,7 @@ void GeneralPurposeScreenBuilder::accept()
         {
             qDebug() << "Check box" << i+1 << "has the value:" << dynamCheckBoxes.at(i)->isChecked() << "for \"is checked\".";
         }
-        if(validInput) this->close();
+        if(validInput) this->done(QDialog::Accepted);
     }
     else
     {
@@ -672,7 +713,7 @@ void GeneralPurposeScreenBuilder::accept()
 void GeneralPurposeScreenBuilder::reset()
 {
     qDebug() << "Inside reset function" << resetButton->objectName();
-    if(scheduleBox)
+    if(yearCycleRButton != NULL)
         yearCycleRButton->setChecked(true);
     qDebug() << "Reseting line edits";
     for (int i = 0; i < dynamLineEdits.size(); i++){
@@ -782,7 +823,7 @@ void GeneralPurposeScreenBuilder::selectionChange(QWidget* from, QWidget* to)
 void GeneralPurposeScreenBuilder::createScheduleBox(QFormLayout *dynamicBody)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder::createScheduleBox";
-    scheduleBox = true;
+//    scheduleBox = true;
     scheduleBoxWidget = new QWidget;
     QFormLayout *conditionSelect = new QFormLayout;
     QFormLayout *selectYear = new QFormLayout;

@@ -26,6 +26,7 @@ class GeneralPurposeScreenBuilder : public QDialog
     Q_OBJECT
 
 public:
+    GeneralPurposeScreenBuilder(QString windowTitle, QString description, QWidget *parent = 0);
     GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *mainSectionTextDictionary, int startYear, QWidget *parent = 0);
     bool addDynamComboBox(QStringList comboBoxProperties, QFormLayout *dynamBody, QLabel *tempLabel, QString fieldNum);
     QString numberToQString(double number);
@@ -51,31 +52,30 @@ private:
     void noInputRemovalCheck(QFormLayout *dynamicBody, QString fieldNum);
 
     // Generic
-    int *year;
-    QFont *font;
     bool validInput;
-    QLineEdit *title;
-    QString *variantFVS;
-    QString *currentField;
+    int *year = NULL;
+    QFont *font = NULL;
+    QLineEdit *title = NULL;
+    QString *variantFVS = NULL;
+    QString *currentField = NULL;
     QVector<bool> defaultCheckValue;
     QVector<QString> defaultLineValue;
     QVector<QString> defaultComboValue;
     QVector<QLineEdit *> dynamLineEdits;
     QVector<QComboBox *> dynamComboBoxes;
     QVector<QCheckBox *> dynamCheckBoxes;
-    QMap<QString, QMap<QString, QString>> *dictionaryMST;
+    QMap<QString, QMap<QString, QString>> *dictionaryMST = NULL;
 
     // Button Box
     QDialogButtonBox *buttonBox;
     QPushButton *acceptButton, *editButton, *resetButton, *cancelButton;
 
     // Schedule Box
-    QLabel *yearCycleLabel;
-    bool scheduleBox = false;
-    QWidget *scheduleBoxWidget;
-    QPushButton *conditionButton;
-    QLineEdit *yearCycleLine, *conditionLine;
-    QRadioButton *yearCycleRButton, *conditionRButton;
+    QLabel *yearCycleLabel = NULL;
+    QWidget *scheduleBoxWidget = NULL;
+    QPushButton *conditionButton = NULL;
+    QLineEdit *yearCycleLine = NULL, *conditionLine = NULL;
+    QRadioButton *yearCycleRButton = NULL, *conditionRButton = NULL;
 };
 
 #endif // GENERALPURPOSESCREENBUILDER_H
