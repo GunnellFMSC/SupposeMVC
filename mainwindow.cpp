@@ -69,13 +69,13 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     else
         qDebug() << "CRITICAL ERROR: Mapping Unsuccessful!";
-    QStringList managementCategory = MainWindow::readSectionFromMappedLoc(*parameters, parmMainSectionMap["mgmtCategories"]);
+//    QStringList managementCategory = MainWindow::readSectionFromMappedLoc(*parameters, parmMainSectionMap["mgmtCategories"]);
     FVSAddKeywordsWindow = new FVSKeywordsWindow(&parmMainSectionMap, parameters, this);
-    ManagementActionsWindow = new ManagementActions(managementCategory, &parmMainSectionMap, parameters, this);
+    ManagementActionsWindow = new ManagementActions(&parmMainSectionMap, parameters, this);
     selectVariantExtensionWindow = new VariantExtension(variant, variantExtensions, variantAbbreviationNames, extensionAbbreviationNames, &variantLocked);
     selectVariantExtensionWindow->setWindowTitle("Select Variant and Extension");
 //    connect(selectVariantExtensionWindow, SIGNAL(accepted()), this, SLOT(on_button_SelectModifiers_clicked()));
-    connect(selectVariantExtensionWindow, &VariantExtension::variantChanged, [=](){FVSAddKeywordsWindow->setExtensionCategoryKeywordModels(); FVSAddKeywordsWindow->update();}); // potentially for every selection
+    connect(selectVariantExtensionWindow, &VariantExtension::variantChanged, [=](){FVSAddKeywordsWindow->setExtensionCategoryKeywordModels(); FVSAddKeywordsWindow->update(); ManagementActionsWindow->setTitlesActions(); ManagementActionsWindow->update();}); // lambda, potentially for every selection
     connect(selectVariantExtensionWindow, &QDialog::accepted, [=](){selectVariantExtensionWindow->startingVariant = *variant;}); // for window close only
 }
 

@@ -19,8 +19,9 @@ class ManagementActions : public QDialog
     Q_OBJECT
 
 public:
-    explicit ManagementActions(QStringList &managementCategory, QMap<QString, qint64> *parmMainSectionMap, QFile *parameters, QWidget *parent = 0);
+    explicit ManagementActions(QMap<QString, qint64> *parmMainSectionMap, QFile *parameters, QWidget *parent = 0);
 //    QVector<GeneralPurposeScreenBuilder *> containerGPSB;
+    void setTitlesActions();
     ~ManagementActions();
 
 private slots:
@@ -38,6 +39,7 @@ private:
     QMap<QString, qint64> *parmMap;
     QModelIndex *managementTitleIndex;
     QStringList *mainSectionText, *description;
+    QMap<QString, QString> *categoryNumberTitle;
     QMap<QString, QStringList> *categoryTitlesAndActions;
     QStringListModel *managementTitles, *managementActions;
 };
