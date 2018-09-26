@@ -27,6 +27,7 @@ class GeneralPurposeScreenBuilder : public QDialog
 
 public:
     GeneralPurposeScreenBuilder(QString windowTitle, QString description, QWidget *parent = 0);
+    GeneralPurposeScreenBuilder(QString window, QString category, QStringList MSText, QMap<QString, QMap<QString, QString>> *mainSectionTextDictionary, int startYear, QWidget *parent = 0);
     GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *mainSectionTextDictionary, int startYear, QWidget *parent = 0);
     bool addDynamComboBox(QStringList comboBoxProperties, QFormLayout *dynamBody, QLabel *tempLabel, QString fieldNum);
     QString numberToQString(double number);
@@ -76,6 +77,10 @@ private:
     QPushButton *conditionButton = NULL;
     QLineEdit *yearCycleLine = NULL, *conditionLine = NULL;
     QRadioButton *yearCycleRButton = NULL, *conditionRButton = NULL;
+
+    // Special Window
+    QVector<QRadioButton *> dynamRadioButtons;
+//    QVector<QLabel *> dynamLables;
 };
 
 #endif // GENERALPURPOSESCREENBUILDER_H

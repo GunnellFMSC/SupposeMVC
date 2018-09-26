@@ -148,7 +148,6 @@ void ManagementActions::on_ManagmentActions_listView_clicked(const QModelIndex &
                 qDebug() << actionInfoSplit.at(2) << "found in keyword_Exten_MainSecTitle";
                 qDebug() << keyword <<  parmMap->value(keyword_E_MST->value(keyword).value(extension));
                 *mainSectionText = MainWindow::readSectionFromMappedLoc(*parm, parmMap->value(keyword_E_MST->value(keyword).value(extension)));
-
             }
             MainWindow::readSectionToLists(mainSectionText, description);
 //            qDebug() << keyword <<  parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp));
@@ -173,6 +172,17 @@ void ManagementActions::on_ManagmentActions_listView_clicked(const QModelIndex &
             if(!(managementTitle.contains("Plant") || managementTitle.contains("Thin")))
             {
                 qDebug() << "Management Title: " << managementTitle;
+            }
+            else if(managementTitle.contains("Plant"))
+            {
+                description->clear();
+                mainSectionText->clear();
+                QString managementTitleMST = managementTitle;
+                managementTitleMST.remove("Partial").remove("Full");
+                *mainSectionText = MainWindow::readSectionFromMappedLoc(*parm, parmMap->value("management." + managementTitleMST));
+                GeneralPurposeScreenBuilder *dynamWin = new GeneralPurposeScreenBuilder(managementTitle, managementTitles->data(index).toString(), QStringList(*mainSectionText), &MainWindow::mainSectionTextDictionary, 2018, this);
+                dynamWin->exec();
+                dynamWin->deleteLater();
             }
         }
     }
