@@ -2,6 +2,80 @@
 
 #include "generalpurposescreenbuilder.h"
 
+GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString category, QStringList MSText, QMap<QString, QMap<QString, QString>> *mainSectionTextDictionary, int startYear, QWidget *parent) : QDialog (parent)
+{
+    qDebug() << "Inside GeneralPurposeScreenBuilder" << window << "window constructor";
+    year = new int(startYear);
+    createButtonBox();
+    font = new QFont("MS Shell Dlg 2", 10);
+
+    font->setBold(true);
+    this->setWindowTitle(category);
+    QWidget *dynamBodyHolder = new QWidget;
+    QFormLayout *dynamBody = new QFormLayout;
+    dynamBodyHolder->setFont(*font);
+    if(window.contains("PlantNatural"))
+    {
+        dynamRadioButtons.append(new QRadioButton("Sprouting On"));
+        dynamRadioButtons.append(new QRadioButton("Sprouting Off"));
+        QFormLayout *groupHolder = new QFormLayout;
+        groupHolder->addRow(dynamRadioButtons.at(dynamRadioButtons.size()-2), dynamRadioButtons.at(dynamRadioButtons.size()-1));
+        if(window.contains("Full"))
+        {
+            dynamRadioButtons.append(new QRadioButton("In Growth On"));
+            dynamRadioButtons.append(new QRadioButton("In Growth Off"));
+            QFormLayout *groupHolder2 = new QFormLayout;
+            QWidget *holder = new QWidget();
+            holder->setLayout(groupHolder);
+            QWidget *holder2 = new QWidget();
+            holder2->setLayout(groupHolder2);
+            groupHolder2->addRow(dynamRadioButtons.at(dynamRadioButtons.size()-2), dynamRadioButtons.at(dynamRadioButtons.size()-1));
+            dynamBody->addRow(holder, holder2);
+            createScheduleBox(dynamBody);
+            dynamRadioButtons.append(new QRadioButton("Establish only trees specified, StockAdj is Zero"));
+            QFormLayout *groupHolder3 = new QFormLayout;
+            groupHolder3->addRow(dynamRadioButtons.last());
+            QLineEdit *numberBox = new QLineEdit;
+            dynamRadioButtons.append(new QRadioButton("Include predicted establishment, StockAdj"));
+            groupHolder3->addRow(dynamRadioButtons.last(), numberBox);
+            QWidget *holder3 = new QWidget();
+            holder3->setLayout(groupHolder3);
+            dynamBody->addRow(holder3);
+        }
+        else
+        {
+            dynamBody->addRow(groupHolder);
+            createScheduleBox(dynamBody);
+        }
+        yearCycleLine->setFont(*font);
+        conditionLine->setFont(*font);
+        yearCycleLabel->setFont(*font);
+        conditionButton->setFont(*font);
+        yearCycleRButton->setFont(*font);
+        conditionRButton->setFont(*font);
+    }
+//    dynamBody->addRow(displayedText);
+    dynamBodyHolder->setLayout(dynamBody);
+    // Creates scroll area (https://forum.qt.io/topic/31890/solved-layout-with-scrollbar/8)
+    QScrollArea *scrollArea = new QScrollArea;
+    scrollArea->setHorizontalScrollBarPolicy (Qt::ScrollBarAsNeeded);
+    scrollArea->setVerticalScrollBarPolicy (Qt::ScrollBarAsNeeded);
+    scrollArea->setWidgetResizable (true);
+    scrollArea->setWidget(dynamBodyHolder); // adds dynamically created body to scroll area
+    QGridLayout *mainLayout = new QGridLayout;
+    mainLayout->addWidget(scrollArea, 0, 0);
+    mainLayout->addWidget(buttonBox, 2, 0);
+    acceptButton->setFont(*font);
+    cancelButton->setFont(*font);
+    resetButton->setFont(*font);
+    editButton->setFont(*font);
+    setLayout(mainLayout);
+    QRect rectGPSB, screenActual = qApp->desktop()->availableGeometry();
+    rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? (dynamBody->sizeHint().width() * 1.1):(screenActual.width()*0.9));
+    rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? (mainLayout->sizeHint().height() * 1.1):(screenActual.height()*0.9));
+    this->setGeometry(rectGPSB);
+    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), screenActual)); // centers window (http://doc.qt.io/qt-5/qstyle.html#alignedRect, https://wiki.qt.io/How_to_Center_a_Window_on_the_Screen)
+}
 GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString windowTitle, QString description, QWidget *parent) : QDialog (parent)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder warning window constructor";
@@ -628,6 +702,11 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
 //        qDebug() << "Inside GeneralPurposeScreenBuilder dynamLineEdits deconstructor";
         delete dynamLineEdits.back();
         dynamLineEdits.pop_back();
+    }
+    while(!dynamRadioButtons.empty())
+    {
+        delete dynamRadioButtons.back();
+        dynamRadioButtons.pop_back();
     }
     qDebug() << "Inside GeneralPurposeScreenBuilder generic deconstructor";
     delete year;
