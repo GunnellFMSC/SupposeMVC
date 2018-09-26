@@ -82,7 +82,7 @@ void FVSKeywordsWindow::setExtensionCategoryKeywordModels()
     QString keywordTemp, defTemp, extenTemp, extenTempII;
     qDebug() << "Raw Keyword List: " << keywordListRaw.size();
     QRegularExpression definition("{.+}: *");
-    QRegularExpression brackets("{?.+}?:?");
+//    QRegularExpression brackets("{?.+}?:?");
     QRegularExpression bracket1("{");
     QRegularExpression bracket2("}:?");
     foreach (QString line, keywordListRaw) {
@@ -286,7 +286,6 @@ void FVSKeywordsWindow::on_keyword_listView_doubleClicked(const QModelIndex &ind
 
     //↓ finds Main Sectin Text by checking for keyword in every single Main Section text
     QStringList mainSections = parmMap->keys();
-//    qDebug() << mainSections.at(mainSections.indexOf(QRegularExpression(keywordExtension->value(keywordsModel->data(index).toString())+"."+keywordsModel->data(index).toString())));
     foreach(QString mainSection, mainSections)
     {
         if(mainSection.contains("."+ keyword))
@@ -296,16 +295,21 @@ void FVSKeywordsWindow::on_keyword_listView_doubleClicked(const QModelIndex &ind
     description->clear();
     mainSectionText->clear();
     qDebug() << keyword <<  parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp));
-    *mainSectionText = MainWindow::readSectionFromMappedLoc(*parm, parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp)));
-    MainWindow::readSectionToLists(mainSectionText, description);
     GeneralPurposeScreenBuilder *dynamWin;
-    if(QStringList(mainSectionText->filter("scheduleBox")).size() == 0)
-        dynamWin = new GeneralPurposeScreenBuilder(QString(extensionName + ": " + keyword), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, &MainWindow::mainSectionTextDictionary, 2018, this);
-    else
+    if(parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp)) > 0)
     {
-        qDebug() << "Place Secondary General Purpose Screen Builder constructor containing vectors in description and mainSectionText to allow for condition window here.";
-        dynamWin = new GeneralPurposeScreenBuilder(QString(extensionName + ": " + keyword), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, &MainWindow::mainSectionTextDictionary, 2018, this);
+        *mainSectionText = MainWindow::readSectionFromMappedLoc(*parm, parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp)));
+        MainWindow::readSectionToLists(mainSectionText, description);
+        if(QStringList(mainSectionText->filter("scheduleBox")).size() == 0)
+            dynamWin = new GeneralPurposeScreenBuilder(QString(extensionName + ": " + keyword), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, &MainWindow::mainSectionTextDictionary, 2018, this);
+        else
+        {
+            qDebug() << "Place Secondary General Purpose Screen Builder constructor containing vectors in description and mainSectionText to allow for condition window here.";
+            dynamWin = new GeneralPurposeScreenBuilder(QString(extensionName + ": " + keyword), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, &MainWindow::mainSectionTextDictionary, 2018, this);
+        }
     }
+    else
+        dynamWin = new GeneralPurposeScreenBuilder("Warning!", "The " + keyword + " keyword is not yet supported.");
     dynamWin->exec();
     dynamWin->deleteLater();
 }
