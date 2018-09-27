@@ -38,22 +38,13 @@ private slots:
 
 private:
     Ui::ModifyPreferencesWindow *ui;
-    QStringListModel *defaultPreferencesModel;
-    QSettings *defaultPreferencesSettings;
+    QStringListModel *defaultPreferencesModel = NULL;
+    QSettings *defaultPreferencesSettings = NULL;
     QStringList *defaultPreferencesList = nullptr;
 
     void displayFileContents();
     void updateFileContents();
     void keyPressEvent(QKeyEvent *event);
-//    enum EditLine {defaultDataBaseName,
-//                   defaultEditor,
-//                   defaultLocationsFileName,
-//                   defaultParametersFileName,
-//                   defaultProcessPlots,
-//                   defaultSegmentCycle,
-//                   defaultUsePPE,
-//                   defaultVariant,
-//                   defaultWorkingDirectory};
 };
 
 #endif // MODIFYPREFERENCESWINDOW_H
