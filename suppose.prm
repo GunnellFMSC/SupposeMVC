@@ -13879,7 +13879,7 @@ there is a drought.}
 f1:{scheduleBox}
 
 f2:{numberBox Drought duration:}
-f2v:{1 1 FMax}
+f2v:{1 1 Fmax}
 
 parmsForm:{* Arg: Duration
 Drought   !1,10!   Parms(!2!)}
@@ -19444,7 +19444,7 @@ f3v:{\
 2 = Just soft snags}
 
 f4:{numberBox Lower limit DBH of snags (GE):}
-f4v:{0 0 FMax}
+f4v:{0 0 Fmax}
 
 f5:{numberBox Upper limit DBH of snags (LT):}
 f5v:{999 0 Fmax}
@@ -19574,7 +19574,7 @@ diameter class (Fire and Fuels Extension is required)}
 f1:{speciesSelection Species included}
 
 f2:{numberBox Lower limit DBH of salvaged snags (GE):}
-f2v:{0 0 FMax}
+f2v:{0 0 Fmax}
 
 f3:{numberBox Upper limit DBH of salvaged snags (LT):}
 f3v:{999 0 Fmax}
@@ -21433,7 +21433,7 @@ Plant/Natural with Partial Estab Model; strp PlantNaturalPartialWin}
 c2:{\
 Regeneration Methods: Even-aged
 Clearcut/Coppice; base ClearcutWin
-Seedtree; base SeedTreeWin
+Seedtree; base SeedtreeWin
 Shelterwood; base ShelterwoodWin
 }
 
@@ -21515,14 +21515,14 @@ Species to target; base GPSB CutGroup
 General species group; base GPSB GenGroup
 Create a group of points; base GPSB keyword.base.PointGrp}
 
-c11:{\
-Regeneration
-Site preparation; estb
-Planting; estb
-Natural; estb
-Site preparation; strp
-Planting; strp
-Natural; strp}
+!c11:{\
+!Regeneration
+!Site preparation; estb
+!Planting; estb
+!Natural; estb
+!Site preparation; strp
+!Planting; strp
+!Natural; strp}
 
 c12:{\
 Fertilizer
@@ -21985,8 +21985,7 @@ f7:{numberBox Largest DBH to be considered for removal (less than)}
 f7v:{24}
 f8:{numberBox Diameter Class width in inches}
 f8v:{2}
-f9title:
-{-----If managing for Legacy Trees specify criteria-----}
+f9title:{-----If managing for Legacy Trees specify criteria-----}
 f9:{numberBox Number of Legacy Trees}
 f9v:{0}
 f10title:{OR}
@@ -24136,42 +24135,35 @@ regenerating the group opening and thinning stand groups is provided.}
 
 f1:{numberBox Enter Beginning Cycle for implementing GRP-SEL}
 f1v:{1}
-f2title:
-{Enter either  "Tallest Tree and Height Multiple"}
+f2title:{Enter either  "Tallest Tree and Height Multiple"}
 f2:{numberBox    - Tallest Tree}
 f2v:{110}
 f3:{numberBox    - Height Multiple}
 f3v:{1.50}
-f4title:
-{ or  "Opening Size"}
+f4title:{ or  "Opening Size"}
 f4:{numberBox    - Opening Size}
 f4v:{0.00}
-f5title:
-{Enter either  "Cutting Cycle and Harvest Tree Age"}
+f5title:{Enter either  "Cutting Cycle and Harvest Tree Age"}
 f5:{numberBox    - Cutting Cycle Length}
 f5v:{40}
 f6:{numberBox    - Harvest Tree Age}
 f6v:{200}
-f7title:
-{ or  "Proportional Area Cut (Cutting Cycle = 40 years Implied)"}
+f7title:{ or  "Proportional Area Cut (Cutting Cycle = 40 years Implied)"}
 f7:{sliderBox    - Proportion of area harvested}
 f7v:{0 0 1 0 1}
-f8title:
-{Small Tree Adjustments -- defaults of 0 lets FVS determine}
+f8title:{Small Tree Adjustments -- defaults of 0 lets FVS determine}
 f8:{numberBox    - Additive Height Growth (range 1.0 - 2.0)}
 f8v:{0}
 f9:{numberBox    - Reduced Mortality Multiplier (range 0.0 - 1.0)}
 f9v:{0}
-f10title:
-{Regeneration -- trees per acre}
+f10title:{Regeneration -- trees per acre}
 f10:{speciesSelection    - Species to regenerate}
 f10v{ak tt}:{deleteAll LP}
 f10v{bm ca oc ci cr ec em ie kt nc ni pn op so ut wc ws}:{deleteAll PP}
 f10v{cs ls ne se sn}:{deleteAll WP}
 f11:{numberBox    - Seedling Counts}
 f11v:{450}
-f12title:
-{Thinning Targets -- per acre basis}
+f12title:{Thinning Targets -- per acre basis}
 f12:{numberBox    - Precommercial Thin (trees)}
 f12v:{302}
 f13:{numberBox    - Commercial Thin (basal area)}
@@ -32917,7 +32909,7 @@ f1title:{Year or cycle activating pretend mode:}
 f1:{scheduleBox}
 
 f2:{numberBox Duration, in years (not cycles) that pretend mode will be active:}
-f2v:999
+f2v:{999}
 
 parmsForm:{* Args: Duration
 Pretend   !1,10!   Parms(!2!)\n}
