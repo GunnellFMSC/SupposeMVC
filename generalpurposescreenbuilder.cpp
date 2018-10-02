@@ -85,6 +85,18 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString windowTitle, QS
     resetButton->setHidden(true);
     editButton->setDisabled(true);
     resetButton->setDisabled(true);
+    if(description.contains("keyword is not yet supported"))
+    {
+        cancelButton->setHidden(true);
+        cancelButton->setDisabled(true);
+    }
+    if(description.contains("exit"))
+    {
+        acceptButton->setWhatsThis("Closes and Exits Suppose");
+        cancelButton->setWhatsThis("Returns to Suppose");
+    }
+    else
+        acceptButton->setWhatsThis("Closes and Exits Window");
     font = new QFont("MS Shell Dlg 2", 10);
 
     font->setBold(true);
@@ -614,10 +626,11 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     connect(dynamLineEdits.value(dynamLineEdits.size()-1), SIGNAL(textEdited(QString)), this, SLOT(liveInputMod(QString)));
                     connect(tempLineEdit, &QLineEdit::editingFinished, [=]() {modifyInput(tempLineEdit);qDebug() << "EDITING FINISHED!";}); // lambda, http://doc.qt.io/qt-5/qobject.html#connect-4
 //                    connect(tempLineEdit, SIGNAL(returnPressed()), this, [=]()->void {modifyInput(*tempLineEdit);});
-                    if(boxProperties.size() > 2)
-                        tempLineEdit->setToolTip("Input is inclusively bound from "  + QString(boxProperties.at(1)) + " to " + QString(boxProperties.at(2)));
-                    else
-                        tempLineEdit->setToolTip("Input is inclusively bound from "  + numberToQString(custom->bottom()) + " to " + numberToQString(custom->top()));
+                    QString numBoxInfo = "inclusively bound from ";
+                    numBoxInfo.append(boxProperties.size() > 2 ? QString(boxProperties.at(1)) + " to " + QString(boxProperties.at(2)) : numberToQString(custom->bottom()) + " to " + numberToQString(custom->top()));
+                    tempLineEdit->setToolTip("Input is " + numBoxInfo);
+                    numBoxInfo.prepend(custom->objectName().contains("double") ? "decimal floating point numbers with input ": "whole numbers with input ");
+                    tempLineEdit->setWhatsThis("Number Box accepting " + numBoxInfo);
                 }
                 else if(currentField->contains("textEdit", Qt::CaseInsensitive) && valid) // catches both longTextEdit and textEdit
                 {
@@ -961,6 +974,10 @@ void GeneralPurposeScreenBuilder::createButtonBox()
     resetButton = buttonBox->addButton("Reset", QDialogButtonBox::ActionRole);
     cancelButton = buttonBox->addButton("Cancel", QDialogButtonBox::RejectRole);
     editButton = buttonBox->addButton("Use Editor", QDialogButtonBox::ActionRole);
+    editButton->setWhatsThis("Opens Text Editor window for Data Entry");
+    cancelButton->setWhatsThis("Closes window without submitting");
+    acceptButton->setWhatsThis("Accepts and Submits Entries");
+    resetButton->setWhatsThis("Restores Default Entries");
     acceptButton->setObjectName("Ok");
     resetButton->setObjectName("Reset");
     cancelButton->setObjectName("Cancel");
