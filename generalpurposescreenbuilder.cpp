@@ -115,6 +115,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString windowTitle, QS
     rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? (mainLayout->sizeHint().height() * 1.1):(screenActual.height()*0.9));
     this->setGeometry(rectGPSB);
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), screenActual)); // centers window (http://doc.qt.io/qt-5/qstyle.html#alignedRect, https://wiki.qt.io/How_to_Center_a_Window_on_the_Screen)
+    if(parent) // centers window on parent if given
+        this->move(parent->pos().x()+parent->width()/2-this->width()/2, parent->pos().y()+parent->height()/2-this->height()/2);
 }
 
 GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *mainSectionTextDictionary, int startYear, QWidget *parent) : QDialog(parent)

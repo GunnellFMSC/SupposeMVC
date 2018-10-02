@@ -171,7 +171,14 @@ void ManagementActions::on_ManagmentActions_listView_clicked(const QModelIndex &
             qDebug() << "Window: " << managementTitle;
             if(!(managementTitle.contains("Plant") || managementTitle.contains("Thin")))
             {
-                qDebug() << "Management Title: " << managementTitle;
+                if(parmMap->value("management." + managementTitle, -1) >= 0)
+                {
+                    qDebug() << "Management Title: " << managementTitle << "at file location:" << parmMap->value("management." + managementTitle, -1);
+                }
+                else if(parmMap->value("management." + actionName, -1) >= 0)
+                {
+                    qDebug() << "Management Title: " << actionName << "at file location:" << parmMap->value("management." + actionName, -1);
+                }
             }
             else if(managementTitle.contains("Plant"))
             {

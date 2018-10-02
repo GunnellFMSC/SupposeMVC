@@ -294,9 +294,9 @@ void FVSKeywordsWindow::on_keyword_listView_doubleClicked(const QModelIndex &ind
     }
     description->clear();
     mainSectionText->clear();
-    qDebug() << keyword <<  parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp));
+    qDebug() << keyword <<  parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp), -1);
     GeneralPurposeScreenBuilder *dynamWin;
-    if(parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp)) > 0)
+    if(parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp), -1) >= 0)
     {
         *mainSectionText = MainWindow::readSectionFromMappedLoc(*parm, parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp)));
         MainWindow::readSectionToLists(mainSectionText, description);
@@ -309,7 +309,7 @@ void FVSKeywordsWindow::on_keyword_listView_doubleClicked(const QModelIndex &ind
         }
     }
     else
-        dynamWin = new GeneralPurposeScreenBuilder("Warning!", "The " + keyword + " keyword is not yet supported.");
+        dynamWin = new GeneralPurposeScreenBuilder("Warning!", "The " + keyword + " keyword is not yet supported.", this);
     dynamWin->exec();
     dynamWin->deleteLater();
 }

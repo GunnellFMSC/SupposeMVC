@@ -177,7 +177,7 @@ bool MainWindow::mapParmsMainSectionText()
 void MainWindow::on_button_Exit_clicked()
 {
     qDebug() << "Main Window Exit Button clicked.";
-    GeneralPurposeScreenBuilder *warningWindow = new GeneralPurposeScreenBuilder("Warning!", "Are you sure you want to exit Suppose?");
+    GeneralPurposeScreenBuilder *warningWindow = new GeneralPurposeScreenBuilder("Warning!", "Are you sure you want to exit Suppose?", this);
     warningWindow->setFixedSize(warningWindow->size());
     warningWindow->exec();
     bool close = warningWindow->result();
