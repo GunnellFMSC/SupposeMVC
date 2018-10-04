@@ -30,7 +30,9 @@ SOURCES += \
     managementactions.cpp \
     fvskeywordswindow.cpp \
     variantextension.cpp \
-    generalpurposescreenbuilder.cpp
+    generalpurposescreenbuilder.cpp \
+    supposefont.cpp \
+    dictionarymst.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -38,7 +40,11 @@ HEADERS += \
     managementactions.h \
     fvskeywordswindow.h \
     variantextension.h \
-    generalpurposescreenbuilder.h
+    generalpurposescreenbuilder.h \
+    call_once.h \
+    singleton.h \
+    supposefont.h \
+    dictionarymst.h
 
 FORMS += \
         mainwindow.ui \
