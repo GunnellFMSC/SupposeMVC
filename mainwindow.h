@@ -10,6 +10,7 @@
 #include <QSettings>
 #include <QStringListModel>
 #include <QRegularExpression>
+#include "dictionarymst.h"
 #include "variantextension.h"
 #include "fvskeywordswindow.h"
 #include "managementactions.h"
@@ -38,9 +39,9 @@ public:
     bool mapParmsMainSectionText();
     static QStringList readSectionFromMappedLoc(QIODevice &parms, qint64 location);
     static void readSectionToLists(QStringList *mainSectionText, QStringList *description);
-    static void makeDictionaryFromSection(QMap<QString, QString> *mainSectionTextDictionary, QStringList wordDefinitionsRaw, QRegularExpression separater =  QRegularExpression(": +{"), QRegularExpression definitionExcess = QRegularExpression("}"), QRegularExpression wordExcess = QRegularExpression("\\s"), bool oneToMany = false);
+    static void makeDictionaryFromSection(QMap<QString, QString> *dictionary, QStringList wordDefinitionsRaw, QRegularExpression separater =  QRegularExpression(": +{"), QRegularExpression definitionExcess = QRegularExpression("}"), QRegularExpression wordExcess = QRegularExpression("\\s"), bool oneToMany = false);
     static QMap<QString, QString> *variantExtensions, *extensionAbbreviationNames, *variantAbbreviationNames;
-    static QMap<QString, QMap<QString, QString>> keyword_Exten_MainSecTitle, mainSectionTextDictionary;
+    static QMap<QString, QMap<QString, QString>> keyword_Exten_MainSecTitle;
     QMap<QString, qint64> parmMainSectionMap;
     QString preferencesFileName;
     static QString *variant;

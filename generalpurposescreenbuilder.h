@@ -13,6 +13,7 @@
 #include <QStringList>
 #include <QRadioButton>
 #include <QStringListModel>
+#include "dictionarymst.h"
 
 QT_BEGIN_NAMESPACE
 class QDialogButtonBox;
@@ -27,8 +28,8 @@ class GeneralPurposeScreenBuilder : public QDialog
 
 public:
     GeneralPurposeScreenBuilder(QString windowTitle, QString description, QWidget *parent = 0);
-    GeneralPurposeScreenBuilder(QString window, QString category, QStringList MSText, QMap<QString, QMap<QString, QString>> *mainSectionTextDictionary, int startYear, QWidget *parent = 0);
-    GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *mainSectionTextDictionary, int startYear, QWidget *parent = 0);
+    GeneralPurposeScreenBuilder(QString window, QString category, QStringList MSText, int startYear, QWidget *parent = 0);
+    GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, int startYear, QWidget *parent = 0);
     bool addDynamComboBox(QStringList comboBoxProperties, QFormLayout *dynamBody, QLabel *tempLabel, QString fieldNum);
     QString numberToQString(double number);
     ~GeneralPurposeScreenBuilder();
@@ -65,7 +66,6 @@ private:
     QVector<QLineEdit *> dynamLineEdits;
     QVector<QComboBox *> dynamComboBoxes;
     QVector<QCheckBox *> dynamCheckBoxes;
-    QMap<QString, QMap<QString, QString>> *dictionaryMST = NULL;
 
     // Button Box
     QDialogButtonBox *buttonBox;

@@ -2,7 +2,7 @@
 
 #include "generalpurposescreenbuilder.h"
 
-GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString category, QStringList MSText, QMap<QString, QMap<QString, QString>> *mainSectionTextDictionary, int startYear, QWidget *parent) : QDialog (parent)
+GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString category, QStringList MSText, int startYear, QWidget *parent) : QDialog (parent)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder" << window << "window constructor";
     year = new int(startYear);
@@ -78,7 +78,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
 }
 GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString windowTitle, QString description, QWidget *parent) : QDialog (parent)
 {
-    qDebug() << "Inside GeneralPurposeScreenBuilder warning window constructor";
+    qDebug() << "Inside GeneralPurposeScreenBuilder " + QString(windowTitle.contains("Warning") ? "warning window" : "concise") + " constructor";
 
     createButtonBox();
     editButton->setHidden(true);
@@ -131,7 +131,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString windowTitle, QS
         this->move(parent->pos().x()+parent->width()/2-this->width()/2, parent->pos().y()+parent->height()/2-this->height()/2);
 }
 
-GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, QMap<QString, QMap<QString, QString>> *mainSectionTextDictionary, int startYear, QWidget *parent) : QDialog(parent)
+GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, int startYear, QWidget *parent) : QDialog(parent)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder primary constructor";
     qDebug() << "Selected variant: " + *variant;
@@ -142,8 +142,6 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     qDebug() << "Start year: " << *year;
     variantFVS = new QString;
     *variantFVS = *variant;
-    dictionaryMST = new QMap<QString, QMap<QString, QString>>;
-    *dictionaryMST = *mainSectionTextDictionary;
     createButtonBox();
     currentField = new QString;
     QWidget *extensionKeyword = new QWidget;
@@ -550,8 +548,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     qDebug() << "Species Selection specification found:" << value;
                     if(!value.contains("deleteAll"))
                     {
-                        dynamComboBoxes.last()->setCurrentText(dictionaryMST->value("species_" + *variantFVS).value(value));
-                        defaultComboValue.replace(defaultComboValue.size()-1, dictionaryMST->value("species_" + *variantFVS).value(value));
+                        dynamComboBoxes.last()->setCurrentText(DictionaryMST::innerMap("species_" + *variantFVS).value(value));
+                        defaultComboValue.replace(defaultComboValue.size()-1, DictionaryMST::innerMap("species_" + *variantFVS).value(value));
                     }
                     else if(value == "deleteAll")
                     {
@@ -565,7 +563,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     {
                         value.remove("deleteAll ");
                         dynamComboBoxes.last()->removeItem(dynamComboBoxes.last()->findText("All species"));
-                        dynamComboBoxes.last()->setCurrentText(dictionaryMST->value("species_" + *variantFVS).value(value));
+                        dynamComboBoxes.last()->setCurrentText(DictionaryMST::innerMap("species_" + *variantFVS).value(value));
                         defaultComboValue.replace(defaultComboValue.size()-1, dynamComboBoxes.last()->currentText());
                     }
                     currentField->clear();
@@ -690,8 +688,6 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder deconstructor";
 
-    delete dictionaryMST;
-
 //    qDebug() << "Inside GeneralPurposeScreenBuilder scheduleBox pointer deconstructor";
     delete yearCycleLabel;
     delete conditionButton;
@@ -768,16 +764,16 @@ void GeneralPurposeScreenBuilder::accept()
             qDebug() << "Selected value:" << dynamComboBoxes.at(i)->currentText();
             if(dynamComboBoxes.at(i)->objectName().contains("species_") || dynamComboBoxes.at(i)->objectName().contains("speciesCode") || dynamComboBoxes.at(i)->objectName().contains("Forests_") || dynamComboBoxes.at(i)->objectName().contains("HabPa_"))
             {
-                if(dictionaryMST->value("species_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
+                if(DictionaryMST::innerMap("species_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
                 {
-                    qDebug() << "Send:" << dictionaryMST->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
+                    qDebug() << "Send:" << DictionaryMST::innerMap("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
                 }
                 else if(dynamComboBoxes.at(i)->currentText().contains("All affected species"))
-                    qDebug() << "Send:" << dictionaryMST->value("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText().remove(" affected"));
-                else if(dictionaryMST->value("Forests_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
-                    qDebug() << "Send:" << dictionaryMST->value("Forests_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
-                else if(dictionaryMST->value("HabPa_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
-                    qDebug() << "Send:" << dictionaryMST->value("HabPa_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
+                    qDebug() << "Send:" << DictionaryMST::innerMap("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText().remove(" affected"));
+                else if(DictionaryMST::innerMap("Forests_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
+                    qDebug() << "Send:" << DictionaryMST::innerMap("Forests_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
+                else if(DictionaryMST::innerMap("HabPa_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
+                    qDebug() << "Send:" << DictionaryMST::innerMap("HabPa_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
             }
             else
                 qDebug() << "Send:" << dynamComboBoxes.at(i)->currentText();
@@ -992,11 +988,11 @@ void GeneralPurposeScreenBuilder::createSpecialSelectionComboBox(QString type)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder::createSpecialSelectionComboBox";
     qDebug() << type + *variantFVS;
-    qDebug() << dictionaryMST->value(type + *variantFVS).keys();
+    qDebug() << DictionaryMST::innerMap(type + *variantFVS).keys();
     type == "species_" ? defaultComboValue.append("All species"):defaultComboValue.append(""); // for reset
     QComboBox *selectionComboBox = new QComboBox;
     QStringListModel *selectionModel = new QStringListModel;
-    selectionModel->setStringList(dictionaryMST->value(type + *variantFVS).values());
+    selectionModel->setStringList(DictionaryMST::innerMap(type + *variantFVS).values());
     selectionModel->sort(0);
     selectionComboBox->setModel(selectionModel);
     selectionComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -1004,7 +1000,7 @@ void GeneralPurposeScreenBuilder::createSpecialSelectionComboBox(QString type)
     selectionComboBox->setMinimumHeight(24);
     dynamComboBoxes.append(selectionComboBox);
     // lambda expression for selection changes
-    connect(selectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](){qDebug() << selectionComboBox->objectName() << "selection:" << selectionComboBox->currentText() << dictionaryMST->value(type + *variantFVS).key(selectionComboBox->currentText());});
+    connect(selectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](){qDebug() << selectionComboBox->objectName() << "selection:" << selectionComboBox->currentText() << DictionaryMST::innerMap(type + *variantFVS).key(selectionComboBox->currentText());});
 }
 
 /******** GeneralPurposeScreenBuilder::inputErrorAlert(QLineEdit *input) *********

@@ -153,7 +153,7 @@ void ManagementActions::on_ManagmentActions_listView_clicked(const QModelIndex &
 //            qDebug() << keyword <<  parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp));
             GeneralPurposeScreenBuilder *dynamWin;
 //            if(QStringList(mainSectionText->filter("scheduleBox")).size() == 0)
-                dynamWin = new GeneralPurposeScreenBuilder(QString(actionName), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, &MainWindow::mainSectionTextDictionary, 2018, this);
+                dynamWin = new GeneralPurposeScreenBuilder(QString(actionName), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, 2018, this);
 //            else
 //            {
 //                qDebug() << "Place Secondary General Purpose Screen Builder constructor containing vectors in description and mainSectionText to allow for condition window here.";
@@ -187,7 +187,7 @@ void ManagementActions::on_ManagmentActions_listView_clicked(const QModelIndex &
                 QString managementTitleMST = managementTitle;
                 managementTitleMST.remove("Partial").remove("Full");
                 *mainSectionText = MainWindow::readSectionFromMappedLoc(*parm, parmMap->value("management." + managementTitleMST));
-                GeneralPurposeScreenBuilder *dynamWin = new GeneralPurposeScreenBuilder(managementTitle, managementTitles->data(index).toString(), QStringList(*mainSectionText), &MainWindow::mainSectionTextDictionary, 2018, this);
+                GeneralPurposeScreenBuilder *dynamWin = new GeneralPurposeScreenBuilder(managementTitle, managementTitles->data(index).toString(), QStringList(*mainSectionText), 2018, this);
                 dynamWin->exec();
                 dynamWin->deleteLater();
             }
