@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     variantLocked = false;
     ui->button_RunSim->setEnabled(false);
 //    PreferencesModel = new QStringListModel(this);
+    SupposeFont::set("MS Shell Dlg 2", 10, true);
     preferencesFileName = "/example.prf";
     if(mapParmsMainSectionText())
     {

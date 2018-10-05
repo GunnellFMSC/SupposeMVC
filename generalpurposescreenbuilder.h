@@ -12,8 +12,9 @@
 #include <QFormLayout>
 #include <QStringList>
 #include <QRadioButton>
-#include <QStringListModel>
+#include "supposefont.h"
 #include "dictionarymst.h"
+#include <QStringListModel>
 
 QT_BEGIN_NAMESPACE
 class QDialogButtonBox;
@@ -56,7 +57,6 @@ private:
     // Generic
     bool validInput;
     int *year = NULL;
-    QFont *font = NULL;
     QLineEdit *title = NULL;
     QString *variantFVS = NULL;
     QString *currentField = NULL;

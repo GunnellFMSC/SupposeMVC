@@ -10,6 +10,7 @@
 #include <QSettings>
 #include <QStringListModel>
 #include <QRegularExpression>
+#include "supposefont.h"
 #include "dictionarymst.h"
 #include "variantextension.h"
 #include "fvskeywordswindow.h"
