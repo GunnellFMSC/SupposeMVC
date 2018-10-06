@@ -126,27 +126,24 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString windowTitle, QS
         this->move(parent->pos().x()+parent->width()/2-this->width()/2, parent->pos().y()+parent->height()/2-this->height()/2);
 }
 
-GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, int startYear, QWidget *parent) : QDialog(parent)
+GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, int startYear, QWidget *parent) : QDialog(parent)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder primary constructor";
-    qDebug() << "Selected variant: " + *variant;
+    qDebug() << "Selected variant: " + Variant::abbrev();
     this->setWindowTitle(keywordExtension);
     this->setObjectName("Dynamic Window");
     year = new int;
     *year = startYear;
     qDebug() << "Start year: " << *year;
-    variantFVS = new QString;
-    *variantFVS = *variant;
     createButtonBox();
     currentField = new QString;
     QWidget *extensionKeyword = new QWidget;
     QLabel *name = new QLabel("Name:\t");
     name->setFont(*SupposeFont::instance());
-    title = new QLineEdit();
-    title->setFont(*SupposeFont::instance());
-    title->setText(keywordExtension);
-    title->setObjectName("instanceTitle");
-    dynamLineEdits.append(title);
+    dynamLineEdits.append(new QLineEdit());
+    dynamLineEdits.at(0)->setFont(*SupposeFont::instance());
+    dynamLineEdits.at(0)->setText(keywordExtension);
+    dynamLineEdits.at(0)->setObjectName("instanceTitle");
     defaultLineValue.append(keywordExtension);
     this->setFont(*SupposeFont::instance());
     QListView *keyDesc = new QListView();
@@ -179,7 +176,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
 
     auto variantListCheck = [&](QString line)->bool { qDebug() << "Variant list check lambda function used.";
         variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
-        return variantList.contains(*variantFVS);};
+        return variantList.contains(Variant::abbrev());};
 
     foreach (QString line, MSText) {
         qDebug() << "Line:" << line; // DEBUG outputs every line for QA
@@ -420,7 +417,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                             dynamBody->addRow(tempLabel, tempLineEdit);
                         dynamLineEdits.append(tempLineEdit);
                         dynamLineEdits.value(dynamLineEdits.size() - 1)->setObjectName(fieldNum);
-                        qDebug() << "Line Edit #" + QString(dynamLineEdits.size() - 1) + " has the Object name:" << dynamLineEdits.last()->objectName();
+                        qDebug() << "Line Edit #" + QString::number(dynamLineEdits.size() - 1) + " has the Object name:" << dynamLineEdits.last()->objectName();
                         defaultLineValue.append("");
                     }
                     fieldDescription.clear();
@@ -541,8 +538,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     qDebug() << "Species Selection specification found:" << value;
                     if(!value.contains("deleteAll"))
                     {
-                        dynamComboBoxes.last()->setCurrentText(DictionaryMST::innerMap("species_" + *variantFVS).value(value));
-                        defaultComboValue.replace(defaultComboValue.size()-1, DictionaryMST::innerMap("species_" + *variantFVS).value(value));
+                        dynamComboBoxes.last()->setCurrentText(DictionaryMST::innerMap("species_" + Variant::abbrev()).value(value));
+                        defaultComboValue.replace(defaultComboValue.size()-1, DictionaryMST::innerMap("species_" + Variant::abbrev()).value(value));
                     }
                     else if(value == "deleteAll")
                     {
@@ -556,7 +553,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     {
                         value.remove("deleteAll ");
                         dynamComboBoxes.last()->removeItem(dynamComboBoxes.last()->findText("All species"));
-                        dynamComboBoxes.last()->setCurrentText(DictionaryMST::innerMap("species_" + *variantFVS).value(value));
+                        dynamComboBoxes.last()->setCurrentText(DictionaryMST::innerMap("species_" + Variant::abbrev()).value(value));
                         defaultComboValue.replace(defaultComboValue.size()-1, dynamComboBoxes.last()->currentText());
                     }
                     currentField->clear();
@@ -648,7 +645,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     dynamBodyHolder->setLayout(dynamBody);
 
     QFormLayout *layout = new QFormLayout;
-    layout->addRow(name, title);
+    layout->addRow(name, dynamLineEdits.at(0));
     extensionKeyword->setLayout(layout);
 
     // Creates scroll area (https://forum.qt.io/topic/31890/solved-layout-with-scrollbar/8)
@@ -714,8 +711,6 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
     }
     qDebug() << "Inside GeneralPurposeScreenBuilder generic deconstructor";
     delete year;
-//    delete font;
-    delete variantFVS;
     delete currentField;
     delete buttonBox; // deletes editButton, resetButton, acceptButton, & cancelButton
 }
@@ -725,10 +720,10 @@ void GeneralPurposeScreenBuilder::accept()
     qDebug() << "Inside" << this->windowTitle() << "accept function, input validity is" << validInput;
     if(validInput)
     {
-        (title) ? qDebug() << "Title:" << title->text() : qDebug() << "ERROR or secondary construction";
+        (!dynamLineEdits.isEmpty()) ? qDebug() << "Title:" << dynamLineEdits.at(0)->text() : qDebug() << "ERROR or secondary construction";
         for (int i = 0; i < dynamLineEdits.size(); i++)
         {
-            qDebug() << "Selected value " + QString::number(i) + ":" << dynamLineEdits.at(i)->text();
+            qDebug() << QString( i > 0 ? ("Selected value " + QString::number(i) + ":") : "Title:") << dynamLineEdits.at(i)->text();
             if(dynamLineEdits.at(i)->objectName().contains("schedule"))
                 if((dynamLineEdits.at(i)->objectName().contains("Year") && yearCycleRButton->isChecked()) || (dynamLineEdits.at(i)->objectName().contains("Condition") && conditionRButton->isChecked()))
                     qDebug() << "Send:" << dynamLineEdits.at(i)->text() << "for" << dynamLineEdits.at(i)->objectName();
@@ -757,16 +752,16 @@ void GeneralPurposeScreenBuilder::accept()
             qDebug() << "Selected value:" << dynamComboBoxes.at(i)->currentText();
             if(dynamComboBoxes.at(i)->objectName().contains("species_") || dynamComboBoxes.at(i)->objectName().contains("speciesCode") || dynamComboBoxes.at(i)->objectName().contains("Forests_") || dynamComboBoxes.at(i)->objectName().contains("HabPa_"))
             {
-                if(DictionaryMST::innerMap("species_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
+                if(DictionaryMST::innerMap("species_" + Variant::abbrev()).values().contains(dynamComboBoxes.at(i)->currentText()))
                 {
-                    qDebug() << "Send:" << DictionaryMST::innerMap("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
+                    qDebug() << "Send:" << DictionaryMST::innerMap("species_" + Variant::abbrev()).key(dynamComboBoxes.at(i)->currentText());
                 }
                 else if(dynamComboBoxes.at(i)->currentText().contains("All affected species"))
-                    qDebug() << "Send:" << DictionaryMST::innerMap("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText().remove(" affected"));
-                else if(DictionaryMST::innerMap("Forests_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
-                    qDebug() << "Send:" << DictionaryMST::innerMap("Forests_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
-                else if(DictionaryMST::innerMap("HabPa_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
-                    qDebug() << "Send:" << DictionaryMST::innerMap("HabPa_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
+                    qDebug() << "Send:" << DictionaryMST::innerMap("species_" + Variant::abbrev()).key(dynamComboBoxes.at(i)->currentText().remove(" affected"));
+                else if(DictionaryMST::innerMap("Forests_" + Variant::abbrev()).values().contains(dynamComboBoxes.at(i)->currentText()))
+                    qDebug() << "Send:" << DictionaryMST::innerMap("Forests_" + Variant::abbrev()).key(dynamComboBoxes.at(i)->currentText());
+                else if(DictionaryMST::innerMap("HabPa_" + Variant::abbrev()).values().contains(dynamComboBoxes.at(i)->currentText()))
+                    qDebug() << "Send:" << DictionaryMST::innerMap("HabPa_" + Variant::abbrev()).key(dynamComboBoxes.at(i)->currentText());
             }
             else
                 qDebug() << "Send:" << dynamComboBoxes.at(i)->currentText();
@@ -980,12 +975,12 @@ void GeneralPurposeScreenBuilder::createButtonBox()
 void GeneralPurposeScreenBuilder::createSpecialSelectionComboBox(QString type)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder::createSpecialSelectionComboBox";
-    qDebug() << type + *variantFVS;
-    qDebug() << DictionaryMST::innerMap(type + *variantFVS).keys();
+    qDebug() << type + Variant::abbrev();
+    qDebug() << DictionaryMST::innerMap(type + Variant::abbrev()).keys();
     type == "species_" ? defaultComboValue.append("All species"):defaultComboValue.append(""); // for reset
     QComboBox *selectionComboBox = new QComboBox;
     QStringListModel *selectionModel = new QStringListModel;
-    selectionModel->setStringList(DictionaryMST::innerMap(type + *variantFVS).values());
+    selectionModel->setStringList(DictionaryMST::innerMap(type + Variant::abbrev()).values());
     selectionModel->sort(0);
     selectionComboBox->setModel(selectionModel);
     selectionComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -993,7 +988,7 @@ void GeneralPurposeScreenBuilder::createSpecialSelectionComboBox(QString type)
     selectionComboBox->setMinimumHeight(24);
     dynamComboBoxes.append(selectionComboBox);
     // lambda expression for selection changes
-    connect(selectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](){qDebug() << selectionComboBox->objectName() << "selection:" << selectionComboBox->currentText() << DictionaryMST::innerMap(type + *variantFVS).key(selectionComboBox->currentText());});
+    connect(selectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](){qDebug() << selectionComboBox->objectName() << "selection:" << selectionComboBox->currentText() << DictionaryMST::innerMap(type + Variant::abbrev()).key(selectionComboBox->currentText());});
 }
 
 /******** GeneralPurposeScreenBuilder::inputErrorAlert(QLineEdit *input) *********

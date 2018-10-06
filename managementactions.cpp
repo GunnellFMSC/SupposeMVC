@@ -38,8 +38,8 @@ ManagementActions::~ManagementActions()
 void ManagementActions::setTitlesActions()
 {
     QStringList managementCategory = MainWindow::readSectionFromMappedLoc(*parm, parmMap->value("mgmtCategories"));
-    bool estb = MainWindow::variantExtensions->value("FVS" + *MainWindow::variant).contains("estb");
-    bool strp = MainWindow::variantExtensions->value("FVS" + *MainWindow::variant).contains("strp");
+    bool estb = MainWindow::variantExtensions->value("FVS" + Variant::abbrev()).contains("estb");
+    bool strp = MainWindow::variantExtensions->value("FVS" + Variant::abbrev()).contains("strp");
     QStringList categoryActions;
     categoryNumberTitle->clear();
     QRegularExpression category("[c]\\d\\d?:");
@@ -153,7 +153,7 @@ void ManagementActions::on_ManagmentActions_listView_clicked(const QModelIndex &
 //            qDebug() << keyword <<  parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp));
             GeneralPurposeScreenBuilder *dynamWin;
 //            if(QStringList(mainSectionText->filter("scheduleBox")).size() == 0)
-                dynamWin = new GeneralPurposeScreenBuilder(QString(actionName), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, 2018, this);
+                dynamWin = new GeneralPurposeScreenBuilder(QString(actionName), QStringList(*description),  QStringList(*mainSectionText), 2018, this);
 //            else
 //            {
 //                qDebug() << "Place Secondary General Purpose Screen Builder constructor containing vectors in description and mainSectionText to allow for condition window here.";

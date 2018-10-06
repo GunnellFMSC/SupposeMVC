@@ -1,13 +1,13 @@
 #ifndef MODIFYPREFERENCESWINDOW_H
 #define MODIFYPREFERENCESWINDOW_H
 
-#include <QDialog>
-#include <QDebug>
 #include <QDir>
+#include <QDebug>
+#include <QDialog>
 #include <QSettings>
 #include <QKeyEvent>
-#include <QStringListModel>
 #include "mainwindow.h"
+#include <QStringListModel>
 
 namespace Ui {
 class ModifyPreferencesWindow;
@@ -38,22 +38,13 @@ private slots:
 
 private:
     Ui::ModifyPreferencesWindow *ui;
-    QStringListModel *defaultPreferencesModel;
-    QSettings *defaultPreferencesSettings;
+    QSettings *defaultPreferencesSettings = NULL;
     QStringList *defaultPreferencesList = nullptr;
+    QStringListModel *defaultPreferencesModel = NULL;
 
     void displayFileContents();
     void updateFileContents();
     void keyPressEvent(QKeyEvent *event);
-//    enum EditLine {defaultDataBaseName,
-//                   defaultEditor,
-//                   defaultLocationsFileName,
-//                   defaultParametersFileName,
-//                   defaultProcessPlots,
-//                   defaultSegmentCycle,
-//                   defaultUsePPE,
-//                   defaultVariant,
-//                   defaultWorkingDirectory};
 };
 
 #endif // MODIFYPREFERENCESWINDOW_H

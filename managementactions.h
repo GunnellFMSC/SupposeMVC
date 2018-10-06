@@ -34,14 +34,14 @@ private slots:
     void on_ManagementTitles_listView_activated(const QModelIndex &index);
 
 private:
-    QFile *parm;
+    QFile *parm = NULL;
     Ui::ManagementActions *ui;
-    QMap<QString, qint64> *parmMap;
-    QModelIndex *managementTitleIndex;
-    QStringList *mainSectionText, *description;
-    QMap<QString, QString> *categoryNumberTitle;
-    QMap<QString, QStringList> *categoryTitlesAndActions;
-    QStringListModel *managementTitles, *managementActions;
+    QMap<QString, qint64> *parmMap = NULL;
+    QModelIndex *managementTitleIndex = NULL;
+    QMap<QString, QString> *categoryNumberTitle = NULL;
+    QStringList *mainSectionText = NULL, *description = NULL;
+    QMap<QString, QStringList> *categoryTitlesAndActions = NULL;
+    QStringListModel *managementTitles = NULL, *managementActions = NULL;
 };
 
 #endif // MANAGEMENTACTIONS_H
