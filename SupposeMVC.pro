@@ -32,7 +32,8 @@ SOURCES += \
     variantextension.cpp \
     generalpurposescreenbuilder.cpp \
     supposefont.cpp \
-    dictionarymst.cpp
+    dictionarymst.cpp \
+    variant.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -44,7 +45,8 @@ HEADERS += \
     call_once.h \
     singleton.h \
     supposefont.h \
-    dictionarymst.h
+    dictionarymst.h \
+    variant.h
 
 FORMS += \
         mainwindow.ui \

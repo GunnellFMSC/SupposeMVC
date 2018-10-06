@@ -63,7 +63,7 @@ void FVSKeywordsWindow::setExtensionCategoryKeywordModels()
     /*     Add base if defined     */
     if(extenAbbrevName->keys().contains("base")) extensions->append(extenAbbrevName->value("base"));
     /*     loop through the variant's extensions, ignore variants, add the full extension name to QStringList extensions    */
-    foreach (QString extenAbbrev, (varExten->value("FVS" + *MainWindow::variant)).split(" "))
+    foreach (QString extenAbbrev, (varExten->value("FVS" + Variant::abbrev())).split(" "))
         if(!MainWindow::variantAbbreviationNames->contains(extenAbbrev))
         {
             qDebug() << "The Extension abbreviation" << extenAbbrev << "has the full name" << extenAbbrevName->value(extenAbbrev);
@@ -301,11 +301,11 @@ void FVSKeywordsWindow::on_keyword_listView_doubleClicked(const QModelIndex &ind
         *mainSectionText = MainWindow::readSectionFromMappedLoc(*parm, parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp)));
         MainWindow::readSectionToLists(mainSectionText, description);
         if(QStringList(mainSectionText->filter("scheduleBox")).size() == 0)
-            dynamWin = new GeneralPurposeScreenBuilder(QString(extensionName + ": " + keyword), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, 2018, this);
+            dynamWin = new GeneralPurposeScreenBuilder(QString(extensionName + ": " + keyword), QStringList(*description),  QStringList(*mainSectionText), 2018, this);
         else
         {
             qDebug() << "Place Secondary General Purpose Screen Builder constructor containing vectors in description and mainSectionText to allow for condition window here.";
-            dynamWin = new GeneralPurposeScreenBuilder(QString(extensionName + ": " + keyword), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, 2018, this);
+            dynamWin = new GeneralPurposeScreenBuilder(QString(extensionName + ": " + keyword), QStringList(*description),  QStringList(*mainSectionText), 2018, this);
         }
     }
     else

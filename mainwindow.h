@@ -10,6 +10,8 @@
 #include <QSettings>
 #include <QStringListModel>
 #include <QRegularExpression>
+#include "variant.h"
+#include "supposefont.h"
 #include "dictionarymst.h"
 #include "variantextension.h"
 #include "fvskeywordswindow.h"
@@ -44,9 +46,7 @@ public:
     static QMap<QString, QMap<QString, QString>> keyword_Exten_MainSecTitle;
     QMap<QString, qint64> parmMainSectionMap;
     QString preferencesFileName;
-    static QString *variant;
     QSettings *preferences;
-    bool variantLocked;
     QFile *parameters;
 
 private slots:

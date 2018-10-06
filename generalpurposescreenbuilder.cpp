@@ -7,13 +7,10 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
     qDebug() << "Inside GeneralPurposeScreenBuilder" << window << "window constructor";
     year = new int(startYear);
     createButtonBox();
-    font = new QFont("MS Shell Dlg 2", 10);
-
-    font->setBold(true);
     this->setWindowTitle(category);
     QWidget *dynamBodyHolder = new QWidget;
     QFormLayout *dynamBody = new QFormLayout;
-    dynamBodyHolder->setFont(*font);
+    dynamBodyHolder->setFont(*SupposeFont::instance());
     if(window.contains("PlantNatural"))
     {
         dynamRadioButtons.append(new QRadioButton("Sprouting On"));
@@ -47,12 +44,12 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
             dynamBody->addRow(groupHolder);
             createScheduleBox(dynamBody);
         }
-        yearCycleLine->setFont(*font);
-        conditionLine->setFont(*font);
-        yearCycleLabel->setFont(*font);
-        conditionButton->setFont(*font);
-        yearCycleRButton->setFont(*font);
-        conditionRButton->setFont(*font);
+        yearCycleLine->setFont(*SupposeFont::instance());
+        conditionLine->setFont(*SupposeFont::instance());
+        yearCycleLabel->setFont(*SupposeFont::instance());
+        conditionButton->setFont(*SupposeFont::instance());
+        yearCycleRButton->setFont(*SupposeFont::instance());
+        conditionRButton->setFont(*SupposeFont::instance());
     }
 //    dynamBody->addRow(displayedText);
     dynamBodyHolder->setLayout(dynamBody);
@@ -65,10 +62,10 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
     QGridLayout *mainLayout = new QGridLayout;
     mainLayout->addWidget(scrollArea, 0, 0);
     mainLayout->addWidget(buttonBox, 2, 0);
-    acceptButton->setFont(*font);
-    cancelButton->setFont(*font);
-    resetButton->setFont(*font);
-    editButton->setFont(*font);
+    acceptButton->setFont(*SupposeFont::instance());
+    cancelButton->setFont(*SupposeFont::instance());
+    resetButton->setFont(*SupposeFont::instance());
+    editButton->setFont(*SupposeFont::instance());
     setLayout(mainLayout);
     QRect rectGPSB, screenActual = qApp->desktop()->availableGeometry();
     rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? (dynamBody->sizeHint().width() * 1.1):(screenActual.width()*0.9));
@@ -97,15 +94,13 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString windowTitle, QS
     }
     else
         acceptButton->setWhatsThis("Closes and Exits Window");
-    font = new QFont("MS Shell Dlg 2", 10);
-
-    font->setBold(true);
+    validInput = true;
     this->setWindowTitle(windowTitle);
     QLabel *displayedText =  new QLabel(description);
     QWidget *dynamBodyHolder = new QWidget;
     QFormLayout *dynamBody = new QFormLayout;
-    dynamBodyHolder->setFont(*font);
-    displayedText->setFont(*font);
+    dynamBodyHolder->setFont(*SupposeFont::instance());
+    displayedText->setFont(*SupposeFont::instance());
     dynamBody->addRow(displayedText);
     dynamBodyHolder->setLayout(dynamBody);
     // Creates scroll area (https://forum.qt.io/topic/31890/solved-layout-with-scrollbar/8)
@@ -117,10 +112,10 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString windowTitle, QS
     QGridLayout *mainLayout = new QGridLayout;
     mainLayout->addWidget(scrollArea, 0, 0);
     mainLayout->addWidget(buttonBox, 2, 0);
-    acceptButton->setFont(*font);
-    cancelButton->setFont(*font);
-    resetButton->setFont(*font);
-    editButton->setFont(*font);
+    acceptButton->setFont(*SupposeFont::instance());
+    cancelButton->setFont(*SupposeFont::instance());
+    resetButton->setFont(*SupposeFont::instance());
+    editButton->setFont(*SupposeFont::instance());
     setLayout(mainLayout);
     QRect rectGPSB, screenActual = qApp->desktop()->availableGeometry();
     rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? (dynamBody->sizeHint().width() * 1.1):(screenActual.width()*0.9));
@@ -131,35 +126,30 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString windowTitle, QS
         this->move(parent->pos().x()+parent->width()/2-this->width()/2, parent->pos().y()+parent->height()/2-this->height()/2);
 }
 
-GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, int startYear, QWidget *parent) : QDialog(parent)
+GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, int startYear, QWidget *parent) : QDialog(parent)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder primary constructor";
-    qDebug() << "Selected variant: " + *variant;
+    qDebug() << "Selected variant: " + Variant::abbrev();
     this->setWindowTitle(keywordExtension);
     this->setObjectName("Dynamic Window");
     year = new int;
     *year = startYear;
     qDebug() << "Start year: " << *year;
-    variantFVS = new QString;
-    *variantFVS = *variant;
     createButtonBox();
     currentField = new QString;
     QWidget *extensionKeyword = new QWidget;
     QLabel *name = new QLabel("Name:\t");
-    font = new QFont("MS Shell Dlg 2", 10);
-    font->setBold(true);
-    name->setFont(*font);
-    title = new QLineEdit();
-    title->setFont(*font);
-    title->setText(keywordExtension);
-    title->setObjectName("instanceTitle");
-    dynamLineEdits.append(title);
+    name->setFont(*SupposeFont::instance());
+    dynamLineEdits.append(new QLineEdit());
+    dynamLineEdits.at(0)->setFont(*SupposeFont::instance());
+    dynamLineEdits.at(0)->setText(keywordExtension);
+    dynamLineEdits.at(0)->setObjectName("instanceTitle");
     defaultLineValue.append(keywordExtension);
-    this->setFont(*font);
+    this->setFont(*SupposeFont::instance());
     QListView *keyDesc = new QListView();
     QStringListModel *descModel = new QStringListModel(description);
     keyDesc->setModel(descModel);
-    keyDesc->setFont(*font);
+    keyDesc->setFont(*SupposeFont::instance());
     keyDesc->setMinimumWidth(keyDesc->sizeHintForColumn(0) + 24);
     keyDesc->setEditTriggers(QAbstractItemView::NoEditTriggers);
     keyDesc->setStyleSheet("border-style: none");
@@ -186,7 +176,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
 
     auto variantListCheck = [&](QString line)->bool { qDebug() << "Variant list check lambda function used.";
         variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
-        return variantList.contains(*variantFVS);};
+        return variantList.contains(Variant::abbrev());};
 
     foreach (QString line, MSText) {
         qDebug() << "Line:" << line; // DEBUG outputs every line for QA
@@ -221,12 +211,12 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 if(fieldType == "scheduleBox")
                 {
                     createScheduleBox(dynamBody);
-                    yearCycleLine->setFont(*font);
-                    conditionLine->setFont(*font);
-                    yearCycleLabel->setFont(*font);
-                    conditionButton->setFont(*font);
-                    yearCycleRButton->setFont(*font);
-                    conditionRButton->setFont(*font);
+                    yearCycleLine->setFont(*SupposeFont::instance());
+                    conditionLine->setFont(*SupposeFont::instance());
+                    yearCycleLabel->setFont(*SupposeFont::instance());
+                    conditionButton->setFont(*SupposeFont::instance());
+                    yearCycleRButton->setFont(*SupposeFont::instance());
+                    conditionRButton->setFont(*SupposeFont::instance());
                     *currentField = conditionLine->objectName();
                     dynamLineEdits.value(dynamLineEdits.size() - 2)->setObjectName(dynamLineEdits.value(dynamLineEdits.size() - 2)->objectName()+fieldNum);
                     dynamLineEdits.value(dynamLineEdits.size() - 1)->setObjectName(dynamLineEdits.value(dynamLineEdits.size() - 1)->objectName()+fieldNum);
@@ -242,8 +232,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     selectionQLabel->setAlignment(Qt::AlignLeft);
                     dynamBody->addRow(selectionQLabel, dynamComboBoxes.last());
                     dynamComboBoxes.last()->setObjectName(type + "Selection");
-                    dynamComboBoxes.last()->setFont(*font);
-                    selectionQLabel->setFont(*font);
+                    dynamComboBoxes.last()->setFont(*SupposeFont::instance());
+                    selectionQLabel->setFont(*SupposeFont::instance());
                     *currentField = fieldType;
                     fieldDescription.clear();
                     fieldAdded = true;
@@ -261,7 +251,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                         noInputText->setText(fieldDescription);
                     else
                         noInputText->setText("\t\t\t\t");
-                    noInputText->setFont(*font);
+                    noInputText->setFont(*SupposeFont::instance());
                     dynamBody->addRow(noInputText);
                     dynamBody->itemAt(dynamBody->count() - 1)->widget()->setObjectName("noInput"+fieldNum);
                     qDebug() << "noInput widget name: " << dynamBody->itemAt(dynamBody->rowCount() - 1)->widget()->objectName();
@@ -274,7 +264,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     dynamCheckBoxes.append(new QCheckBox(fieldDescription));
                     dynamCheckBoxes.last()->setObjectName("checkBox" + QString::number(dynamCheckBoxes.size()));
                     dynamBody->addRow(dynamCheckBoxes.last());
-                    dynamCheckBoxes.last()->setFont(*font);
+                    dynamCheckBoxes.last()->setFont(*SupposeFont::instance());
                     defaultCheckValue.append(false);
                     *currentField = fieldType;
                     fieldDescription.clear();
@@ -284,7 +274,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 {
                     qDebug() << fieldType;
                     tempLabel = new QLabel(fieldDescription);
-                    tempLabel->setFont(*font);
+                    tempLabel->setFont(*SupposeFont::instance());
                     if(fieldType.contains("longListButton"))
                         dynamBody->addRow(tempLabel);
                     comboBoxProperties.clear();
@@ -316,7 +306,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 if(!inField)
                 {
                     fieldAdded = addDynamComboBox(comboBoxProperties, dynamBody, tempLabel, fieldNum);
-                    dynamComboBoxes.value(dynamComboBoxes.size()-1)->setFont(*font);
+                    dynamComboBoxes.value(dynamComboBoxes.size()-1)->setFont(*SupposeFont::instance());
                     valid = fieldAdded;
                 }
             }
@@ -340,7 +330,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                                 i--;
                             }
                     }
-                    longTitle->setFont(*font);
+                    longTitle->setFont(*SupposeFont::instance());
                     longTitle->setModel(new QStringListModel(longTitleTemp));
                     longTitle->setMinimumWidth(longTitle->sizeHintForColumn(0) + 24);
                     longTitle->setMaximumHeight(longTitle->sizeHintForRow(0) * longTitleTemp.size());
@@ -366,7 +356,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                         qDebug() << "Field title located" << line.mid(line.indexOf("{")+1);
                         QString title = line.mid(line.indexOf("{")+1).remove("}");
                         tempLabel = new QLabel(title);
-                        tempLabel->setFont(*font);
+                        tempLabel->setFont(*SupposeFont::instance());
                         dynamBody->addRow(tempLabel);
                     }
                     else
@@ -403,9 +393,9 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 if(!fieldAdded)
                 {
                     tempLabel = new QLabel(fieldDescription);
-                    tempLabel->setFont(*font);
+                    tempLabel->setFont(*SupposeFont::instance());
                     tempLineEdit = new QLineEdit();
-                    tempLineEdit->setFont(*font);
+                    tempLineEdit->setFont(*SupposeFont::instance());
                     if(fieldType.contains("numberBox", Qt::CaseInsensitive))
                         tempLineEdit->setValidator(new QDoubleValidator());
                     bool duplicate = false;
@@ -427,7 +417,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                             dynamBody->addRow(tempLabel, tempLineEdit);
                         dynamLineEdits.append(tempLineEdit);
                         dynamLineEdits.value(dynamLineEdits.size() - 1)->setObjectName(fieldNum);
-                        qDebug() << "Line Edit #" + QString(dynamLineEdits.size() - 1) + " has the Object name:" << dynamLineEdits.last()->objectName();
+                        qDebug() << "Line Edit #" + QString::number(dynamLineEdits.size() - 1) + " has the Object name:" << dynamLineEdits.last()->objectName();
                         defaultLineValue.append("");
                     }
                     fieldDescription.clear();
@@ -452,7 +442,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 qDebug() << "Field title located" << line.mid(line.indexOf("{")+1);
                 QString title = line.mid(line.indexOf("{")+1).remove("}");
                 tempLabel = new QLabel(title);
-                tempLabel->setFont(*font);
+                tempLabel->setFont(*SupposeFont::instance());
                 tempLabel->setObjectName("title" + fieldNum);
                 dynamBody->addRow(tempLabel);
             }
@@ -481,7 +471,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 qDebug() << "Field title located" << line.mid(line.lastIndexOf("{")+1);
                 QString title = line.mid(line.lastIndexOf("{")+1).remove("}");
                 tempLabel = new QLabel(title);
-                tempLabel->setFont(*font);
+                tempLabel->setFont(*SupposeFont::instance());
                 dynamBody->addRow(tempLabel);
             }
             else if(valid)
@@ -522,7 +512,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 {
                     line.remove(":{");
                     addDynamComboBox(QStringList(line.remove("}")), dynamBody, tempLabel, fieldNum);
-                    dynamComboBoxes.value(dynamComboBoxes.size()-1)->setFont(*font);
+                    dynamComboBoxes.value(dynamComboBoxes.size()-1)->setFont(*SupposeFont::instance());
                 }
                 else
                     inField = true;
@@ -548,8 +538,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     qDebug() << "Species Selection specification found:" << value;
                     if(!value.contains("deleteAll"))
                     {
-                        dynamComboBoxes.last()->setCurrentText(DictionaryMST::innerMap("species_" + *variantFVS).value(value));
-                        defaultComboValue.replace(defaultComboValue.size()-1, DictionaryMST::innerMap("species_" + *variantFVS).value(value));
+                        dynamComboBoxes.last()->setCurrentText(DictionaryMST::innerMap("species_" + Variant::abbrev()).value(value));
+                        defaultComboValue.replace(defaultComboValue.size()-1, DictionaryMST::innerMap("species_" + Variant::abbrev()).value(value));
                     }
                     else if(value == "deleteAll")
                     {
@@ -563,7 +553,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     {
                         value.remove("deleteAll ");
                         dynamComboBoxes.last()->removeItem(dynamComboBoxes.last()->findText("All species"));
-                        dynamComboBoxes.last()->setCurrentText(DictionaryMST::innerMap("species_" + *variantFVS).value(value));
+                        dynamComboBoxes.last()->setCurrentText(DictionaryMST::innerMap("species_" + Variant::abbrev()).value(value));
                         defaultComboValue.replace(defaultComboValue.size()-1, dynamComboBoxes.last()->currentText());
                     }
                     currentField->clear();
@@ -650,12 +640,12 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     connect(this, SIGNAL(inputError(QLineEdit*)), this, SLOT(inputErrorAlert(QLineEdit*)));
 
     dynamBodyHolder->setStyleSheet("background-color: rgb(255, 255, 255)");
-    dynamBodyHolder->setFont(*font);
+    dynamBodyHolder->setFont(*SupposeFont::instance());
     dynamBody->addRow(keyDesc);
     dynamBodyHolder->setLayout(dynamBody);
 
     QFormLayout *layout = new QFormLayout;
-    layout->addRow(name, title);
+    layout->addRow(name, dynamLineEdits.at(0));
     extensionKeyword->setLayout(layout);
 
     // Creates scroll area (https://forum.qt.io/topic/31890/solved-layout-with-scrollbar/8)
@@ -670,10 +660,10 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     mainLayout->addWidget(scrollArea, 2, 0);
 //    mainLayout->addWidget(dynamBodyHolder, 3, 0);
     mainLayout->addWidget(buttonBox, 4, 0);
-    acceptButton->setFont(*font);
-    cancelButton->setFont(*font);
-    resetButton->setFont(*font);
-    editButton->setFont(*font);
+    acceptButton->setFont(*SupposeFont::instance());
+    cancelButton->setFont(*SupposeFont::instance());
+    resetButton->setFont(*SupposeFont::instance());
+    editButton->setFont(*SupposeFont::instance());
     setLayout(mainLayout);
     // sets initial window size with respect to contained objects and screen
     QRect rectGPSB, screenActual = qApp->desktop()->availableGeometry();
@@ -721,21 +711,19 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
     }
     qDebug() << "Inside GeneralPurposeScreenBuilder generic deconstructor";
     delete year;
-    delete font;
-    delete variantFVS;
     delete currentField;
     delete buttonBox; // deletes editButton, resetButton, acceptButton, & cancelButton
 }
 
 void GeneralPurposeScreenBuilder::accept()
 {
-    qDebug() << "Inside" << this->windowTitle() << "accept function";
+    qDebug() << "Inside" << this->windowTitle() << "accept function, input validity is" << validInput;
     if(validInput)
     {
-        (title) ? qDebug() << "Title:" << title->text() : qDebug() << "ERROR or secondary construction";
+        (!dynamLineEdits.isEmpty()) ? qDebug() << "Title:" << dynamLineEdits.at(0)->text() : qDebug() << "ERROR or secondary construction";
         for (int i = 0; i < dynamLineEdits.size(); i++)
         {
-            qDebug() << "Selected value " + QString::number(i) + ":" << dynamLineEdits.at(i)->text();
+            qDebug() << QString( i > 0 ? ("Selected value " + QString::number(i) + ":") : "Title:") << dynamLineEdits.at(i)->text();
             if(dynamLineEdits.at(i)->objectName().contains("schedule"))
                 if((dynamLineEdits.at(i)->objectName().contains("Year") && yearCycleRButton->isChecked()) || (dynamLineEdits.at(i)->objectName().contains("Condition") && conditionRButton->isChecked()))
                     qDebug() << "Send:" << dynamLineEdits.at(i)->text() << "for" << dynamLineEdits.at(i)->objectName();
@@ -764,16 +752,16 @@ void GeneralPurposeScreenBuilder::accept()
             qDebug() << "Selected value:" << dynamComboBoxes.at(i)->currentText();
             if(dynamComboBoxes.at(i)->objectName().contains("species_") || dynamComboBoxes.at(i)->objectName().contains("speciesCode") || dynamComboBoxes.at(i)->objectName().contains("Forests_") || dynamComboBoxes.at(i)->objectName().contains("HabPa_"))
             {
-                if(DictionaryMST::innerMap("species_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
+                if(DictionaryMST::innerMap("species_" + Variant::abbrev()).values().contains(dynamComboBoxes.at(i)->currentText()))
                 {
-                    qDebug() << "Send:" << DictionaryMST::innerMap("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
+                    qDebug() << "Send:" << DictionaryMST::innerMap("species_" + Variant::abbrev()).key(dynamComboBoxes.at(i)->currentText());
                 }
                 else if(dynamComboBoxes.at(i)->currentText().contains("All affected species"))
-                    qDebug() << "Send:" << DictionaryMST::innerMap("species_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText().remove(" affected"));
-                else if(DictionaryMST::innerMap("Forests_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
-                    qDebug() << "Send:" << DictionaryMST::innerMap("Forests_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
-                else if(DictionaryMST::innerMap("HabPa_" + *variantFVS).values().contains(dynamComboBoxes.at(i)->currentText()))
-                    qDebug() << "Send:" << DictionaryMST::innerMap("HabPa_" + *variantFVS).key(dynamComboBoxes.at(i)->currentText());
+                    qDebug() << "Send:" << DictionaryMST::innerMap("species_" + Variant::abbrev()).key(dynamComboBoxes.at(i)->currentText().remove(" affected"));
+                else if(DictionaryMST::innerMap("Forests_" + Variant::abbrev()).values().contains(dynamComboBoxes.at(i)->currentText()))
+                    qDebug() << "Send:" << DictionaryMST::innerMap("Forests_" + Variant::abbrev()).key(dynamComboBoxes.at(i)->currentText());
+                else if(DictionaryMST::innerMap("HabPa_" + Variant::abbrev()).values().contains(dynamComboBoxes.at(i)->currentText()))
+                    qDebug() << "Send:" << DictionaryMST::innerMap("HabPa_" + Variant::abbrev()).key(dynamComboBoxes.at(i)->currentText());
             }
             else
                 qDebug() << "Send:" << dynamComboBoxes.at(i)->currentText();
@@ -987,12 +975,12 @@ void GeneralPurposeScreenBuilder::createButtonBox()
 void GeneralPurposeScreenBuilder::createSpecialSelectionComboBox(QString type)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder::createSpecialSelectionComboBox";
-    qDebug() << type + *variantFVS;
-    qDebug() << DictionaryMST::innerMap(type + *variantFVS).keys();
+    qDebug() << type + Variant::abbrev();
+    qDebug() << DictionaryMST::innerMap(type + Variant::abbrev()).keys();
     type == "species_" ? defaultComboValue.append("All species"):defaultComboValue.append(""); // for reset
     QComboBox *selectionComboBox = new QComboBox;
     QStringListModel *selectionModel = new QStringListModel;
-    selectionModel->setStringList(DictionaryMST::innerMap(type + *variantFVS).values());
+    selectionModel->setStringList(DictionaryMST::innerMap(type + Variant::abbrev()).values());
     selectionModel->sort(0);
     selectionComboBox->setModel(selectionModel);
     selectionComboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
@@ -1000,7 +988,7 @@ void GeneralPurposeScreenBuilder::createSpecialSelectionComboBox(QString type)
     selectionComboBox->setMinimumHeight(24);
     dynamComboBoxes.append(selectionComboBox);
     // lambda expression for selection changes
-    connect(selectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](){qDebug() << selectionComboBox->objectName() << "selection:" << selectionComboBox->currentText() << DictionaryMST::innerMap(type + *variantFVS).key(selectionComboBox->currentText());});
+    connect(selectionComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [=](){qDebug() << selectionComboBox->objectName() << "selection:" << selectionComboBox->currentText() << DictionaryMST::innerMap(type + Variant::abbrev()).key(selectionComboBox->currentText());});
 }
 
 /******** GeneralPurposeScreenBuilder::inputErrorAlert(QLineEdit *input) *********
@@ -1166,7 +1154,7 @@ bool GeneralPurposeScreenBuilder::addDynamComboBox(QStringList comboBoxPropertie
         int comboBoxLocation = dynamComboBoxes.size() - 1;
         dynamComboBoxes.value(comboBoxLocation)->setModel(comboBoxPropertiesModel);
         dynamComboBoxes.value(comboBoxLocation)->setCurrentText(selected);
-//        dynamComboBoxes.value(comboBoxLocation)->setFont(*font);
+//        dynamComboBoxes.value(comboBoxLocation)->setFont(*SupposeFont::instance());
         dynamComboBoxes.value(comboBoxLocation)->setObjectName(fieldNum);
         dynamComboBoxes.value(comboBoxLocation)->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
         (currentField->contains("long")) ? dynamBody->addRow(dynamComboBoxes.value(comboBoxLocation)) : dynamBody->addRow(tempLabel, dynamComboBoxes.value(comboBoxLocation));

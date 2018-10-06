@@ -9,11 +9,13 @@
 #include <QCheckBox>
 #include <QListView>
 #include <QComboBox>
+#include "variant.h"
 #include <QFormLayout>
 #include <QStringList>
 #include <QRadioButton>
-#include <QStringListModel>
+#include "supposefont.h"
 #include "dictionarymst.h"
+#include <QStringListModel>
 
 QT_BEGIN_NAMESPACE
 class QDialogButtonBox;
@@ -29,7 +31,7 @@ class GeneralPurposeScreenBuilder : public QDialog
 public:
     GeneralPurposeScreenBuilder(QString windowTitle, QString description, QWidget *parent = 0);
     GeneralPurposeScreenBuilder(QString window, QString category, QStringList MSText, int startYear, QWidget *parent = 0);
-    GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, QString *variant, int startYear, QWidget *parent = 0);
+    GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, int startYear, QWidget *parent = 0);
     bool addDynamComboBox(QStringList comboBoxProperties, QFormLayout *dynamBody, QLabel *tempLabel, QString fieldNum);
     QString numberToQString(double number);
     ~GeneralPurposeScreenBuilder();
@@ -56,9 +58,6 @@ private:
     // Generic
     bool validInput;
     int *year = NULL;
-    QFont *font = NULL;
-    QLineEdit *title = NULL;
-    QString *variantFVS = NULL;
     QString *currentField = NULL;
     QVector<bool> defaultCheckValue;
     QVector<QString> defaultLineValue;

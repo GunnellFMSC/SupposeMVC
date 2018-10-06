@@ -1,7 +1,7 @@
 #include "variantextension.h"
 #include "ui_variantextension.h"
 
-VariantExtension::VariantExtension(QString *variant, QMap<QString, QString> *variantExtensions, QMap<QString, QString> *variantAbbreviationNames, QMap<QString, QString> *extensionAbbreviationNames, bool *variantLocked, QWidget *parent) :
+VariantExtension::VariantExtension(QMap<QString, QString> *variantExtensions, QMap<QString, QString> *variantAbbreviationNames, QMap<QString, QString> *extensionAbbreviationNames, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::VariantExtension)
 {
@@ -11,9 +11,6 @@ VariantExtension::VariantExtension(QString *variant, QMap<QString, QString> *var
     variantModel = new QStringListModel;
     programModel = new QStringListModel;
     extensionModel = new QStringListModel;
-    startingVariant = *variant;
-    variantFVS = variant;
-    locked = variantLocked;
     QStringList fvsPrograms;
     variantAbbreviationNamesMap = variantAbbreviationNames;
     extensionAbbreviationNamesMap = extensionAbbreviationNames;
@@ -46,10 +43,10 @@ VariantExtension::VariantExtension(QString *variant, QMap<QString, QString> *var
     programModel->setStringList(fvsPrograms);
     ui->comboBox_variant->setModel(variantModel);
     ui->comboBox_program->setModel(programModel);
-    ui->comboBox_variant->setCurrentText(variantAbbreviationNamesMap->value(*variantFVS));
-    on_comboBox_variant_activated(variantAbbreviationNamesMap->value(*variantFVS));
-    ui->comboBox_variant->setDisabled(*locked);
-    ui->comboBox_program->setDisabled(*locked);
+    ui->comboBox_variant->setCurrentText(Variant::name());
+    on_comboBox_variant_activated(Variant::name());
+    ui->comboBox_variant->setDisabled(Variant::locked());
+    ui->comboBox_program->setDisabled(Variant::locked());
 }
 
 VariantExtension::~VariantExtension()
@@ -68,7 +65,7 @@ void VariantExtension::on_comboBox_variant_activated(const QString &arg1)
 //     qDebug() << programExtensions->value(programVariant->key(variantAbbreviationNamesMap->key(arg1)));
     ui->comboBox_program->setCurrentText(programVariant->key(variantAbbreviationNamesMap->key(arg1)));
     qDebug() << "Variant: " + variantAbbreviationNamesMap->value(variantAbbreviationNamesMap->key(ui->comboBox_variant->currentText())) + " (" +variantAbbreviationNamesMap->key(ui->comboBox_variant->currentText()) + ") selected.";
-    *variantFVS = variantAbbreviationNamesMap->key(ui->comboBox_variant->currentText());
+    Variant::abbrev() = variantAbbreviationNamesMap->key(ui->comboBox_variant->currentText());
 //    emit variantChanged(); // FVS reconstruction for every selection
     QStringList FVSExtensionsFull, FVSExtensionsAbbrev = QString(programExtensions->value(programVariant->key(variantAbbreviationNamesMap->key(arg1)))).split(" ");
 //     qDebug() << FVSExtensionsAbbrev;
@@ -89,19 +86,22 @@ void VariantExtension::on_comboBox_program_activated(const QString &arg1)
 
 void VariantExtension::on_pushButton_lock_clicked()
 {
-    *locked = true;
     qDebug() << "VariantExtension::Lock clicked";
-    qDebug() << "Variant: " + variantAbbreviationNamesMap->value(variantAbbreviationNamesMap->key(ui->comboBox_variant->currentText())) + " (" +variantAbbreviationNamesMap->key(ui->comboBox_variant->currentText()) + ") locked in.";
-    *variantFVS = variantAbbreviationNamesMap->key(ui->comboBox_variant->currentText());
-    ui->comboBox_variant->setDisabled(*locked);
-    ui->comboBox_program->setDisabled(*locked);
+    qDebug() << "Variant: " + ui->comboBox_variant->currentText() + " (" +variantAbbreviationNamesMap->key(ui->comboBox_variant->currentText()) + ") locked in.";
+    if(ui->comboBox_variant->currentText() != Variant::name())
+        Variant::setVariant(variantAbbreviationNamesMap->key(ui->comboBox_variant->currentText()), ui->comboBox_variant->currentText(), true);
+    else if (!Variant::locked())
+        Variant::setLock(true);
+    ui->comboBox_variant->setDisabled(true);
+    ui->comboBox_program->setDisabled(true);
+    ui->pushButton_lock->setDisabled(true);
 }
 
 void VariantExtension::on_pushButton_close_clicked()
 {
-    qDebug() << "VariantExtension::Close clicked\n" << startingVariant << *variantFVS;
-//    this->close();
-    if(startingVariant != *variantFVS)
-        emit variantChanged();
+    qDebug() << "VariantExtension::Close clicked";
+    if(ui->comboBox_variant->currentText() != Variant::name())
+        Variant::setVariant(variantAbbreviationNamesMap->key(ui->comboBox_variant->currentText()), ui->comboBox_variant->currentText(), Variant::locked());
+    qDebug() << Variant::name() << Variant::abbrev();
     this->accept();
 }

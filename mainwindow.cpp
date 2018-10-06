@@ -5,16 +5,15 @@ QMap<QString, QMap<QString, QString>> MainWindow::keyword_Exten_MainSecTitle;
 QMap<QString, QString>* MainWindow::extensionAbbreviationNames;
 QMap<QString, QString>* MainWindow::variantAbbreviationNames;
 QMap<QString, QString>* MainWindow::variantExtensions;
-QString* MainWindow::variant;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    variantLocked = false;
     ui->button_RunSim->setEnabled(false);
 //    PreferencesModel = new QStringListModel(this);
+    SupposeFont::set("MS Shell Dlg 2", 10, true);
     preferencesFileName = "/example.prf";
     if(mapParmsMainSectionText())
     {
@@ -71,11 +70,12 @@ MainWindow::MainWindow(QWidget *parent) :
 //    QStringList managementCategory = MainWindow::readSectionFromMappedLoc(*parameters, parmMainSectionMap["mgmtCategories"]);
     FVSAddKeywordsWindow = new FVSKeywordsWindow(&parmMainSectionMap, parameters, this);
     ManagementActionsWindow = new ManagementActions(&parmMainSectionMap, parameters, this);
-    selectVariantExtensionWindow = new VariantExtension(variant, variantExtensions, variantAbbreviationNames, extensionAbbreviationNames, &variantLocked);
+    selectVariantExtensionWindow = new VariantExtension(variantExtensions, variantAbbreviationNames, extensionAbbreviationNames);
     selectVariantExtensionWindow->setWindowTitle("Select Variant and Extension");
 //    connect(selectVariantExtensionWindow, SIGNAL(accepted()), this, SLOT(on_button_SelectModifiers_clicked()));
-    connect(selectVariantExtensionWindow, &VariantExtension::variantChanged, [=](){FVSAddKeywordsWindow->setExtensionCategoryKeywordModels(); FVSAddKeywordsWindow->update(); ManagementActionsWindow->setTitlesActions(); ManagementActionsWindow->update();}); // lambda, potentially for every selection
-    connect(selectVariantExtensionWindow, &QDialog::accepted, [=](){selectVariantExtensionWindow->startingVariant = *variant;}); // for window close only
+    connect(Variant::instance(), &Variant::variantChanged, [=](){FVSAddKeywordsWindow->setExtensionCategoryKeywordModels(); FVSAddKeywordsWindow->update(); ManagementActionsWindow->setTitlesActions(); ManagementActionsWindow->update();}); // lambda, potentially for every selection
+    connect(selectVariantExtensionWindow, &QDialog::accepted, [=](){selectVariantExtensionWindow->startingVariant = Variant::abbrev();}); // for window close only
+    qDebug() << Variant::name() << Variant::abbrev();
 }
 
 MainWindow::~MainWindow()
@@ -88,7 +88,6 @@ MainWindow::~MainWindow()
     delete variantExtensions;
     delete preferences;
     delete parameters;
-    delete variant;
     delete ui;
 }
 /********************* MainWindow::mapParmsMainSectionText() *********************
@@ -109,7 +108,8 @@ bool MainWindow::mapParmsMainSectionText()
         qDebug() << preferences->value("General Preferences/defaultParametersFileName").toString();
         qDebug() << PreferencesFilePath + "/" + preferences->value("General Preferences/defaultParametersFileName").toString();
         parameters = new QFile(PreferencesFilePath + "/" + preferences->value("General Preferences/defaultParametersFileName").toString());
-        variant = new QString(preferences->value("General Preferences/defaultVariant").toString());
+        Variant::instance()->abbreviation = QString(preferences->value("General Preferences/defaultVariant").toString());
+        Variant::instance()->variantLocked = false;
         qDebug() << "File name held in parameters variable:";
         qDebug() << parameters->fileName();
         if(parameters->exists())
@@ -163,8 +163,10 @@ bool MainWindow::mapParmsMainSectionText()
         }
         else{
             qDebug() << "CRITICAL ERROR: Specified Parameters File not found! (MainWindow::mapParmsMainSectionText)";
+            // Place GPSB warning window here
             mapSuccess = false;
         }
+        Variant::instance()->variantFVS = variantAbbreviationNames->value(Variant::abbrev(), "Variant not found");
     }
     else{
         qDebug() << "CRITICAL ERROR: defaultParametersFileName not found! MainWindow::mapParmsMainSectionText)";
@@ -216,17 +218,17 @@ void MainWindow::on_actionSuppose_Preferences_triggered()
     }
     else
          qDebug() << "Parameters unchanged";
-    if(*variant != preferences->value("General Preferences/defaultVariant").toString() && !variantLocked)
+    if(Variant::abbrev() != preferences->value("General Preferences/defaultVariant").toString() && !Variant::locked())
     {
         qDebug() << "Refresh Variant";
-        qDebug() << "Before: " + *variant;
-        *variant = preferences->value("General Preferences/defaultVariant").toString();
-        qDebug() << "After: " + *variant;
-        if (*variant == preferences->value("General Preferences/defaultVariant").toString())
+        qDebug() << "Before: " + Variant::abbrev();
+        Variant::abbrev() = preferences->value("General Preferences/defaultVariant").toString();
+        qDebug() << "After: " + Variant::abbrev();
+        if (Variant::abbrev() == preferences->value("General Preferences/defaultVariant").toString())
             qDebug() << "Successful Variant Refresh!";
     }
-    else if(*variant != preferences->value("General Preferences/defaultVariant").toString() && variantLocked)
-        qDebug() << "Default Variant saved as" << preferences->value("General Preferences/defaultVariant").toString() << "but running Variant locked in as" << *variant;
+    else if(Variant::abbrev() != preferences->value("General Preferences/defaultVariant").toString() && Variant::locked())
+        qDebug() << "Default Variant saved as" << preferences->value("General Preferences/defaultVariant").toString() << "but running Variant locked in as" << Variant::abbrev();
     else
         qDebug() << "Variant unchanged";
 }
@@ -255,7 +257,7 @@ void MainWindow::readSectionToLists(QStringList *mainSectionText, QStringList *d
             QString line = mainSectionText->at(i);
             QStringList variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
             (line.size() > (line.indexOf(":")+1)) ? qDebug() << "Variant(s):" << variantList << ", value:" << (line.mid(line.lastIndexOf("{")+1)).remove("}") : qDebug() << "Variant(s):" << variantList;
-            if(variantList.contains(*variant))
+            if(variantList.contains(Variant::abbrev()))
                 descriptionBegin = i++;
         }
         if(descriptionBegin >= 0 && descriptionEnd < 0)

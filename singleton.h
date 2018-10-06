@@ -1,4 +1,5 @@
 // Taken from https://wiki.qt.io/Qt_thread-safe_singleton to create thread-safe singleton implementation
+// Thread-safe design pattern which restricts class instanciation to exactly one object.
 
 #ifndef SINGLETON_H
 #define SINGLETON_H
