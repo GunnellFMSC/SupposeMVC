@@ -12,7 +12,7 @@ namespace Ui {
 class ManagementActions;
 }
 
-//class GeneralPurposeScreenBuilder; // forward declaration to allow numerous modeless GPSB windows
+class GeneralPurposeScreenBuilder; // forward declaration to allow numerous modeless GPSB windows
 
 class ManagementActions : public QDialog
 {
@@ -20,7 +20,7 @@ class ManagementActions : public QDialog
 
 public:
     explicit ManagementActions(QMap<QString, qint64> *parmMainSectionMap, QFile *parameters, QWidget *parent = 0);
-//    QVector<GeneralPurposeScreenBuilder *> containerGPSB;
+    QVector<GeneralPurposeScreenBuilder *> containerGPSB;
     void setTitlesActions();
     ~ManagementActions();
 
