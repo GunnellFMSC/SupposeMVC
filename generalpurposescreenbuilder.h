@@ -53,6 +53,7 @@ private:
     void modifyInput(QLineEdit *input);
     void createScheduleBox(QFormLayout *dynamicBody);
     void createSpecialSelectionComboBox(QString type);// for Selection of Species, Habitat Type Plant Association, Forests
+    void createPlantNaturalBox(QFormLayout *dynamicBody);
     void noInputRemovalCheck(QFormLayout *dynamicBody, QString fieldNum);
 
     // Generic
@@ -81,5 +82,12 @@ private:
     QVector<QRadioButton *> dynamRadioButtons;
 //    QVector<QLabel *> dynamLables;
 };
+
+//class NumberBox : public QLineEdit
+//{
+//public:
+//    QValidator *boundaries;
+
+//}
 
 #endif // GENERALPURPOSESCREENBUILDER_H
