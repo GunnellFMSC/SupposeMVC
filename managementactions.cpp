@@ -25,6 +25,11 @@ ManagementActions::ManagementActions(QMap<QString, qint64> *parmMainSectionMap, 
 
 ManagementActions::~ManagementActions()
 {
+    while(containerGPSB.size() > 0)
+    {
+        delete containerGPSB.back();
+        containerGPSB.pop_back();
+    }
     delete description;
     delete mainSectionText;
     delete managementTitles;
@@ -151,18 +156,18 @@ void ManagementActions::on_ManagmentActions_listView_clicked(const QModelIndex &
             }
             MainWindow::readSectionToLists(mainSectionText, description);
 //            qDebug() << keyword <<  parmMap->value(keyword_E_MST->value(keyword).value(extensionTemp));
-            GeneralPurposeScreenBuilder *dynamWin;
+//            GeneralPurposeScreenBuilder *dynamWin;
 //            if(QStringList(mainSectionText->filter("scheduleBox")).size() == 0)
-                dynamWin = new GeneralPurposeScreenBuilder(QString(actionName), QStringList(*description),  QStringList(*mainSectionText), 2018, this);
+//                dynamWin = new GeneralPurposeScreenBuilder(QString(actionName), QStringList(*description),  QStringList(*mainSectionText), 2018, this);
 //            else
 //            {
 //                qDebug() << "Place Secondary General Purpose Screen Builder constructor containing vectors in description and mainSectionText to allow for condition window here.";
-//                containerGPSB.append(new GeneralPurposeScreenBuilder(QString(actionName), QStringList(*description),  QStringList(*mainSectionText), MainWindow::variant, &MainWindow::mainSectionTextDictionary, 2018, this));
+                containerGPSB.append(new GeneralPurposeScreenBuilder(QString(actionName), QStringList(*description),  QStringList(*mainSectionText), 2018, this));
 //            }
-//            containerGPSB.last()->show();
-//            containerGPSB.last()->activateWindow();
-            dynamWin->exec();
-            dynamWin->deleteLater();
+            containerGPSB.last()->show();
+            containerGPSB.last()->activateWindow();
+//            dynamWin->exec();
+//            dynamWin->deleteLater();
         }
         else if(QString(actionInfoSplit.at(1)).contains("Win"))
         {
