@@ -40,23 +40,28 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
             dynamBody->addRow(holder, holder2);
             dynamBody->addRow(scheduleBoxHolder);
             dynamRadioButtons.append(new QRadioButton("Establish only trees specified, StockAdj is Zero"));
+            dynamRadioButtons.last()->setChecked(true);
             QFormLayout *groupHolder3 = new QFormLayout;
             groupHolder3->addRow(dynamRadioButtons.last());
             dynamLineEdits.append(new QLineEdit);
+            defaultLineValue.append("");
             dynamRadioButtons.append(new QRadioButton("Include predicted establishment, StockAdj"));
             groupHolder3->addRow(dynamRadioButtons.last(), dynamLineEdits.last());
             QWidget *holder3 = new QWidget();
             holder3->setLayout(groupHolder3);
             dynamBody->addRow(holder3);
             dynamLineEdits.append(new QLineEdit);
+            defaultLineValue.append("");
             QGridLayout *sitePrep = new QGridLayout;
             QGroupBox *sitePrepHolder = new QGroupBox;
             sitePrep->addWidget(new QLabel("Year(s) after the date of disturbance that site preparation is done:"), 0,0,1,3, Qt::AlignLeft);
             sitePrep->addWidget(dynamLineEdits.last(), 0,3,1,1, Qt::AlignRight);
             dynamLineEdits.append(new QLineEdit);
+            defaultLineValue.append("");
             sitePrep->addWidget(new QLabel("Percentage plots burned:"), 1,0,1,1, Qt::AlignLeft);
             sitePrep->addWidget(dynamLineEdits.last(), 1,1,1,1, Qt::AlignRight);
             dynamLineEdits.append(new QLineEdit);
+            defaultLineValue.append("");
             sitePrep->addWidget(new QLabel("Percentage mechanically sacrified:"), 1,2,1,1, Qt::AlignLeft);
             sitePrep->addWidget(dynamLineEdits.last(), 1,3,1,1, Qt::AlignRight);
             sitePrepHolder->setLayout(sitePrep);
@@ -67,8 +72,23 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
             dynamBody->addRow(groupHolder);
             dynamBody->addRow(scheduleBoxHolder);
         }
-        QLineEdit *numberBox = new QLineEdit;
-        dynamBody->addRow(new QLabel("Year(s) after the date of disturbance that Planting/Natural is done:"), numberBox);
+        foreach (QString line, MSText)
+        {
+            qDebug() << "Line:" << line; // DEBUG outputs every line for QA
+            if(line.contains("SproutingSpecies{"))
+            {
+                QStringList variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
+                (variantList.contains(Variant::abbrev())) ? dynamRadioButtons.at(0)->setChecked(true) : (dynamRadioButtons.at(0)->setHidden(true), dynamRadioButtons.at(1)->setHidden(true));
+            }
+            if(window.contains("Full") && line.contains("inGrowthDefault{"))
+            {
+                QStringList variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
+                (variantList.contains(Variant::abbrev())) ? dynamRadioButtons.at(2)->setChecked(true) : dynamRadioButtons.at(3)->setChecked(true);
+            }
+        }
+        dynamLineEdits.append(new QLineEdit);
+        defaultLineValue.append("");
+        dynamBody->addRow(new QLabel("Year(s) after the date of disturbance that Planting/Natural is done:"), dynamLineEdits.last());
         yearCycleLine->setFont(*SupposeFont::instance());
         conditionLine->setFont(*SupposeFont::instance());
         yearCycleLabel->setFont(*SupposeFont::instance());
@@ -835,17 +855,17 @@ void GeneralPurposeScreenBuilder::reset()
     qDebug() << "Inside reset function" << resetButton->objectName();
     if(yearCycleRButton != NULL)
         yearCycleRButton->setChecked(true);
-    qDebug() << "Reseting line edits";
+    qDebug() << "Resetting line edits";
     for (int i = 0; i < dynamLineEdits.size(); i++){
         dynamLineEdits.value(i)->setText(defaultLineValue.at(i));
         modifyInput(dynamLineEdits.value(i));
     }
-    qDebug() << "Reseting combo boxes";
+    qDebug() << "Resetting combo boxes";
     for (int i = 0; i < dynamComboBoxes.size(); i++){
         qDebug() << dynamComboBoxes.at(i)->objectName();
         dynamComboBoxes.value(i)->setCurrentText(defaultComboValue.at(i));
     }
-    qDebug() << "Reseting check boxes";
+    qDebug() << "Resetting check boxes";
     for (int i = 0; i < defaultCheckValue.size(); i++)
     {
         qDebug() << defaultCheckValue.at(i);
@@ -950,24 +970,31 @@ void GeneralPurposeScreenBuilder::createPlantNaturalBox(QFormLayout *dynamicBody
     plantNaturalBox->addWidget(dynamRadioButtons.last(), 0,1,1,1,Qt::AlignCenter);
     plantNaturalBox->addWidget(new QLabel("Species:"), 0,3,1,1,Qt::AlignRight);
     createSpecialSelectionComboBox("species_");
+    dynamComboBoxes.last()->removeItem(dynamComboBoxes.last()->findText("All species"));
+    defaultComboValue.replace(defaultComboValue.size()-1, dynamComboBoxes.last()->currentText());
     plantNaturalBox->addWidget(dynamComboBoxes.last(), 0,4,1,2,Qt::AlignRight);
     plantNaturalBox->addWidget(new QLabel("Trees/acre:"), 1,0,1,1,Qt::AlignLeft);
     dynamLineEdits.append(new QLineEdit);
+    defaultLineValue.append("");
     plantNaturalBox->addWidget(dynamLineEdits.last(), 1,1,1,1,Qt::AlignLeft);
     plantNaturalBox->addWidget(new QLabel("Percent survival:"), 1,2,1,1,Qt::AlignRight);
     dynamLineEdits.append(new QLineEdit);
+    defaultLineValue.append("");
     plantNaturalBox->addWidget(dynamLineEdits.last(), 1,3,1,1,Qt::AlignLeft);
     plantNaturalBox->addWidget(new QLabel("Average age:"), 1,4,1,1,Qt::AlignRight);
     dynamLineEdits.append(new QLineEdit);
+    defaultLineValue.append("");
     plantNaturalBox->addWidget(dynamLineEdits.last(), 1,5,1,1,Qt::AlignLeft);
     plantNaturalBox->addWidget(new QLabel("Ave height:"), 2,0,1,1,Qt::AlignLeft);
     dynamLineEdits.append(new QLineEdit);
+    defaultLineValue.append("");
     plantNaturalBox->addWidget(dynamLineEdits.last(), 2,1,1,1,Qt::AlignLeft);
     plantNaturalBox->addWidget(new QLabel("Shade code:"), 2,3,1,1,Qt::AlignRight);
     QComboBox *shadeCode = new QComboBox;
     shadeCode->addItem("Uniform distribution");
     shadeCode->addItem("Most trees placed on dense plots");
     shadeCode->addItem("Most trees placed on sparse plots");
+    defaultComboValue.append("Uniform distribution");
     dynamComboBoxes.append(shadeCode);
     plantNaturalBox->addWidget(dynamComboBoxes.last(), 2,4,1,2,Qt::AlignRight);
     plantNaturalBoxHolder->setLayout(plantNaturalBox);
