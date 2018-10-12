@@ -210,6 +210,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
         defaultComboValue.append("90th");
         percentile->setCurrentText("90th");
         dynamComboBoxes.append(percentile);
+        // lambdas to switch between input fields, enabling the selected and disabling the not. The "," operator is used to insure the Parm file specifed non-selected input is disabled on the window's start-up.
         connect(diameterRadioButton, &QRadioButton::toggled, [=]() {diameterRadioButton->isChecked() ? (diameterNumberBox->setDisabled(false), percentile->setDisabled(true)) : diameterNumberBox->setDisabled(true);});
         connect(percentileRadioButton, &QRadioButton::toggled, [=]() {percentileRadioButton->isChecked() ? (percentile->setDisabled(false), diameterNumberBox->setDisabled(true)) : percentile->setDisabled(true);});
         legacyTreesDiameterBox->addRow(percentileRadioButton, percentile);
@@ -234,6 +235,111 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
                 qDebug() << "Value line: " << line;
             }
         }
+    }
+    else if(window.contains("SeedTree") || window.contains("Shelterwood"))
+    {
+        dynamLineEdits.at(0)->setText(window);
+        defaultLineValue.append(window);
+        createScheduleBox(dynamBody);
+        dynamLineEdits.append(new QLineEdit);
+        defaultLineValue.append("");
+        QString toggleLabelName = (window.contains("SeedTree") ? "Seed" : "Shelterwood");
+        dynamBody->addRow(new QLabel("Smallest diameter cut in prep and " + toggleLabelName.toLower() + " cuts"), dynamLineEdits.last());
+        QFormLayout *prepCutResidualDensity = new QFormLayout;
+        QGroupBox *prepCutResidualDensityHolder = new QGroupBox;
+        prepCutResidualDensityHolder->setTitle("Prep cut, specify residual density");
+        prepCutResidualDensityHolder->setCheckable(true);
+        dynamRadioButtons.append(new QRadioButton("Residual basal area per acre: "));
+        QRadioButton *residualBasalRadio = dynamRadioButtons.last();
+        dynamLineEdits.append(new QLineEdit);
+        defaultLineValue.append("");
+        QLineEdit *residualBasalBox = dynamLineEdits.last();
+        prepCutResidualDensity->addRow(residualBasalRadio, residualBasalBox);
+
+        dynamRadioButtons.append(new QRadioButton("Residual percent of maximum SDI in year of prep cut: "));
+        QRadioButton *residualPercentRadio = dynamRadioButtons.last();
+        residualBasalRadio->setChecked(true);
+        dynamLineEdits.append(new QLineEdit);
+        defaultLineValue.append("");
+        QLineEdit *residualPercentBox = dynamLineEdits.last();
+        prepCutResidualDensity->addRow(residualPercentRadio, residualPercentBox);
+
+        // lambda to switch between both input fields, enabling the selected and disabling the not. A single lambda is sufficient because the default selected radio button cannot be altered in the Parm file.
+        connect(residualBasalRadio, &QRadioButton::toggled, [=]() {residualBasalRadio->isChecked() ? (residualBasalBox->setDisabled(false), residualPercentBox->setDisabled(true)) : (residualPercentBox->setDisabled(false), residualBasalBox->setDisabled(true));});
+        prepCutResidualDensityHolder->setLayout(prepCutResidualDensity);
+        dynamBody->addRow(prepCutResidualDensityHolder);
+
+        dynamLineEdits.append(new QLineEdit);
+        defaultLineValue.append("");
+        toggleLabelName.append(" cut");
+        QLabel *toggleLabel = new QLabel(toggleLabelName);
+        QLineEdit *toggleInput = dynamLineEdits.last();
+        dynamBody->addRow(toggleLabel, toggleInput);
+        if(window.contains("SeedTree"))
+        {
+            dynamLineEdits.append(new QLineEdit);
+            defaultLineValue.append("");
+            dynamBody->addRow(new QLabel("Seed cut residual trees (cut from below): "), dynamLineEdits.last());
+        }
+        else
+        {
+            QFormLayout *residualCut = new QFormLayout;
+            QGroupBox *residualCutHolder = new QGroupBox;
+            dynamRadioButtons.append(new QRadioButton("Residual basal area per acre: "));
+            QRadioButton *residualBasalRadioShelter = dynamRadioButtons.last();
+            residualBasalRadioShelter->setChecked(true);
+            dynamLineEdits.append(new QLineEdit);
+            defaultLineValue.append("");
+            QLineEdit *residualBasalBoxShelter = dynamLineEdits.last();
+            residualCut->addRow(residualBasalRadioShelter, residualBasalBoxShelter);
+
+            dynamRadioButtons.append(new QRadioButton("Residual trees per acre: "));
+            QRadioButton *residualTreesRadio = dynamRadioButtons.last();
+            dynamLineEdits.append(new QLineEdit);
+            defaultLineValue.append("");
+            dynamLineEdits.last()->setDisabled(true);
+            QLineEdit *residualTreesBox = dynamLineEdits.last();
+            residualCut->addRow(residualTreesRadio, residualTreesBox);
+
+            dynamRadioButtons.append(new QRadioButton("Residual percent of maximum SDI in year of prep cut: "));
+            QRadioButton *residualPercentRadioShelter = dynamRadioButtons.last();
+            dynamLineEdits.append(new QLineEdit);
+            defaultLineValue.append("");
+            dynamLineEdits.last()->setDisabled(true);
+            QLineEdit *residualPercentBoxShelter = dynamLineEdits.last();
+            residualCut->addRow(residualPercentRadioShelter, residualPercentBoxShelter);
+
+            connect(residualBasalRadioShelter, &QRadioButton::toggled, [=]() {residualBasalRadioShelter->isChecked() ? residualBasalBoxShelter->setDisabled(false) : residualBasalBoxShelter->setDisabled(true);});
+            connect(residualTreesRadio, &QRadioButton::toggled, [=]() {residualTreesRadio->isChecked() ? residualTreesBox->setDisabled(false) : residualTreesBox->setDisabled(true);});
+            connect(residualPercentRadioShelter, &QRadioButton::toggled, [=]() {residualPercentRadioShelter->isChecked() ? residualPercentBoxShelter->setDisabled(false) : residualPercentBoxShelter->setDisabled(true);});
+
+            residualCutHolder->setLayout(residualCut);
+            dynamBody->addRow(residualCutHolder);
+        }
+        // lambda
+        connect(prepCutResidualDensityHolder, &QGroupBox::toggled, [=]() {prepCutResidualDensityHolder->isChecked() ? (toggleLabel->setText(toggleLabelName + ", years scheduled after prep cut:"), toggleInput->setVisible(true), residualBasalRadio->setEnabled(true), residualBasalBox->setEnabled(true) , (residualBasalRadio->isChecked() ? residualPercentBox->setEnabled(false) : residualBasalBox->setEnabled(false))) : (toggleLabel->setText(toggleLabelName), toggleInput->setVisible(false), residualBasalRadio->setEnabled(false), residualBasalBox->setEnabled(false));});
+        prepCutResidualDensityHolder->setChecked(false);
+
+        QCheckBox *removalCut = new QCheckBox;
+        removalCut->setText("Removal cut, years scheduled after previous entry: ");
+        dynamLineEdits.append(new QLineEdit);
+        defaultLineValue.append("");
+        QLineEdit *removalCutBox = dynamLineEdits.last();
+        dynamBody->addRow(removalCut, removalCutBox);
+
+        dynamLineEdits.append(new QLineEdit);
+        defaultLineValue.append("");
+        QLineEdit *removalCutResidualBox = dynamLineEdits.last();
+        dynamBody->addRow(new QLabel("Seed cut residual trees (cut from below): "), removalCutResidualBox);
+
+        dynamLineEdits.append(new QLineEdit);
+        defaultLineValue.append("");
+        QLineEdit *smallDiameterCutBox = dynamLineEdits.last();
+        dynamBody->addRow(new QLabel("Smallest diameter cut in removal cut: "), smallDiameterCutBox);
+
+        // lambda
+        connect(removalCut, &QCheckBox::toggled, [=]() {removalCut->isChecked() ? (removalCutBox->setEnabled(true), removalCutResidualBox->setEnabled(true), smallDiameterCutBox->setEnabled(true)) : (removalCutBox->setEnabled(false), removalCutResidualBox->setEnabled(false), smallDiameterCutBox->setEnabled(false));});
+        removalCut->toggled(false);
     }
     else
     {
