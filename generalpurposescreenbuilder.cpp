@@ -101,88 +101,149 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
     }
     else if(window.contains("Thin"))
     {
-        delete dynamBody;
-        QGridLayout *dynamBody = new QGridLayout;
-
         createScheduleBox(dynamBody);
         QString instanceTitleActual = "Thin from ";
         instanceTitleActual.append(window.contains("Above") ? "Above" : "Below");
         dynamLineEdits.at(0)->setText(instanceTitleActual);
         defaultLineValue.append(instanceTitleActual);
-        dynamBody->addWidget(new QLabel("Specify residual density:"), dynamBody->rowCount(), 0, Qt::AlignLeft);
-        dynamRadioButtons.append(new QRadioButton("                     Trees per acre: \n\n                Tree spacing (feet): "));
+        QFormLayout *residualDensityBox = new QFormLayout;
+        QGroupBox *residualDensityHolder = new QGroupBox;
+        residualDensityHolder->setTitle("Specify residual density:");
+        dynamRadioButtons.append(new QRadioButton("\tTrees per acre: "));
         QRadioButton *trees = dynamRadioButtons.last();
-        dynamBody->addWidget(dynamRadioButtons.last(), dynamBody->rowCount(), 1, 2, 1);
         dynamLineEdits.append(new QLineEdit);
         defaultLineValue.append("");
         QLineEdit *treesPerAcre = dynamLineEdits.last();
-        dynamBody->addWidget(dynamLineEdits.last(), dynamBody->rowCount()-2, 2, 1, 1);
+        residualDensityBox->addRow(trees, new QLabel("\tTree spacing (feet): "));
         dynamLineEdits.append(new QLineEdit);
         defaultLineValue.append("");
         QLineEdit *treeSpacing = dynamLineEdits.last();
-        dynamBody->addWidget(dynamLineEdits.last(), dynamBody->rowCount()-1, 2, 1, 1);
+        residualDensityBox->addRow(treesPerAcre, treeSpacing);
         connect(treesPerAcre, &QLineEdit::editingFinished, [=]() {treeSpacing->setText(treesPerAcre->text().toDouble() != 0.0 ? numberToQString(sqrt(43560/treesPerAcre->text().toDouble())) : "ERROR");});
         connect(treeSpacing, &QLineEdit::editingFinished, [=]() {treesPerAcre->setText(treeSpacing->text().toDouble() != 0.0 ? numberToQString(43560/(treeSpacing->text().toDouble()*treeSpacing->text().toDouble())) : "ERROR");});
         connect(trees, &QRadioButton::toggled, [=]() {if(trees->isChecked()){treesPerAcre->setDisabled(false); treeSpacing->setDisabled(false);} else{treesPerAcre->setDisabled(true); treeSpacing->setDisabled(true);}});
         trees->setChecked(true);
-        dynamRadioButtons.append(new QRadioButton("                Basal area per acre: "));
+        dynamRadioButtons.append(new QRadioButton("\tBasal area per acre: "));
         QRadioButton *basal = dynamRadioButtons.last();
-        dynamBody->addWidget(dynamRadioButtons.last(), dynamBody->rowCount(), 1, 1, 1);
         dynamLineEdits.append(new QLineEdit);
         defaultLineValue.append("");
         QLineEdit *basalPerAcre = dynamLineEdits.last();
-        dynamBody->addWidget(dynamLineEdits.last(), dynamBody->rowCount()-1, 2, 1, 1);
+        residualDensityBox->addRow(basal, basalPerAcre);
         connect(basal, &QRadioButton::toggled, [=]() {basal->isChecked() ? basalPerAcre->setDisabled(false) : basalPerAcre->setDisabled(true);});
-        dynamRadioButtons.append(new QRadioButton("          Percent of trees per acre: "));
+        dynamRadioButtons.append(new QRadioButton("\tPercent of trees per acre: "));
         QRadioButton *treesPercent = dynamRadioButtons.last();
-        dynamBody->addWidget(dynamRadioButtons.last(), dynamBody->rowCount(), 1, 1, 1);
         dynamLineEdits.append(new QLineEdit);
         defaultLineValue.append("");
         QLineEdit *treesPerAcrePercent = dynamLineEdits.last();
-        dynamBody->addWidget(dynamLineEdits.last(), dynamBody->rowCount()-1, 2, 1, 1);
+        residualDensityBox->addRow(treesPercent, treesPerAcrePercent);
         connect(treesPercent, &QRadioButton::toggled, [=]() {treesPercent->isChecked() ? treesPerAcrePercent->setDisabled(false) : treesPerAcrePercent->setDisabled(true);});
-        dynamRadioButtons.append(new QRadioButton("Percent of basal area at year of thin:"));
+        dynamRadioButtons.append(new QRadioButton("\tPercent of basal area at year of thin:"));
         QRadioButton *basalPercent = dynamRadioButtons.last();
-        dynamBody->addWidget(dynamRadioButtons.last(), dynamBody->rowCount(), 1, 1, 1);
         dynamLineEdits.append(new QLineEdit);
         defaultLineValue.append("");
         QLineEdit *basalPerAcrePercent = dynamLineEdits.last();
-        dynamBody->addWidget(dynamLineEdits.last(), dynamBody->rowCount()-1, 2, 1, 1);
+        residualDensityBox->addRow(basalPercent, basalPerAcrePercent);
         connect(basalPercent, &QRadioButton::toggled, [=]() {basalPercent->isChecked() ? basalPerAcrePercent->setDisabled(false) : basalPerAcrePercent->setDisabled(true);});
-
-        dynamBody->addWidget(new QLabel("Proportion of trees left (spacing adjustment, 1-CutEff):"), dynamBody->rowCount(), 0, 1, 2, Qt::AlignLeft);
+        residualDensityHolder->setLayout(residualDensityBox);
+        dynamBody->addRow(residualDensityHolder);
         dynamLineEdits.append(new QLineEdit);
         defaultLineValue.append("");
-        dynamBody->addWidget(dynamLineEdits.last(), dynamBody->rowCount()-1, 2);
-        dynamBody->addWidget(new QLabel("Specify tree size limits of thinning:"), dynamBody->rowCount(), 0, Qt::AlignLeft);
-        dynamBody->addWidget(new QLabel("Diameter lower limits (inches):"), dynamBody->rowCount(), 1, Qt::AlignLeft);
+        dynamBody->addRow(new QLabel("Proportion of trees left (spacing adjustment, 1-CutEff):"), dynamLineEdits.last());
+        QFormLayout *treeLimitBox = new QFormLayout;
+        QGroupBox *treeLimitBoxHolder = new QGroupBox;
+        treeLimitBoxHolder->setTitle("Specify tree size limits of thinning:");
         dynamLineEdits.append(new QLineEdit);
         defaultLineValue.append("");
-        dynamBody->addWidget(dynamLineEdits.last(), dynamBody->rowCount()-1, 2);
-        dynamBody->addWidget(new QLabel("Diameter upper limits (inches):"), dynamBody->rowCount(), 1, Qt::AlignLeft);
+        treeLimitBox->addRow(new QLabel("Diameter lower limits (inches):"), dynamLineEdits.last());
         dynamLineEdits.append(new QLineEdit);
         defaultLineValue.append("");
-        dynamBody->addWidget(dynamLineEdits.last(), dynamBody->rowCount()-1, 2);
-        dynamBody->addWidget(new QLabel("Height lower limits (feet):"), dynamBody->rowCount(), 1, Qt::AlignLeft);
+        treeLimitBox->addRow(new QLabel("Diameter upper limits (inches):"), dynamLineEdits.last());
         dynamLineEdits.append(new QLineEdit);
         defaultLineValue.append("");
-        dynamBody->addWidget(dynamLineEdits.last(), dynamBody->rowCount()-1, 2);
-        dynamBody->addWidget(new QLabel("Height upper limits (feet):"), dynamBody->rowCount(), 1, Qt::AlignLeft);
+        treeLimitBox->addRow(new QLabel("Height lower limits (feet):"), dynamLineEdits.last());
         dynamLineEdits.append(new QLineEdit);
         defaultLineValue.append("");
-        dynamBody->addWidget(dynamLineEdits.last(), dynamBody->rowCount()-1, 2);
+        treeLimitBox->addRow(new QLabel("Height upper limits (feet):"), dynamLineEdits.last());
+        treeLimitBoxHolder->setLayout(treeLimitBox);
+        dynamBody->addRow(treeLimitBoxHolder);
         basalPerAcre->setDisabled(true);
         treesPerAcrePercent->setDisabled(true);
         basalPerAcrePercent->setDisabled(true);
     }
+    else if(window.contains("Clearcut"))
+    {
+        QLabel *f1, *f1opt, *f2, *f2opt;
+        dynamLineEdits.at(0)->setText(window);
+        defaultLineValue.append(window);
+        createScheduleBox(dynamBody);
+        f1opt = new QLabel("Specify diameter of the smallest tree cut");
+        f1opt->deleteLater();
+        dynamBody->addRow(f1opt);
+        dynamLineEdits.append(new QLineEdit);
+        defaultLineValue.append("");
+        f1 = new QLabel("Diameter: ");
+        f1->deleteLater();
+        dynamBody->addRow(f1, dynamLineEdits.last());
+        f2opt = new QLabel("Specify number of legacy trees");
+        f2opt->deleteLater();
+        dynamBody->addRow(f2opt);
+        dynamLineEdits.append(new QLineEdit);
+        defaultLineValue.append("");
+        f2 = new QLabel("Number of legacy trees per acre: ");
+        f2->deleteLater();
+        dynamBody->addRow(f2, dynamLineEdits.last());
+        QFormLayout *legacyTreesDiameterBox = new QFormLayout;
+        QGroupBox *legacyTreesDiameterHolder = new QGroupBox;
+        legacyTreesDiameterHolder->setTitle("Specify minimum diameter of legacy trees: ");
+        dynamRadioButtons.append(new QRadioButton("Diameter: "));
+        QRadioButton *diameterRadioButton = dynamRadioButtons.last();
+        dynamLineEdits.append(new QLineEdit);
+        defaultLineValue.append("");
+        QLineEdit *diameterNumberBox = dynamLineEdits.last();
+        legacyTreesDiameterBox->addRow(diameterRadioButton, diameterNumberBox);
+        dynamRadioButtons.append(new QRadioButton("Percentile of tree diameter distribution to compute: "));
+        QRadioButton *percentileRadioButton = dynamRadioButtons.last();
+        QComboBox *percentile = new QComboBox;
+        percentile->addItem("50th");
+        percentile->addItem("70th");
+        percentile->addItem("90th");
+        defaultComboValue.append("90th");
+        percentile->setCurrentText("90th");
+        dynamComboBoxes.append(percentile);
+        connect(diameterRadioButton, &QRadioButton::toggled, [=]() {diameterRadioButton->isChecked() ? (diameterNumberBox->setDisabled(false), percentile->setDisabled(true)) : diameterNumberBox->setDisabled(true);});
+        connect(percentileRadioButton, &QRadioButton::toggled, [=]() {percentileRadioButton->isChecked() ? (percentile->setDisabled(false), diameterNumberBox->setDisabled(true)) : percentile->setDisabled(true);});
+        legacyTreesDiameterBox->addRow(percentileRadioButton, percentile);
+        legacyTreesDiameterHolder->setLayout(legacyTreesDiameterBox);
+        dynamBody->addRow(legacyTreesDiameterHolder);
+        QRegularExpression field("f([0-9]+):{");
+        QRegularExpression fieldOpt("f([0-9]+)opt:{");
+        foreach (QString line, MSText)
+        {
+            if(line.contains(field))
+            {
+                line.contains("f1:{") ? f1->setText(line.remove(field).remove("}")) :
+                line.contains("f2:{") ? f2->setText(line.remove(field).remove("}")) :
+                diameterRadioButton->text().contains(line.remove(field).remove("}")) ? diameterRadioButton->setChecked(true) : percentileRadioButton->setChecked(true);
+            }
+            else if(line.contains(fieldOpt))
+            {
+                line.contains("f1opt:{") ? f1opt->setText(line.remove(fieldOpt).remove("}")) : f2opt->setText(line.remove(fieldOpt).remove("}"));
+            }
+            else
+            {
+                qDebug() << "Value line: " << line;
+            }
+        }
+    }
     else
     {
+        qDebug() << "Unspecified window";
         QCheckBox *tristateDemo = new QCheckBox;
         tristateDemo->setTristate(true);
         tristateDemo->setText("Tri-State Demo");
         dynamBody->addRow(tristateDemo);
+        createScheduleBox(dynamBody);
     }
-//    dynamBody->addRow(displayedText);
     dynamBodyHolder->setLayout(dynamBody);
     // Creates scroll area (https://forum.qt.io/topic/31890/solved-layout-with-scrollbar/8)
     QScrollArea *scrollArea = new QScrollArea;
@@ -1133,48 +1194,6 @@ void GeneralPurposeScreenBuilder::createScheduleBox(QFormLayout *dynamicBody)
     conditionSelectWidget->setLayout(conditionSelect);
     conditionSelectWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     dynamicBody->addRow(selectYearWidget, conditionSelectWidget);
-    connect(yearCycleRButton, SIGNAL(clicked()), this, SLOT(scheduleBoxSelection()));
-    connect(conditionRButton, SIGNAL(clicked()), this, SLOT(scheduleBoxSelection()));
-}
-
-void GeneralPurposeScreenBuilder::createScheduleBox(QGridLayout *dynamicBody)
-{
-    qDebug() << "Inside GeneralPurposeScreenBuilder::createScheduleBox";
-    scheduleBoxWidget = new QWidget;
-    yearCycleRButton = new QRadioButton;
-    conditionRButton = new QRadioButton;
-    yearCycleRButton->setObjectName("YearRadio");
-    conditionRButton->setObjectName("ConditionRadio");
-    yearCycleLine = new QLineEdit;
-    conditionLine = new QLineEdit;
-    dynamLineEdits.append(yearCycleLine);
-    dynamLineEdits.append(conditionLine);
-    yearCycleLabel = new QLabel;
-    conditionButton = new QPushButton;
-    yearCycleLabel->setText(" Select Year ");
-    yearCycleLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    conditionLine->setObjectName("scheduleBoxCondition");
-    yearCycleLine->setObjectName("scheduleBoxYear");
-    yearCycleLine->setText(QString::number(*year));
-    defaultLineValue.append(QString::number(*year));                 // for yearCycleLine
-    yearCycleLine->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-    conditionButton->setText(" years after Condition is met ");
-    conditionButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    conditionButton->setEnabled(false);
-    defaultLineValue.append("0");                                   // for conditionLine
-    conditionLine->setText("0");
-    conditionLine->setEnabled(false);
-    conditionLine->setMaximumWidth(conditionLine->sizeHint().width()*4);
-    conditionLine->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-    yearCycleRButton->setChecked(true);
-    yearCycleRButton->setText("Schedule by Year/Cycle");
-    conditionRButton->setText("Schedule by Condition");
-    dynamicBody->addWidget(yearCycleRButton, dynamicBody->rowCount(), 0, 1, 2, Qt::AlignCenter);
-    dynamicBody->addWidget(conditionRButton, dynamicBody->rowCount()-1, 2, 1, 2, Qt::AlignCenter);
-    dynamicBody->addWidget(yearCycleLine, dynamicBody->rowCount(), 0, Qt::AlignRight);
-    dynamicBody->addWidget(yearCycleLabel, dynamicBody->rowCount()-1, 1, Qt::AlignLeft);
-    dynamicBody->addWidget(conditionLine, dynamicBody->rowCount()-1, 2, Qt::AlignRight);
-    dynamicBody->addWidget(conditionButton, dynamicBody->rowCount()-1, 3, Qt::AlignLeft);
     connect(yearCycleRButton, SIGNAL(clicked()), this, SLOT(scheduleBoxSelection()));
     connect(conditionRButton, SIGNAL(clicked()), this, SLOT(scheduleBoxSelection()));
 }

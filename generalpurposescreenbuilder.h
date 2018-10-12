@@ -52,7 +52,6 @@ private:
     void createButtonBox();
     void modifyInput(QLineEdit *input);
     void createScheduleBox(QFormLayout *dynamicBody);
-    void createScheduleBox(QGridLayout *dynamicBody);
     void createSpecialSelectionComboBox(QString type);// for Selection of Species, Habitat Type Plant Association, Forests
     void createPlantNaturalBox(QFormLayout *dynamicBody);
     void noInputRemovalCheck(QFormLayout *dynamicBody, QString fieldNum);

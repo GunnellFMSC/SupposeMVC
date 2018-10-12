@@ -166,36 +166,30 @@ void ManagementActions::on_ManagmentActions_listView_clicked(const QModelIndex &
 //            }
             containerGPSB.last()->show();
             containerGPSB.last()->activateWindow();
-//            dynamWin->exec();
-//            dynamWin->deleteLater();
         }
         else if(QString(actionInfoSplit.at(1)).contains("Win"))
         {
             managementTitle = QString(actionInfoSplit.at(1)).remove(QString(actionInfoSplit.at(1)).size()-3, 3);
 //            qDebug() << "Attempting to pull data from mapped file: " << MainWindow::readSectionFromMappedLoc(*parm, qint64(parmMap->value(holder.at(1))));
             qDebug() << "Window: " << managementTitle;
-            if(!(managementTitle.contains("Plant") || managementTitle.contains("Thin")))
+            description->clear();
+            mainSectionText->clear();
+            QString managementTitleMST;
+            if(parmMap->value("management." + managementTitle, -1) >= 0)
             {
-                if(parmMap->value("management." + managementTitle, -1) >= 0)
-                {
-                    qDebug() << "Management Title: " << managementTitle << "at file location:" << parmMap->value("management." + managementTitle, -1);
-                }
-                else if(parmMap->value("management." + actionName, -1) >= 0)
-                {
-                    qDebug() << "Management Title: " << actionName << "at file location:" << parmMap->value("management." + actionName, -1);
-                }
+                qDebug() << "Management Title: " << managementTitle << "at file location:" << parmMap->value("management." + managementTitle, -1);
+                managementTitleMST = managementTitle;
             }
-            else if(managementTitle.contains("Plant"))
+            else if(parmMap->value("management." + actionName, -1) >= 0)
             {
-                description->clear();
-                mainSectionText->clear();
-                QString managementTitleMST = managementTitle;
-                managementTitleMST.remove("Partial").remove("Full");
-                *mainSectionText = MainWindow::readSectionFromMappedLoc(*parm, parmMap->value("management." + managementTitleMST));
-                GeneralPurposeScreenBuilder *dynamWin = new GeneralPurposeScreenBuilder(managementTitle, managementTitles->data(index).toString(), QStringList(*mainSectionText), 2018, this);
-                dynamWin->exec();
-                dynamWin->deleteLater();
+                qDebug() << "Management Title: " << actionName << "at file location:" << parmMap->value("management." + actionName, -1);
+                managementTitleMST = actionName;
             }
+            managementTitleMST.remove("Partial").remove("Full");
+            *mainSectionText = MainWindow::readSectionFromMappedLoc(*parm, parmMap->value("management." + managementTitleMST));
+            GeneralPurposeScreenBuilder *dynamWin = new GeneralPurposeScreenBuilder(managementTitle, managementTitles->data(index).toString(), QStringList(*mainSectionText), 2018, this);
+            dynamWin->exec();
+            dynamWin->deleteLater();
         }
     }
 }
