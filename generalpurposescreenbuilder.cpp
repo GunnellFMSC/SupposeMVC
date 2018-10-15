@@ -542,7 +542,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     QLabel *selectionQLabel = new QLabel(fieldDescription + "\t\t\t\t");
                     selectionQLabel->setAlignment(Qt::AlignLeft);
                     dynamBody->addRow(selectionQLabel, dynamComboBoxes.last());
-                    dynamComboBoxes.last()->setObjectName(type + "Selection");
+                    dynamComboBoxes.last()->setObjectName(fieldNum + type + "Selection");
                     dynamComboBoxes.last()->setFont(*SupposeFont::instance());
                     selectionQLabel->setFont(*SupposeFont::instance());
                     *currentField = fieldType;
@@ -573,7 +573,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 else if(fieldType == "checkBox")
                 {
                     dynamCheckBoxes.append(new QCheckBox(fieldDescription));
-                    dynamCheckBoxes.last()->setObjectName("checkBox" + QString::number(dynamCheckBoxes.size()));
+                    dynamCheckBoxes.last()->setObjectName(fieldNum + "checkBox" + QString::number(dynamCheckBoxes.size()));
                     dynamBody->addRow(dynamCheckBoxes.last());
                     dynamCheckBoxes.last()->setFont(*SupposeFont::instance());
                     defaultCheckValue.append(false);
@@ -920,7 +920,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     tempLineEdit->setValidator(custom);
 //                    tempLineEdit->setMinimumSize(tempLineEdit->sizeHint());
 //                    tempLineEdit->setMaximumSize(tempLineEdit->sizeHint()*3);
-                    tempLineEdit->setObjectName("numberBox" + QString::number(dynamLineEdits.size()));
+                    tempLineEdit->setObjectName(fieldNum.remove("v") + "numberBox" + QString::number(dynamLineEdits.size()));
 //                    tempLineEdit->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
                     connect(dynamLineEdits.value(dynamLineEdits.size()-1), SIGNAL(textEdited(QString)), this, SLOT(liveInputMod(QString)));
                     connect(tempLineEdit, &QLineEdit::editingFinished, [=]() {modifyInput(tempLineEdit);qDebug() << "EDITING FINISHED!";}); // lambda, http://doc.qt.io/qt-5/qobject.html#connect-4
@@ -1031,15 +1031,20 @@ GeneralPurposeScreenBuilder::~GeneralPurposeScreenBuilder()
 void GeneralPurposeScreenBuilder::accept()
 {
     qDebug() << "Inside" << this->windowTitle() << "accept function, input validity is" << validInput;
+    QVector<QString> acceptedInput(dynamLineEdits.size() + dynamComboBoxes.size() + dynamCheckBoxes.size(), "");
+    QRegularExpression fieldNumber("f\\d+");
     if(validInput)
     {
-        (!dynamLineEdits.isEmpty()) ? qDebug() << "Title:" << dynamLineEdits.at(0)->text() : qDebug() << "ERROR or secondary construction";
+        (!dynamLineEdits.isEmpty()) ? acceptedInput.replace(0, dynamLineEdits.at(0)->text()), qDebug() << "Title:" << dynamLineEdits.at(0)->text() : qDebug() << "ERROR or secondary construction";
         for (int i = 0; i < dynamLineEdits.size(); i++)
         {
             qDebug() << QString( i > 0 ? ("Selected value " + QString::number(i) + ":") : "Title:") << dynamLineEdits.at(i)->text();
             if(dynamLineEdits.at(i)->objectName().contains("schedule"))
                 if((dynamLineEdits.at(i)->objectName().contains("Year") && yearCycleRButton->isChecked()) || (dynamLineEdits.at(i)->objectName().contains("Condition") && conditionRButton->isChecked()))
+                {
                     qDebug() << "Send:" << dynamLineEdits.at(i)->text() << "for" << dynamLineEdits.at(i)->objectName();
+                    acceptedInput.replace(fieldNumber.match(dynamLineEdits.at(i)->objectName()).captured().remove("f").toInt(), dynamLineEdits.at(i)->text());
+                }
             if(dynamLineEdits.at(i)->validator() != 0)
             {
                 if(QVariant(dynamLineEdits.at(i)->validator()->property("bottom")).isValid() && QVariant(dynamLineEdits.at(i)->validator()->property("top")).isValid())
@@ -1047,9 +1052,15 @@ void GeneralPurposeScreenBuilder::accept()
                 if(dynamLineEdits.at(i)->hasAcceptableInput())
                 {
                     if(dynamLineEdits.at(i)->text().size() > 10)
+                    {
                         qDebug() << "Send:" << dynamLineEdits.at(i)->text().remove(11, 99) << "for" << dynamLineEdits.at(i)->objectName();
+                        acceptedInput.replace(fieldNumber.match(dynamLineEdits.at(i)->objectName()).captured().remove("f").toInt(), dynamLineEdits.at(i)->text().remove(11, 99));
+                    }
                     else
+                    {
                         qDebug() << "Send:" << dynamLineEdits.at(i)->text() << "for" << dynamLineEdits.at(i)->objectName();
+                        acceptedInput.replace(fieldNumber.match(dynamLineEdits.at(i)->objectName()).captured().remove("f").toInt(), dynamLineEdits.at(i)->text());
+                    }
                 }
                 else
                 {
@@ -1062,33 +1073,51 @@ void GeneralPurposeScreenBuilder::accept()
         }
         for (int i = 0; i < dynamComboBoxes.size(); i++)
         {
-            qDebug() << "Selected value:" << dynamComboBoxes.at(i)->currentText();
+            qDebug() << "Selected value for" << dynamComboBoxes.at(i)->objectName() << "is:" << dynamComboBoxes.at(i)->currentText();
             if(dynamComboBoxes.at(i)->objectName().contains("species_") || dynamComboBoxes.at(i)->objectName().contains("speciesCode") || dynamComboBoxes.at(i)->objectName().contains("Forests_") || dynamComboBoxes.at(i)->objectName().contains("HabPa_"))
             {
                 if(DictionaryMST::innerMap("species_" + Variant::abbrev()).values().contains(dynamComboBoxes.at(i)->currentText()))
                 {
                     qDebug() << "Send:" << DictionaryMST::innerMap("species_" + Variant::abbrev()).key(dynamComboBoxes.at(i)->currentText());
+                    acceptedInput.replace(fieldNumber.match(dynamComboBoxes.at(i)->objectName()).captured().remove("f").toInt(), DictionaryMST::innerMap("species_" + Variant::abbrev()).key(dynamComboBoxes.at(i)->currentText()));
                 }
                 else if(dynamComboBoxes.at(i)->currentText().contains("All affected species"))
+                {
                     qDebug() << "Send:" << DictionaryMST::innerMap("species_" + Variant::abbrev()).key(dynamComboBoxes.at(i)->currentText().remove(" affected"));
+                    acceptedInput.replace(fieldNumber.match(dynamComboBoxes.at(i)->objectName()).captured().remove("f").toInt(), DictionaryMST::innerMap("species_" + Variant::abbrev()).key(dynamComboBoxes.at(i)->currentText().remove(" affected")));
+                }
                 else if(DictionaryMST::innerMap("Forests_" + Variant::abbrev()).values().contains(dynamComboBoxes.at(i)->currentText()))
+                {
                     qDebug() << "Send:" << DictionaryMST::innerMap("Forests_" + Variant::abbrev()).key(dynamComboBoxes.at(i)->currentText());
+                    acceptedInput.replace(fieldNumber.match(dynamComboBoxes.at(i)->objectName()).captured().remove("f").toInt(), DictionaryMST::innerMap("Forests_" + Variant::abbrev()).key(dynamComboBoxes.at(i)->currentText()));
+                }
                 else if(DictionaryMST::innerMap("HabPa_" + Variant::abbrev()).values().contains(dynamComboBoxes.at(i)->currentText()))
+                {
                     qDebug() << "Send:" << DictionaryMST::innerMap("HabPa_" + Variant::abbrev()).key(dynamComboBoxes.at(i)->currentText());
+                    acceptedInput.replace(fieldNumber.match(dynamComboBoxes.at(i)->objectName()).captured().remove("f").toInt(), DictionaryMST::innerMap("HabPa_" + Variant::abbrev()).key(dynamComboBoxes.at(i)->currentText()));
+                }
             }
             else
-                qDebug() << "Send:" << dynamComboBoxes.at(i)->currentText();
+            {
+                qDebug() << "Send:" << dynamComboBoxes.at(i)->currentText() << "from" << dynamComboBoxes.at(i)->objectName();
+                acceptedInput.replace(fieldNumber.match(dynamComboBoxes.at(i)->objectName()).captured().remove("f").toInt(), dynamComboBoxes.at(i)->currentText());
+            }
         }
         for (int i = 0; i < dynamCheckBoxes.size(); i++)
         {
-            qDebug() << "Check box" << i+1 << "has the value:" << dynamCheckBoxes.at(i)->isChecked() << "for \"is checked\".";
+            qDebug() << "Check box" << dynamCheckBoxes.at(i)->objectName() << "has the value:" << dynamCheckBoxes.at(i)->isChecked() << "for \"is checked\".";
+            acceptedInput.replace(fieldNumber.match(dynamCheckBoxes.at(i)->objectName()).captured().remove("f").toInt(), QString::number(dynamCheckBoxes.at(i)->isChecked()));
         }
         foreach (QRadioButton *rButton, dynamRadioButtons)
         {
             if(rButton->isChecked())
                 qDebug() << "Radio button:" << rButton->text() << "selected.";
         }
-        if(validInput) this->done(QDialog::Accepted);
+        if(validInput)
+        {
+            for(int i =0; i < acceptedInput.size(); i++) {qDebug() << "f" + QString::number(i) + " value: " + acceptedInput.at(i);}
+            this->done(QDialog::Accepted);
+        }
     }
     else
     {
@@ -1157,9 +1186,9 @@ void GeneralPurposeScreenBuilder::scheduleBoxSelection()
 void GeneralPurposeScreenBuilder::liveInputMod(QString lineEditValue)
 {
     QWidget *selected = this->focusWidget();
-    if(selected->objectName().remove("numberBox").toInt() <= dynamLineEdits.size())
+    if(selected->objectName().remove(QRegularExpression("f\\d+numberBox")).toInt() <= dynamLineEdits.size())
     {
-        int lineEditNum = selected->objectName().remove("numberBox").toInt()-1;
+        int lineEditNum = selected->objectName().remove(QRegularExpression("f\\d+numberBox")).toInt()-1;
         if(lineEditValue.contains("e"))
             dynamLineEdits.value(lineEditNum)->setText(lineEditValue.remove("e"));
         if(lineEditValue.contains("+"))
@@ -1370,7 +1399,7 @@ void GeneralPurposeScreenBuilder::inputErrorAlert(QLineEdit *input)
         blank ? inputString = "0" : inputString = input->text();
         double userInput = inputString.toDouble();
         qDebug() << "Inside inputErrorAlert function with lineEdit " + input->objectName() + " and value" << inputString;
-        if(input->objectName().remove("numberBox").toInt() <= dynamLineEdits.size())
+        if(input->objectName().remove(QRegularExpression("f\\d+numberBox")).toInt() <= dynamLineEdits.size())
         {
             double high = input->validator()->property("top").toDouble();
             double low  = input->validator()->property("bottom").toDouble();
@@ -1513,8 +1542,8 @@ bool GeneralPurposeScreenBuilder::addDynamComboBox(QStringList comboBoxPropertie
         dynamComboBoxes.value(comboBoxLocation)->setModel(comboBoxPropertiesModel);
         dynamComboBoxes.value(comboBoxLocation)->setCurrentText(selected);
 //        dynamComboBoxes.value(comboBoxLocation)->setFont(*SupposeFont::instance());
-        dynamComboBoxes.value(comboBoxLocation)->setObjectName(fieldNum);
         dynamComboBoxes.value(comboBoxLocation)->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+        dynamComboBoxes.value(comboBoxLocation)->setObjectName(fieldNum.remove("v") + "comboBox" + QString::number(comboBoxLocation));
         (currentField->contains("long")) ? dynamBody->addRow(dynamComboBoxes.value(comboBoxLocation)) : dynamBody->addRow(tempLabel, dynamComboBoxes.value(comboBoxLocation));
         defaultComboValue.append(selected);
     }
