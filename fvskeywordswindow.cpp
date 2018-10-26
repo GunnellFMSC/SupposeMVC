@@ -390,5 +390,8 @@ void FVSKeywordsWindow::on_category_listView_activated(const QModelIndex &index)
 void FVSKeywordsWindow::on_keyword_listView_activated(const QModelIndex &index)
 {
     ui->keyword_listView->clicked(index);
-//    ui->keyword_listView->doubleClicked(index);
+    if(previousKeywordSelection == keywordsModel->data(index).toString())
+        ui->keyword_listView->doubleClicked(ui->keyword_listView->currentIndex());
+    else
+        previousKeywordSelection = keywordsModel->data(index).toString();
 }
