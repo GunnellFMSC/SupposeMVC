@@ -61,6 +61,7 @@ private:
     int *year = NULL;
     QString *currentField = NULL;
     QVector<bool> defaultCheckValue;
+    QVector<QString> parmsAnswerForm;
     QVector<QString> defaultLineValue;
     QVector<QString> defaultComboValue;
     QVector<QLineEdit *> dynamLineEdits;
