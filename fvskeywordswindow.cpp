@@ -9,6 +9,7 @@ FVSKeywordsWindow::FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, 
     ui->setupUi(this);
     parm = parameters;
     parmMap = parmMainSectionMap;
+    previousKeywordSelection = "";
     setWindowTitle("Use FVS Keywords");
     varExten = MainWindow::variantExtensions;
     keyword_E_MST = &(MainWindow::keyword_Exten_MainSecTitle);

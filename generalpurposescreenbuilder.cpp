@@ -1238,10 +1238,24 @@ void GeneralPurposeScreenBuilder::accept()
                 foreach (QString line, parmsForm) {qDebug() << line;}
 
                 for(int i = 0; i < acceptedInput.size(); i++)
-                {
+                {// retrieve accepted input, store as values in fieldColumnAnswers map with fieldNum/columnSize as key
                     qDebug() << "f" + QString::number(i) + " value: " + acceptedInput.at(i);
-                    if(i > 0) fieldColumnAnswers.insert(parmsForm.at(i), acceptedInput.at(i));
+                    if(i > 0) fieldColumnAnswers.insert(parmsForm.at(i), acceptedInput.at(i));  // acceptedInput at 0 is window title
+                    else fieldColumnAnswers.insert(parmsForm.at(i), parmsForm.at(i));           // parmsForm at 0 holds keyword and spacing
                 }
+
+                // lambda
+                auto spacePrepender = [&](QMap<QString, QString> answerMap, QString answerSyntax)-> QString {
+                    QString answer = answerMap.value(answerSyntax);
+                    QRegularExpression columnSize(",\\d+!");
+                    QString intHolder, spacing;
+                    if(answerSyntax.contains(columnSize))
+                        intHolder = answerSyntax.mid(answerSyntax.indexOf(",")+1).remove("!");
+//                    qDebug() << answerSyntax << intHolder << answer;
+                    int columnSizeActual = intHolder.toInt();
+                    for (int i = 0; i < columnSizeActual; i++) spacing.append(" ");
+                    return spacing + answer;
+                };
 
                 qDebug() << "answerLine/Field map has the following values:" << answerLineField;
                 int previousValue = -1;
@@ -1249,9 +1263,10 @@ void GeneralPurposeScreenBuilder::accept()
                 {
                     if(previousValue != i)
                         foreach (QString answerLine, answerLineField.values(i))
-                            answerStrings.size() > i ? (qDebug() << answerLine + " added for " + QString::number(i), answerStrings.replace(i, QString(answerStrings.at(i)).prepend(fieldColumnAnswers.value(answerLine)))) : (qDebug() << answerLine + " appended for " + QString::number(i), answerStrings.append(fieldColumnAnswers.value(answerLine)));
+                            answerStrings.size() > i ? (qDebug() << answerLine + " added for " + QString::number(i), answerStrings.replace(i, QString(answerStrings.at(i)).prepend(spacePrepender(fieldColumnAnswers, answerLine)))) : (qDebug() << answerLine + " appended for " + QString::number(i), answerStrings.append(spacePrepender(fieldColumnAnswers, answerLine)));
                     previousValue = i;
                 }
+
                 qDebug() << answerStrings;
             }
             this->done(QDialog::Accepted);
