@@ -384,6 +384,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), screenActual)); // centers window (http://doc.qt.io/qt-5/qstyle.html#alignedRect, https://wiki.qt.io/How_to_Center_a_Window_on_the_Screen)
     validInput = true;
 }
+
 GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString windowTitle, QString description, QWidget *parent) : QDialog (parent)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder " + QString(windowTitle.contains("Warning") ? "warning window" : "concise") + " constructor";
@@ -686,7 +687,26 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     }
                     else
                         qDebug() << "Uncaught listButton" << line;
+                }/*
+                else if(line.contains("answerForm:") || line.contains("parmsForm:") || currentField->contains("Form"))
+                {
+                    qDebug() << "Form found";
+                    if(line.contains("Form:{\\"))
+                        *currentField = line.remove("\\");
+                    if(!currentField->contains("Form"))
+                        *currentField = "Form";
+                    if(currentField->contains("Form:{\\"))
+                    {
+                        parmsAnswerForm.append(*currentField);
+                        *currentField = "Form";
+                    }
+                    else
+                        parmsAnswerForm.append(line);
+                    if(line.contains("}"))
+                        currentField->clear();
                 }
+                else if(line == "parmsForm=answerForm" || line == "answerForm=parmsForm")
+                    parmsAnswerForm.append(line);*/
                 else
                 {
                     qDebug() << "Field Description:" << line.right(line.size() - (line.indexOf(" ")+1));
@@ -943,6 +963,24 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 }
             }
         }
+        else if(line.contains("answerForm:") || line.contains("parmsForm:") || currentField->contains("Form"))
+        {
+            if(line.contains("Form:{\\"))
+                *currentField = line.remove("\\");
+            if(!currentField->contains("Form"))
+                *currentField = "Form";
+            if(currentField->contains("Form:{\\"))
+            {
+                parmsAnswerForm.append(*currentField);
+                *currentField = "Form";
+            }
+            else
+                parmsAnswerForm.append(line);
+            if(line.contains("}"))
+                currentField->clear();
+        }
+//        else if(line == "parmsForm=answerForm" || line == "answerForm=parmsForm")
+//            parmsAnswerForm.append(line);
     }
 
     // connects the application's focusChanged signal to this GPSB window to allow examination of user input after selection ends (http://doc.qt.io/qt-5/qapplication.html#focusChanged)
@@ -1070,6 +1108,11 @@ void GeneralPurposeScreenBuilder::accept()
                     break;
                 }
             }
+            else
+            {
+                qDebug() << "Send:" << dynamLineEdits.at(i)->text() << "for" << dynamLineEdits.at(i)->objectName();
+                acceptedInput.replace(fieldNumber.match(dynamLineEdits.at(i)->objectName()).captured().remove("f").toInt(), dynamLineEdits.at(i)->text());
+            }
         }
         for (int i = 0; i < dynamComboBoxes.size(); i++)
         {
@@ -1099,8 +1142,9 @@ void GeneralPurposeScreenBuilder::accept()
             }
             else
             {
-                qDebug() << "Send:" << dynamComboBoxes.at(i)->currentText() << "from" << dynamComboBoxes.at(i)->objectName();
-                acceptedInput.replace(fieldNumber.match(dynamComboBoxes.at(i)->objectName()).captured().remove("f").toInt(), dynamComboBoxes.at(i)->currentText());
+                qDebug() << "Send:" << dynamComboBoxes.at(i)->currentText() << "from" << dynamComboBoxes.at(i)->objectName() << " in slot " << dynamComboBoxes.at(i)->currentIndex();
+//                acceptedInput.replace(fieldNumber.match(dynamComboBoxes.at(i)->objectName()).captured().remove("f").toInt(), dynamComboBoxes.at(i)->currentText());
+                acceptedInput.replace(fieldNumber.match(dynamComboBoxes.at(i)->objectName()).captured().remove("f").toInt(), QString::number(dynamComboBoxes.at(i)->currentIndex()));
             }
         }
         for (int i = 0; i < dynamCheckBoxes.size(); i++)
@@ -1115,7 +1159,116 @@ void GeneralPurposeScreenBuilder::accept()
         }
         if(validInput)
         {
-            for(int i =0; i < acceptedInput.size(); i++) {qDebug() << "f" + QString::number(i) + " value: " + acceptedInput.at(i);}
+            qDebug() << "Valid Input\n";
+            int parmsFormIndex = -1, answerFormIndex = -1;
+            if(!parmsAnswerForm.isEmpty())
+            {
+                for (int i = 0; i < parmsAnswerForm.size(); i++)
+                {
+                    qDebug() << parmsAnswerForm.at(i);
+                    if(parmsAnswerForm.at(i).contains("parmsForm:"))
+                        parmsFormIndex = i;
+                    if(parmsAnswerForm.at(i).contains("answerForm:"))
+                        answerFormIndex = i;
+                }
+                QRegularExpression fieldNumberColumn("!\\d+,\\d+!");
+                QRegularExpression fieldNumberColumnless("!\\d+!");
+                QRegularExpression keyword("[A-Z]+");
+                QStringList answerStrings;
+                int mapIndex = 0;
+                QVector<QString> parmsForm/*, answerForm*/;
+                QMap<int, QString> answerLineField;
+                QMap<QString, QString> fieldColumnAnswers;
+                if(parmsFormIndex == -1) parmsFormIndex = answerFormIndex;
+                if(answerFormIndex == -1) answerFormIndex = parmsFormIndex;
+                parmsAnswerForm.replace(parmsFormIndex, parmsAnswerForm.value(parmsFormIndex).remove("answerForm").remove("parmsForm").remove(":"));
+                if(parmsAnswerForm.at(parmsFormIndex) == "{\\" || parmsAnswerForm.at(parmsFormIndex) == "") qDebug() <<"parmsForm line removed", parmsFormIndex += 1;
+                for(int i = parmsFormIndex; i < parmsAnswerForm.size(); i++)
+                {// make dedicated function
+                    bool read = true;
+                    if(parmsAnswerForm.at(i).contains("}")) (read = false), parmsAnswerForm.replace(i, parmsAnswerForm.value(i).remove("}"));
+                    if(read && parmsAnswerForm.at(i).at(parmsAnswerForm.at(i).size()-1) == "\\")
+                    {
+                        parmsAnswerForm.replace(i, parmsAnswerForm.value(i).remove("\\") + parmsAnswerForm.value(i + 1));
+                        parmsAnswerForm.remove(i + 1);
+                    }
+                    if(i == parmsFormIndex && parmsAnswerForm.value(i).contains("{"))
+                        parmsAnswerForm.replace(i, parmsAnswerForm.value(i).remove("{"));
+                    if(i == parmsFormIndex + 1)
+                        parmsAnswerForm.replace(i, parmsAnswerForm.value(i).remove("{"));
+                    if(parmsAnswerForm.at(i).left(10).contains(keyword))
+                    {
+                        parmsForm.append(parmsAnswerForm.at(i).left(10));
+                        answerLineField.insertMulti(answerLineField.constBegin(), mapIndex, parmsAnswerForm.at(i).left(10));
+                        parmsAnswerForm.replace(i, parmsAnswerForm.value(i).remove(parmsAnswerForm.at(i).left(10)));
+                    }
+                    if(parmsAnswerForm.at(i).contains("Parms"))
+                    {
+                        parmsForm.append(parmsAnswerForm.at(i).right(parmsAnswerForm.at(i).lastIndexOf("P")));
+                        answerLineField.insertMulti(answerLineField.constBegin(), mapIndex, parmsAnswerForm.at(i).right(parmsAnswerForm.at(i).lastIndexOf("P")));
+                        parmsAnswerForm.replace(i, parmsAnswerForm.at(i).left(parmsAnswerForm.at(i).lastIndexOf("P") - 1));
+                    }
+                    if(parmsAnswerForm.at(i).contains(fieldNumberColumn))
+                    {
+                        qDebug() << "Regex: fieldNumberColumn";
+                        QStringList fieldAndColumns = parmsAnswerForm.value(i).split("!", QString::SkipEmptyParts);
+                        foreach (QString field, fieldAndColumns) {
+                            if(field.contains(QRegularExpression("\\d,\\d"))) (field.prepend("!").append("!"));
+                            parmsForm.append(field);
+                            answerLineField.insertMulti(answerLineField.constEnd(), mapIndex, field);
+                        }
+                    }
+                    if(parmsAnswerForm.at(i).contains(fieldNumberColumnless))
+                    {
+                        qDebug() << "Regex: fieldNumberColumnless";
+                        QStringList fieldAndColumns = parmsAnswerForm.value(i).split("!", QString::SkipEmptyParts);
+                        foreach (QString field, fieldAndColumns) {
+                            qDebug() << field;
+                            if(QRegularExpression("\\d").match(field).isValid())
+                            {
+                                (field.prepend("!").append("!"));
+                            }
+                            parmsForm.append(field);
+                            answerLineField.insertMulti(answerLineField.constEnd(), mapIndex, field);
+                        }
+                    }
+                    mapIndex++;
+                }
+                qDebug() << "parmsForm:";
+                foreach (QString line, parmsForm) {qDebug() << line;}
+
+                for(int i = 0; i < acceptedInput.size(); i++)
+                {// retrieve accepted input, store as values in fieldColumnAnswers map with fieldNum/columnSize as key
+                    qDebug() << "f" + QString::number(i) + " value: " + acceptedInput.at(i);
+                    if(i > 0) fieldColumnAnswers.insert(parmsForm.at(i), acceptedInput.at(i));  // acceptedInput at 0 is window title
+                    else fieldColumnAnswers.insert(parmsForm.at(i), parmsForm.at(i));           // parmsForm at 0 holds keyword and spacing
+                }
+
+                // lambda
+                auto spacePrepender = [&](QMap<QString, QString> answerMap, QString answerSyntax)-> QString {
+                    QString answer = answerMap.value(answerSyntax);
+                    QRegularExpression columnSize(",\\d+!");
+                    QString intHolder, spacing;
+                    if(answerSyntax.contains(columnSize))
+                        intHolder = answerSyntax.mid(answerSyntax.indexOf(",")+1).remove("!");
+//                    qDebug() << answerSyntax << intHolder << answer;
+                    int columnSizeActual = intHolder.toInt();
+                    for (int i = 0; i < columnSizeActual; i++) spacing.append(" ");
+                    return spacing + answer;
+                };
+
+                qDebug() << "answerLine/Field map has the following values:" << answerLineField;
+                int previousValue = -1;
+                foreach (int i, answerLineField.keys())
+                {
+                    if(previousValue != i)
+                        foreach (QString answerLine, answerLineField.values(i))
+                            answerStrings.size() > i ? (qDebug() << answerLine + " added for " + QString::number(i), answerStrings.replace(i, QString(answerStrings.at(i)).prepend(spacePrepender(fieldColumnAnswers, answerLine)))) : (qDebug() << answerLine + " appended for " + QString::number(i), answerStrings.append(spacePrepender(fieldColumnAnswers, answerLine)));
+                    previousValue = i;
+                }
+
+                qDebug() << answerStrings;
+            }
             this->done(QDialog::Accepted);
         }
     }

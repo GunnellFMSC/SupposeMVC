@@ -48,6 +48,7 @@ private:
     QFile *parm;
     Ui::FVSKeywordsWindow *ui;
     QMap<QString, qint64> *parmMap;
+    QString previousKeywordSelection;
     QMap<QString, QStringList> *extensionCategories;
     QStringListModel *extensionsModel, *categoriesModel, *keywordsModel;
     QMap<QString, QMap<QString, QString>> *keywordDictionary, *keyword_E_MST;
