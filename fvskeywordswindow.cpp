@@ -275,6 +275,7 @@ void FVSKeywordsWindow::on_keyword_listView_doubleClicked(const QModelIndex &ind
     QString keyword = keywordsModel->data(index).toString();
     qDebug() << "FVSKeywords Window Keyword" << keyword <<  "Double-Clicked.";
 
+    previousKeywordSelection = "";
     QString extensionName = extensionsModel->data(ui->extension_listView->currentIndex()).toString();
     qDebug() << "Extension: " << extensionName;
     //↓ finds Main Sectin Text using keyword_E_MST QMap
@@ -393,6 +394,5 @@ void FVSKeywordsWindow::on_keyword_listView_activated(const QModelIndex &index)
     ui->keyword_listView->clicked(index);
     if(previousKeywordSelection == keywordsModel->data(index).toString())
         ui->keyword_listView->doubleClicked(ui->keyword_listView->currentIndex());
-    else
-        previousKeywordSelection = keywordsModel->data(index).toString();
+    previousKeywordSelection = keywordsModel->data(index).toString();
 }

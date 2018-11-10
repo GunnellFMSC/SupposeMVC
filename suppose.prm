@@ -1231,7 +1231,7 @@ answerForm:{\
 * 70: Units (Default used)
 SVS       !1,10!          !2,10!!3,10!!4,10!}
 
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end svsfiles
 
@@ -1889,8 +1889,7 @@ trans1: {"0"\n"2"}
 
 answerForm:{FVSStand           0!1,10,trans1!}
 
-parmsForm:
-{* Arguments:Year/Cycle,Output
+parmsForm:{* Arguments:Year/Cycle,Output
 FVSStand           0!1,10,trans1!}
 
 //end FvsStandFiles
@@ -2631,11 +2630,10 @@ f2v:{0.0013 (Extremely Clumpy)
  0.0152 (Moderately Uniform)		 
  0.0211 (Very Uniform)
  0.0377 (Extremely Uniform)}		 		  			 
-answerForm:{\
-CCAdj     !1,10!!2,10,dist1!}
+answerForm:{CCAdj     !1,10!!2,10,dist1!}
 parmsForm=answerForm
-dist1:{0.001301 0.003328 0.006035 0.009296 0.010000 0.011502 0.015199 0.021129 0.037703} 
-			  
+dist1:{0.001301 0.003328 0.006035 0.009296 0.010000 0.011502 0.015199 0.021129 0.037703}
+
 description:
 {Adjusts the percent canopy cover (PCC) overlap correction coefficient  
 for different non-random spatial distributions. The FVS-default overlap 
@@ -3130,7 +3128,7 @@ f11v:{0 0 1 0 1}
 
 expressionContents{always after}:{}
 
-parmsForm = answerForm
+parmsForm=answerForm
 
 
 //end keyword.base.Defect
@@ -3720,7 +3718,7 @@ expressionContents{always after}:{}
 parmsForm:{*Args: Species, 5" defect, 10", 15", 20", 25+"
 MCDefect  !1,10!   Parms(!2!, !3!, !4!,              &
 !5!, !6!, !7!)\n}
-parmsForm=answerForm
+answerForm=parmsForm
 
 //end keyword.base.MCDefect
 
@@ -3783,7 +3781,7 @@ parmsForm:{\
 * Arguments: Merch Cubic, Bdft, Ba, Total Cubic
 MinHarv   !1,10!     Parms(!2!, !3!, !4!, !5!)
 }
-parmsForm=answerForm
+answerForm=parmsForm
 
 //end keyword.base.MinHarv
 
@@ -6417,9 +6415,8 @@ f6v{ak}:{blank}
 f7:{numberBox Potential vegetation reference code}
 f7v:{blank}
 
-answerForm:{StdInfo   !1,10!!2,10,numbers!!3,10!!4,10!!5,10!!6,10!!7,10!}
+answerForm:{StdInfo   !1,10!!2,10!!3,10!!4,10!!5,10!!6,10!!7,10!}
 parmsForm=answerForm
-numbers:{1 2 3 4 5}
 
 //end keyword.base.StdInfo
 
@@ -13067,8 +13064,7 @@ description:
 and the column names are the same as user-defined Compute variables
 then the values of those variables will be set to those in the database.}
 
-parmsForm:
-{SQLIn     !1,10!
+parmsForm:{SQLIn     !1,10!
 SELECT *
 FROM
 WHERE Stand_ID = %StandID% and Year = %Year%
@@ -13234,8 +13230,7 @@ description:
 {Specify an SQL statement that from which stand-level
 FVS variables are initialized.}
 
-parmsForm:
-{StandSQL
+parmsForm:{StandSQL
 SELECT *
 FROM FVS_StandInit
 WHERE Stand_ID = '%StandID%'
@@ -13253,8 +13248,7 @@ description:
 and the column names are the same as user-defined Compute variables
 then the values of those variables will be set to those in the database.}
 
-parmsForm:
-{SQLOut    !1,10!
+parmsForm:{SQLOut    !1,10!
 SELECT *
 FROM
 WHERE Stand_ID = %StandID% and Year = %Year%
@@ -13304,8 +13298,7 @@ description:
 {Specify an SQL statement that from which tree-level
 FVS variables are initialized.}
 
-parmsForm:
-{TreeSQL
+parmsForm:{TreeSQL
 SELECT *
 FROM FVS_TreeInit
 WHERE Stand_id = '%StandID%'
@@ -13593,7 +13586,7 @@ f2v:{FVSClimAttrs.csv}
 answerForm:{ClimData
 !1!
 !2!}
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end keyword.climate.ClimData
 
@@ -18276,7 +18269,7 @@ f5v:{6.0}
 
 answerForm:{ORGVols   !1,10!!2,10!!3,10!!4,10!!5,10!}
 
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end keyword.organon.ORGVols
 
@@ -18290,7 +18283,7 @@ f1v:{}
 answerForm:{INPFile
 !1!}
 
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end keyword.organon.INPFile
 //start extensions
@@ -19366,8 +19359,7 @@ f2v:
 answerForm:
 {StrStat(!1,,list!,!2!)}
 
-list:{1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
- 26 27 28 29 30 31 32 33}
+list:{1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33}
 
 //end   evmon.function.StrStat
 
@@ -21330,7 +21322,7 @@ f2:{Number of legacy trees per acre}
 f2v:{5 0 50 0 50 FALSE FALSE}
 f2opt:{Specify number of legacy trees}
 
-f3:{Diameter}
+f3:{Percent}
 f3v:{30.0 0 100 0 100 FALSE}
 
 //end management.Clearcut
@@ -21433,7 +21425,7 @@ Plant/Natural with Partial Estab Model; strp PlantNaturalPartialWin}
 c2:{\
 Regeneration Methods: Even-aged
 Clearcut/Coppice; base ClearcutWin
-Seedtree; base SeedtreeWin
+Seedtree; base SeedTreeWin
 Shelterwood; base ShelterwoodWin
 }
 
@@ -22436,7 +22428,7 @@ ENDIF
 *     End of: Individual Tree Selection - Basal Area Target w/o SpecPref
 }
 
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end uneven-aged_ba_target_wo
 
@@ -22874,7 +22866,7 @@ ENDIF
 *     End of: Individual Tree Selection - Basal Area Target w/i SpecPref
 }
 
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end uneven-aged_ba_target_wi
 
@@ -23489,7 +23481,7 @@ ENDIF
 *     End of: Individual Tree Selection - SDI Target w/o SpecPref
 }
 
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end uneven-aged_sdi_target_wo
 
@@ -24104,7 +24096,7 @@ ENDIF
 *     End of: Individual Tree Selection - SDI Target w/i SpecPref
 }
 
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end uneven-aged_sdi_target_wi
 
@@ -24418,7 +24410,7 @@ EndIf
 *     End of: Group Selection Management Action
 }
 
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end uneven-aged_grp_select
 
@@ -24597,7 +24589,7 @@ EndIf
 *     End of:  Thinning w/ Species Retention Criteria Management Action
 }
 
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end species_retention
 
@@ -24677,7 +24669,7 @@ ThinPt    !1,10!     Parms(!4!, !5!, !6!, !7!, !8!, !9!)
 PointRef  !10,10,numbers!}
 numbers:{1 2 3 4 5 6}
 
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end ThinPoints
 
@@ -24759,7 +24751,7 @@ End
 !2,,thin4!   !1,10!    Parms(Max(0,(100*(1-Exp(-.01*_BUpUCC)))), !2,,newline1!
 !2,,newline3!1.0,!4!,_LDBH,_UDBH,0)
 }
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end ThinCrown
 
@@ -24781,7 +24773,7 @@ parmsForm:{\
 ThinPRSC  !1,10!     Parms(1.0, !2!)
 }
 
-answerForm = parmsForm
+answerForm=parmsForm
 
 //end ThinInd
 
@@ -24838,7 +24830,7 @@ TCONDMLT  !1,10!!6,10,value!
 !2,,thin3!   !1,10!    Parms(!3!,1.0-!4!,!5!,!7!,!8!,2)
 !2,,thin4!   !1,10!    Parms(!3!,1.0-!4!,!5!,!7!,!8!,2)
 }
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end Release
 
@@ -25154,7 +25146,7 @@ parmsForm:{\
 ThinDBH   !1,10!     Parms(!3!, !4!, 1.0, !5!, !2!, 0.)
 }
 
-answerForm = parmsForm
+answerForm=parmsForm
 //end MechThin
 
 //start salvage_options
@@ -25314,7 +25306,7 @@ EndIf
 trans3:{TA\nBA}
 trans7:{(0,0,0)\n(1,1,1)\n(0,0,1)}
 
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end thin_pileburn
 
@@ -25369,7 +25361,7 @@ FixMort   !8,10!    Parms(All,!10!,0,!11!,1,0)
 trans3:{TA\nBA}
 trans7:{(0,0,0)\n(1,1,1)\n(0,0,1)}
 
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end thin_pileburn_new
 
@@ -25434,7 +25426,7 @@ END
 
 }
 
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end mastication
 
@@ -25470,7 +25462,7 @@ ThinB!3,2,trans3!   !1,10!     Parms(!2!,1-!6!,!4!,!5!,0,999)
 trans3:{TA\nBA}
 trans7:{(0,0,0)\n(1,1,1)\n(0,0,1)}
 
-parmsForm = answerForm
+parmsForm=answerForm
 
 //end ffe_thin
 
