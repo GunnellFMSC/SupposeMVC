@@ -55,6 +55,7 @@ private:
     void createSpecialSelectionComboBox(QString type);// for Selection of Species, Habitat Type Plant Association, Forests
     void createPlantNaturalBox(QFormLayout *dynamicBody);
     void noInputRemovalCheck(QFormLayout *dynamicBody, QString fieldNum);
+    void parseForm(int formIndex, QStringList &resultStrings, QVector<QString> acceptedInput);
 
     // Generic
     bool validInput;
@@ -67,6 +68,7 @@ private:
     QVector<QLineEdit *> dynamLineEdits;
     QVector<QComboBox *> dynamComboBoxes;
     QVector<QCheckBox *> dynamCheckBoxes;
+    QMap<QString, QString> dynamArrayValue;
 
     // Button Box
     QDialogButtonBox *buttonBox;
