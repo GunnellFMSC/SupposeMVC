@@ -2830,7 +2830,7 @@ Apply multiplier to dubbed crowns only}
 expressionContents{always after}:{}
 
 parmsForm:{*Args: Species, Multiplier, min DBH, Max DBH
-CrnMult   !1,10!   Parms(!2!, !3!, !4!, !5!)\n}
+CrnMult   !1,10!   Parms(!2!, !3!, !4!, !5!, !6!)\n}
 
 //end keyword.base.CrnMult
 
@@ -3049,7 +3049,7 @@ f3v:{16 1 100}
 f4:{longTextEdit List of FVS subroutines for which debug is desired:}
 f4v:{main tregro}
 
-answerForm:{Debug    !1,10!!2,10!!3,10!
+answerForm:{Debug     !1,10!!2,10!!3,10!
 !4!}
 parmsForm=answerForm
 
