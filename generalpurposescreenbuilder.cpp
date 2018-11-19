@@ -1221,8 +1221,8 @@ void GeneralPurposeScreenBuilder::accept()
                 else answerStrings = parmsFormStrings;                          // answerForm=parmsForm
 
                 if(parmsFormStrings.size() > 0)
-                    qDebug() << "ParmsForm String(s)" << parmsFormStrings;
-                qDebug() << "Anwer String(s)" << answerStrings;
+                    qDebug() << "ParmsForm String(s) " << parmsFormStrings;
+                qDebug() << "AnswerForm String(s)" << answerStrings;
             }
             this->done(QDialog::Accepted);
         }
@@ -1279,13 +1279,13 @@ void GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultSt
     QMap<QString, QString> fieldColumnAnswers;
     QRegularExpression keyword("[A-Z]+");
     QMap<int, QString> answerLineField, blankColumn;
-    QVector<QString> formStrings;
+    QVector<QString> formStrings, parmsComments;
     int mapIndex = 0;
     parmsAnswerForm.replace(formIndex, parmsAnswerForm.value(formIndex).remove("answerForm").remove("parmsForm").remove(":"));
 //    if(parmsAnswerForm.at(formIndex) == "{\\" || parmsAnswerForm.at(formIndex) == "") qDebug() <<"parmsForm line removed" << parmsAnswerForm.at(formIndex), formIndex += 1;
     for(int i = formIndex; i < parmsAnswerForm.size(); i++)
     {
-        qDebug() << parmsAnswerForm.at(formIndex);
+        qDebug() << parmsAnswerForm.at(i);
         bool read = true;
         if(parmsAnswerForm.at(i).contains("}")) (read = false), parmsAnswerForm.replace(i, parmsAnswerForm.value(i).remove("}"));
         if(read && parmsAnswerForm.at(i).at(parmsAnswerForm.at(i).size()-1) == "\\")
@@ -1297,49 +1297,63 @@ void GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultSt
             parmsAnswerForm.replace(i, parmsAnswerForm.value(i).remove("{"));
         if(i == formIndex + 1)
             parmsAnswerForm.replace(i, parmsAnswerForm.value(i).remove("{"));
-        if(parmsAnswerForm.at(i).left(10).contains(keyword))
+        if(parmsAnswerForm.at(i).size() > 0)
         {
-            formStrings.append(parmsAnswerForm.at(i).left(10));
-            answerLineField.insertMulti(answerLineField.constBegin(), mapIndex, parmsAnswerForm.at(i).left(10));
-            parmsAnswerForm.replace(i, parmsAnswerForm.value(i).remove(parmsAnswerForm.at(i).left(10)));
+            if(parmsAnswerForm.at(i).at(0) == '*')
+            {
+                parmsComments.append(parmsAnswerForm.at(i));
+                mapIndex--;
+            }
+            else if(parmsAnswerForm.at(i).left(10).contains(keyword))
+            {
+                formStrings.append(parmsAnswerForm.at(i).left(10));
+                answerLineField.insertMulti(answerLineField.constBegin(), mapIndex, parmsAnswerForm.at(i).left(10));
+                parmsAnswerForm.replace(i, parmsAnswerForm.value(i).remove(parmsAnswerForm.at(i).left(10)));
+            }
         }
-        if(parmsAnswerForm.at(i).contains("Parms"))
-        {
-            formStrings.append(parmsAnswerForm.at(i).right(parmsAnswerForm.at(i).lastIndexOf("P")));
-            answerLineField.insertMulti(answerLineField.constBegin(), mapIndex, parmsAnswerForm.at(i).right(parmsAnswerForm.at(i).lastIndexOf("P")));
-            parmsAnswerForm.replace(i, parmsAnswerForm.at(i).left(parmsAnswerForm.at(i).lastIndexOf("P") - 1));
-        }
-        if(parmsAnswerForm.at(i).contains(fieldNumberColumn))
+        if(parmsAnswerForm.at(i).contains(fieldNumberColumn)) // "!\\d+,\\d+!"
         {
             qDebug() << "Regex: fieldNumberColumn";
             QStringList fieldAndColumns = parmsAnswerForm.value(i).split("!", QString::SkipEmptyParts);
             foreach (QString field, fieldAndColumns) {
-                if(QString(field).contains(QRegularExpression("\\s{10}")))
+                if(QString(field).contains(QRegularExpression("\\s\\s{9}")))
                 {// if a blank column is found, record its location and size, then remove it.
                     int lastBlank = blankColumn.isEmpty() ? 0 : blankColumn.keys().last();
                     blankColumn.insert(fieldAndColumns.indexOf(field, lastBlank), field);
                     field = "";
                 }
                 if(field.contains(QRegularExpression("\\d,\\d"))) (field.prepend("!").append("!"));
-                if(field.size() > 0)
+                if(field.size() > 0 && field.contains("!"))
                 {
                     formStrings.append(field);
                     answerLineField.insertMulti(answerLineField.constEnd(), mapIndex, field);
                 }
             }
         }
-        if(parmsAnswerForm.at(i).contains(fieldNumberColumnless))
+        if(parmsAnswerForm.at(i).contains(fieldNumberColumnless)) // "!\\d+!"
         {
             qDebug() << "Regex: fieldNumberColumnless";
             QStringList fieldAndColumns = parmsAnswerForm.value(i).split("!", QString::SkipEmptyParts);
-            foreach (QString field, fieldAndColumns) {
-                qDebug() << field;
-                if(QRegularExpression("\\d").match(field).isValid())
+            for (int j = 0; j < fieldAndColumns.size(); j++)
+            {
+                qDebug() << fieldAndColumns.at(j);
+                if((QRegularExpression("\\d").match(fieldAndColumns.at(j))).hasMatch() && !QString(fieldAndColumns.at(j)).contains(","))
                 {
-                    (field.prepend("!").append("!"));
+                    fieldAndColumns.replace(j, QString(fieldAndColumns.at(j)).prepend("!").append("!"));
+                    if(j > 0)
+                        if(QString(fieldAndColumns.at(j - 1)).contains("Parms"))
+                            fieldAndColumns.replace(j, QString(fieldAndColumns.at(j)).prepend(fieldAndColumns.at(j - 1)));
+//                            fieldAndColumns.replace(j, QString(fieldAndColumns.at(j)).prepend("Parms(")); //prepend(fieldAndColumns.at(j - 1)?
+                    if (j == fieldAndColumns.size() - 2)
+                    {// if the item being examined is the second to last on the line, check for line continuation (&).
+                        if(!QRegularExpression("\\d").match(fieldAndColumns.at(j + 1)).hasMatch() && !QString(fieldAndColumns.at(j + 1)).contains("&"))
+                            fieldAndColumns.replace(j, QString(fieldAndColumns.at(j)).append(")")); // end of Parms formula, add ")" to signify
+                        else if (QString(fieldAndColumns.at(j + 1)).contains("&"))
+                            fieldAndColumns.replace(j, QString(fieldAndColumns.at(j)).append(", &")); // not end of Parms formula, add "&" to signify
+                    }
+                    formStrings.append(fieldAndColumns.at(j));
+                    answerLineField.insertMulti(answerLineField.constEnd(), mapIndex, fieldAndColumns.at(j));
                 }
-                formStrings.append(field);
-                answerLineField.insertMulti(answerLineField.constEnd(), mapIndex, field);
             }
         }
         read ? mapIndex++ : i = parmsAnswerForm.size();
@@ -1367,7 +1381,8 @@ void GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultSt
         QString answer = answerMap.value(answerSyntax);
         QRegularExpression columnSize(",\\d+!");
         QRegularExpression columnSizeSpecial(",\\d+,\\w+!");
-        QString intHolder, spacing;
+        QRegularExpression fNumColumnlessParmParen("(Parms\\()?!\\d+!\\)?");
+        QString intHolder, spacing = "";
         if(answerSyntax.contains(columnSize))
             intHolder = answerSyntax.mid(answerSyntax.indexOf(",")+1).remove("!");
         else if(answerSyntax.contains(columnSizeSpecial))
@@ -1388,7 +1403,22 @@ void GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultSt
         qDebug() << answerSyntax << intHolder << answer;
         int columnSizeActual = intHolder.toInt();
         if(answer.size() > 0)
-            for (int i = answer.size(); i < columnSizeActual; i++) spacing.append(" ");
+        {
+            if(fNumColumnlessParmParen.match(answerSyntax).hasMatch())
+            {// Alters the Parms expressions values for beginning, end, and line continuation
+                if(answerSyntax.contains("Parms"))
+                    answer.prepend(answerSyntax.left(answerSyntax.indexOf("!")));
+//                    answer.prepend("   Parms(")/*.append(", ")*/; //answerSyntax.left(answerSyntax.indexOf("!"))?
+                if(answerSyntax.contains(")"))
+                    answer.append(")");
+                else if(answerSyntax.contains("&"))
+                    answer.append(", &");
+                else
+                    answer.append(", ");
+            }
+            else
+                for (int i = answer.size(); i < columnSizeActual; i++) spacing.append(" ");
+        }
         if(!blankColumn.isEmpty()) // if there is a missing blank column(s), add it to the mapped value
             if(blankColumn.keys().contains(answerMap.keys().indexOf(answerSyntax)))
                 spacing.prepend(blankColumn.value(answerMap.keys().indexOf(answerSyntax)));
@@ -1405,6 +1435,9 @@ void GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultSt
                 resultStrings.size() > i ? (qDebug() << answerLine + " added for " + QString::number(i), resultStrings.replace(i, QString(resultStrings.at(i)).prepend(spacePrepender(fieldColumnAnswers, answerLine)))) : (qDebug() << answerLine + " appended for " + QString::number(i), resultStrings.append(spacePrepender(fieldColumnAnswers, answerLine)));
         previousValue = i;
     }
+    // if there are parms comments, prepend them to the resultStrings in reverse order
+    for (int i = parmsComments.size()-1; i >= 0; i--)
+        resultStrings.prepend(parmsComments.at(i));
 }
 
 void GeneralPurposeScreenBuilder::scheduleBoxSelection()
