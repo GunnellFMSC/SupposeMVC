@@ -473,7 +473,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     keyDesc->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     keyDesc->setSizeAdjustPolicy(QListView::AdjustToContents);
     keyDesc->setMinimumHeight(descModel->rowCount()*keyDesc->sizeHintForRow(0)); // <-- get product of rows and rows size, use for ListView size
-    bool inField = false/*, inFieldValue = false, inFieldTitle = false*/, fieldAdded = false;
+    bool inField = false, fieldAdded = false;
     QRegularExpression field("f([0-9]+): ?({.*})?");
     QRegularExpression fieldVar("f([0-9]+){[\\w+\\s?]+}: ?({.*})?");
     QRegularExpression fieldValue("f(\\d)+v:");
@@ -688,26 +688,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     }
                     else
                         qDebug() << "Uncaught listButton" << line;
-                }/*
-                else if(line.contains("answerForm:") || line.contains("parmsForm:") || currentField->contains("Form"))
-                {
-                    qDebug() << "Form found";
-                    if(line.contains("Form:{\\"))
-                        *currentField = line.remove("\\");
-                    if(!currentField->contains("Form"))
-                        *currentField = "Form";
-                    if(currentField->contains("Form:{\\"))
-                    {
-                        parmsAnswerForm.append(*currentField);
-                        *currentField = "Form";
-                    }
-                    else
-                        parmsAnswerForm.append(line);
-                    if(line.contains("}"))
-                        currentField->clear();
                 }
-                else if(line == "parmsForm=answerForm" || line == "answerForm=parmsForm")
-                    parmsAnswerForm.append(line);*/
                 else
                 {
                     qDebug() << "Field Description:" << line.right(line.size() - (line.indexOf(" ")+1));
@@ -872,9 +853,6 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     else if(value == "deleteAll")
                     {
                         dynamComboBoxes.last()->removeItem(dynamComboBoxes.last()->findText("All species"));
-//                        speciesSelectionComboBox->insertItem(0, " ");
-//                        speciesSelectionComboBox->setCurrentText(" ");
-//                        defaultComboValue.replace(defaultComboValue.size()-1, " ");
                         defaultComboValue.replace(defaultComboValue.size()-1, dynamComboBoxes.last()->currentText());
                     }
                     else if(value.contains("deleteAll "))
@@ -1182,7 +1160,6 @@ void GeneralPurposeScreenBuilder::accept()
         {
             qDebug() << "Valid Input\n";
             QStringList answerStrings, parmsFormStrings;
-//            QVector<QString> answerForm, parmsForm;
             int parmsFormIndex = -1, answerFormIndex = -1;
 
             if(!parmsAnswerForm.isEmpty())
@@ -1203,6 +1180,7 @@ void GeneralPurposeScreenBuilder::accept()
                     if(parmsAnswerForm.at(i).contains("answerForm=parmsForm"))
                         answerFormIndex = -2, parmsAnswerForm.remove(i--);
                 }
+                // parmsFormIndex == -1 means there is no parmsForm
                 if(parmsFormIndex > -1) parseForm(parmsFormIndex, parmsFormStrings, acceptedInput);
                 if(answerFormIndex == -1)
                 {// if default answerForm needs to be used, append default to parmsAnswerForm
@@ -1212,7 +1190,7 @@ void GeneralPurposeScreenBuilder::accept()
                     keyword.resize(10, ' ');
                     parmsAnswerForm.append("{" + keyword + "!1,10!!2,10!!3,10!!4,10!!5,10!!6,10!!7,10!}");
                 }
-                if(answerFormIndex >= -1)
+                if(answerFormIndex > -1)
                 {
                     qDebug() << "parsing answerForm";
                     parseForm(answerFormIndex, answerStrings, acceptedInput);
@@ -1271,18 +1249,25 @@ void GeneralPurposeScreenBuilder::edit()
     qDebug() << "Inside edit function";
 }
 
+/**GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultStrings, QVector<QString> acceptedInput)**
+ *                                                                                                                   *
+ *                                                                                                                   *
+ *                                                                                                                   *
+ *                                                                                                                   *
+ *********************************************************************************************************************/
+
 void GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultStrings, QVector<QString> acceptedInput)
 {
     qDebug() << "Inside parseForm function";
-    QRegularExpression fieldNumberColumn("!\\d+,\\d+!");
-    QRegularExpression fieldNumberColumnless("!\\d+!");
-    QMap<QString, QString> fieldColumnAnswers;
+    QRegularExpression fieldNumberColumn("!\\d+,\\d+!");        // catches field by number and column width
+    QRegularExpression fNumColumnDynamArr("!\\d+,\\d*,\\w+!");  // catches field by number and column width as well as dynamArrays
+    QRegularExpression fieldNumberColumnless("!\\d+!");         // digits inside Parms expression
+    QMap<QString, QString> fieldColumnAnswers;                  // holds relation of field syntax with corresponding answer from acceptedInput
     QRegularExpression keyword("[A-Z]+");
-    QMap<int, QString> answerLineField, blankColumn;
-    QVector<QString> formStrings, parmsComments;
+    QMap<int, QString> answerLineField, blankColumn;            // answerLineField holds the field syntax with its relation to answer line number
+    QVector<QString> formStrings, parmsComments;                // formStrings is a list of
     int mapIndex = 0;
     parmsAnswerForm.replace(formIndex, parmsAnswerForm.value(formIndex).remove("answerForm").remove("parmsForm").remove(":"));
-//    if(parmsAnswerForm.at(formIndex) == "{\\" || parmsAnswerForm.at(formIndex) == "") qDebug() <<"parmsForm line removed" << parmsAnswerForm.at(formIndex), formIndex += 1;
     for(int i = formIndex; i < parmsAnswerForm.size(); i++)
     {
         qDebug() << parmsAnswerForm.at(i);
@@ -1312,7 +1297,7 @@ void GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultSt
             }
         }
         if(parmsAnswerForm.at(i).contains(fieldNumberColumn)) // "!\\d+,\\d+!"
-        {
+        {// this can be moved into the following conditional
             qDebug() << "Regex: fieldNumberColumn";
             QStringList fieldAndColumns = parmsAnswerForm.value(i).split("!", QString::SkipEmptyParts);
             foreach (QString field, fieldAndColumns) {
@@ -1322,7 +1307,8 @@ void GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultSt
                     blankColumn.insert(fieldAndColumns.indexOf(field, lastBlank), field);
                     field = "";
                 }
-                if(field.contains(QRegularExpression("\\d,\\d"))) (field.prepend("!").append("!"));
+                if(field.contains(QRegularExpression("\\d,\\d")) && !field.contains(QRegularExpression("[A-Za-z]"))) //"\\d,\\d"
+                    (field.prepend("!").append("!"));
                 if(field.size() > 0 && field.contains("!"))
                 {
                     formStrings.append(field);
@@ -1330,20 +1316,19 @@ void GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultSt
                 }
             }
         }
-        if(parmsAnswerForm.at(i).contains(fieldNumberColumnless)) // "!\\d+!"
+        if(parmsAnswerForm.at(i).contains(fieldNumberColumnless) || parmsAnswerForm.at(i).contains(fNumColumnDynamArr)) // "!\\d+!" or "!\\d+,\\d*,\\w+!"
         {
             qDebug() << "Regex: fieldNumberColumnless";
             QStringList fieldAndColumns = parmsAnswerForm.value(i).split("!", QString::SkipEmptyParts);
             for (int j = 0; j < fieldAndColumns.size(); j++)
             {
                 qDebug() << fieldAndColumns.at(j);
-                if((QRegularExpression("\\d").match(fieldAndColumns.at(j))).hasMatch() && !QString(fieldAndColumns.at(j)).contains(","))
+                if(((QRegularExpression("\\d").match(fieldAndColumns.at(j))).hasMatch() && (!QString(fieldAndColumns.at(j)).contains(","))) || QString(fieldAndColumns.at(j)).contains(QRegularExpression("\\d+,\\d*,\\w+")))
                 {
                     fieldAndColumns.replace(j, QString(fieldAndColumns.at(j)).prepend("!").append("!"));
                     if(j > 0)
                         if(QString(fieldAndColumns.at(j - 1)).contains("Parms"))
                             fieldAndColumns.replace(j, QString(fieldAndColumns.at(j)).prepend(fieldAndColumns.at(j - 1)));
-//                            fieldAndColumns.replace(j, QString(fieldAndColumns.at(j)).prepend("Parms(")); //prepend(fieldAndColumns.at(j - 1)?
                     if (j == fieldAndColumns.size() - 2)
                     {// if the item being examined is the second to last on the line, check for line continuation (&).
                         if(!QRegularExpression("\\d").match(fieldAndColumns.at(j + 1)).hasMatch() && !QString(fieldAndColumns.at(j + 1)).contains("&"))
@@ -1365,12 +1350,9 @@ void GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultSt
     for(int i = 0; i < acceptedInput.size(); i++)
     {// retrieve accepted input, store as values in fieldColumnAnswers map with fieldNum/columnSize as key
         qDebug() << "f" + QString::number(i) + " value: " + acceptedInput.at(i);
-        if(i > 0 && i < formStrings.size()) fieldColumnAnswers.insert(formStrings.at(i), acceptedInput.at(i));   // acceptedInput at 0 is window title
-        else if(i < formStrings.size()) fieldColumnAnswers.insert(formStrings.at(i), formStrings.at(i));          // parmsForm at 0 holds keyword and spacing
+        if(i > 0 && i < formStrings.size()) fieldColumnAnswers.insert(formStrings.at(i), acceptedInput.at(i));  // acceptedInput at 0 is window title
+        else if(i < formStrings.size()) fieldColumnAnswers.insert(formStrings.at(i), formStrings.at(i));        // parmsForm at 0 holds keyword and spacing
         else qDebug() << "formString size exceeded" << acceptedInput.at(i);
-//        if(!blankColumn.isEmpty())
-//            if(blankColumn.keys().contains(i)) // if there is a missing blank column(s), add it to the mapped value
-//                fieldColumnAnswers.insert(formStrings.at(i), QString(fieldColumnAnswers.value(formStrings.at(i))).append(blankColumn.value(i)));
     }
     for(int i = acceptedInput.size(); i < formStrings.size(); i++) // if there are more formStrings to input
         if(formStrings.at(i).contains(keyword))
@@ -1380,15 +1362,14 @@ void GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultSt
     auto spacePrepender = [&](QMap<QString, QString> answerMap, QString answerSyntax)-> QString {
         QString answer = answerMap.value(answerSyntax);
         QRegularExpression columnSize(",\\d+!");
-        QRegularExpression columnSizeSpecial(",\\d+,\\w+!");
         QRegularExpression fNumColumnlessParmParen("(Parms\\()?!\\d+!\\)?");
         QString intHolder, spacing = "";
         if(answerSyntax.contains(columnSize))
             intHolder = answerSyntax.mid(answerSyntax.indexOf(",")+1).remove("!");
-        else if(answerSyntax.contains(columnSizeSpecial))
+        else if(answerSyntax.contains(fNumColumnDynamArr))  // !\\d+,\\d*,\\w+!
         {// catch for dynamic array, replace stand in answer with dynamic array's answer
             intHolder = answerSyntax.mid(answerSyntax.indexOf(",")+1, answerSyntax.lastIndexOf(",")-1 - answerSyntax.indexOf(","));
-            QString dynamArrayName = answerSyntax.right(answerSyntax.size() - (answerSyntax.lastIndexOf(",")+1)).remove("!");
+            QString dynamArrayName = answerSyntax.right(answerSyntax.size() - (answerSyntax.lastIndexOf(",")+1)).remove("!").remove(")").remove(" ");
             qDebug() << "Dynamic Array Found!\n" << dynamArrayValue.values(dynamArrayName);
             QVector<QString> dynamAnswers;
             foreach (QString answer, dynamArrayValue.values(dynamArrayName))
@@ -1408,7 +1389,6 @@ void GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultSt
             {// Alters the Parms expressions values for beginning, end, and line continuation
                 if(answerSyntax.contains("Parms"))
                     answer.prepend(answerSyntax.left(answerSyntax.indexOf("!")));
-//                    answer.prepend("   Parms(")/*.append(", ")*/; //answerSyntax.left(answerSyntax.indexOf("!"))?
                 if(answerSyntax.contains(")"))
                     answer.append(")");
                 else if(answerSyntax.contains("&"))
@@ -1438,6 +1418,7 @@ void GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultSt
     // if there are parms comments, prepend them to the resultStrings in reverse order
     for (int i = parmsComments.size()-1; i >= 0; i--)
         resultStrings.prepend(parmsComments.at(i));
+    answerLineField.clear();
 }
 
 void GeneralPurposeScreenBuilder::scheduleBoxSelection()
