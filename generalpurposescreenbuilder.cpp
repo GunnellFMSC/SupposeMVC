@@ -480,6 +480,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     QRegularExpression fieldValueVar("f(\\d)+v{[\\w+\\s?]+}:");
     QRegularExpression fieldTitle("f(\\d)+title:");
     QRegularExpression fieldTitleVar("f(\\d)+title{[\\w+\\s?]+}:");
+    QRegularExpression variantDependency("{[a-z][a-z]([\\s][a-z][a-z])*}");
     QRegularExpression dynamicArray("^[A-Za-z]+\\d?({(\\w+\\s?)+})?:{[\\w\\s-\"\\n\\.]+}$");
     QStringList comboBoxProperties, longTitleTemp;
     QString fieldDescription, fieldType, fieldNum;
@@ -834,7 +835,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
             }
             else if(valid)
             {
-                qDebug() << "Variant Field Num:" << fieldNum;
+                qDebug() << "Variant Field Num:" << fieldNum << ", current Field:" << *currentField;
                 if(*currentField == "scheduleBox" && valid)
                 {
                     qDebug() << value;
@@ -842,25 +843,36 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                     defaultLineValue.replace(defaultLineValue.size()-1, conditionLine->text());
                     currentField->clear();
                 }
-                else if(*currentField == "species_Selection" && valid)
-                {
+                else if(currentField->contains("species", Qt::CaseInsensitive) && valid && !currentField->contains("Code", Qt::CaseInsensitive))
+                {// if "species" is located, excluding speciesCode and therefore pertaining to "speciesSelection", determine if All is used. Update current defaultComboValue.
                     qDebug() << "Species Selection specification found:" << value;
                     if(!value.contains("deleteAll"))
-                    {
+                    {// keep All, but change default to specified species
                         dynamComboBoxes.last()->setCurrentText(DictionaryMST::innerMap("species_" + Variant::abbrev()).value(value));
                         defaultComboValue.replace(defaultComboValue.size()-1, DictionaryMST::innerMap("species_" + Variant::abbrev()).value(value));
                     }
                     else if(value == "deleteAll")
-                    {
+                    {// remove all, default species unspecified
                         dynamComboBoxes.last()->removeItem(dynamComboBoxes.last()->findText("All species"));
                         defaultComboValue.replace(defaultComboValue.size()-1, dynamComboBoxes.last()->currentText());
                     }
                     else if(value.contains("deleteAll "))
-                    {
+                    {// deleteAll parms command specifies default species
                         value.remove("deleteAll ");
-                        dynamComboBoxes.last()->removeItem(dynamComboBoxes.last()->findText("All species"));
-                        dynamComboBoxes.last()->setCurrentText(DictionaryMST::innerMap("species_" + Variant::abbrev()).value(value));
-                        defaultComboValue.replace(defaultComboValue.size()-1, dynamComboBoxes.last()->currentText());
+                        qDebug() << value;
+                        if(value.contains("__"))
+                        {// blank specified as default. Remove All, add a blank option.
+                            dynamComboBoxes.last()->removeItem(dynamComboBoxes.last()->findText("All species"));
+                            dynamComboBoxes.last()->addItem(" ");
+                            dynamComboBoxes.last()->setCurrentText(" ");
+                            defaultComboValue.replace(defaultComboValue.size()-1, dynamComboBoxes.last()->currentText());
+                        }
+                        else
+                        {// remove All and change default to specified species,
+                            dynamComboBoxes.last()->removeItem(dynamComboBoxes.last()->findText("All species"));
+                            dynamComboBoxes.last()->setCurrentText(DictionaryMST::innerMap("species_" + Variant::abbrev()).value(value));
+                            defaultComboValue.replace(defaultComboValue.size()-1, dynamComboBoxes.last()->currentText());
+                        }
                     }
                     currentField->clear();
                 }
@@ -938,26 +950,39 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 }
             }
         }
-        else if(line.contains("answerForm:") || line.contains("parmsForm:") || currentField->contains("Form"))
+        else if(((line.contains("answerForm") || line.contains("parmsForm")) && line.contains(":")) || currentField->contains("Form"))
         {
-            if(line.contains("Form:{\\"))
-                *currentField = line.remove("\\");
-            if(!currentField->contains("Form"))
-                *currentField = "Form";
-            if(currentField->contains("Form:{\\"))
-            {
-                parmsAnswerForm.append(*currentField);
-                *currentField = "Form";
+            if(!line.contains(variantDependency) || (line.contains(variantDependency) && variantListCheck(line)))
+            {// there either is no variant dependancy or the variant dependancy is met
+                qDebug() << "Form confirmed:" << line;
+                if(line.contains(variantDependency)) // "{[a-z][a-z]([\\s][a-z][a-z])*}"
+                {
+                    line.remove(line.indexOf("{"), (line.indexOf("}") + 1) - line.indexOf("{"));
+                    qDebug() << "Variant dependent form confirmed:" << line;
+                }
+                if(line.contains("Form:{\\"))
+                    *currentField = line.remove("\\");
+                if(!currentField->contains("Form"))
+                    *currentField = "Form";
+                if(currentField->contains("Form:{\\"))
+                {
+                    parmsAnswerForm.append(*currentField);
+                    *currentField = "Form";
+                }
+                else
+                    parmsAnswerForm.append(line);
+                if(line.contains("}"))
+                    currentField->clear();
+                qDebug() << *currentField;
             }
-            else
-                parmsAnswerForm.append(line);
-            if(line.contains("}"))
-                currentField->clear();
         }
-        else if(line == "parmsForm=answerForm" || line == "answerForm=parmsForm")
-            parmsAnswerForm.append(line);
+        else if(line == "parmsForm=answerForm" || (line.contains(QRegularExpression("parmsForm{[\\w\\s]+}=answerForm")) && variantListCheck(line)))
+            parmsAnswerForm.append("parmsForm=answerForm");
+        else if(line == "answerForm=parmsForm" || (line.contains(QRegularExpression("answerForm{[\\w\\s]+}=parmsForm")) && variantListCheck(line)))
+                parmsAnswerForm.append("answerForm=parmsForm");
         else if(line.contains("speciesCode{"))
         {
+            qDebug() << "Species code found!";
             if(variantListCheck(line))
                 dynamComboBoxes.value(dynamComboBoxes.size() - 1)->setObjectName("speciesCode");
         }
@@ -1165,7 +1190,7 @@ void GeneralPurposeScreenBuilder::accept()
             if(!parmsAnswerForm.isEmpty())
             {
                 for (int i = 0; i < parmsAnswerForm.size(); i++)
-                {
+                {// newest answer assumed to be true (if answerForm: appears before anserForm{AK}:, the second is assumed to be true, overwrites)
                     qDebug() << parmsAnswerForm.at(i);
                     if(parmsAnswerForm.at(i) == ("parmsForm:{\\") || parmsAnswerForm.at(i) == ("parmsForm:{") || parmsAnswerForm.at(i) == ("parmsForm:"))
                         parmsFormIndex = i+1;
