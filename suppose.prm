@@ -2823,13 +2823,13 @@ f4v{ak bm cr sw sp bp sf lp ec em nc so tt ut wc ws cs ls ne se sn pn ca}:{0}
 f5{ak bm cr sw sp bp sf lp ec em nc so tt ut wc ws cs ls ne se sn pn ca}:{numberBox Largest DBH to which multiplier is applied (less than)}
 f5v{ak bm cr sw sp bp sf lp ec em nc so tt ut wc ws cs ls ne se sn pn ca}:{999}
 
-f6:{longListButton Application of multiplier}
-f6v:{Apply multiplier to crown change and dubbed crowns
+f6{ak bm cr sw sp bp sf lp ec em nc so tt ut wc ws cs ls ne se sn pn ca}:{longListButton Application of multiplier}
+f6v{ak bm cr sw sp bp sf lp ec em nc so tt ut wc ws cs ls ne se sn pn ca}:{Apply multiplier to crown change and dubbed crowns
 Apply multiplier to dubbed crowns only}
 
 expressionContents{always after}:{}
 
-parmsForm:{*Args: Species, Multiplier, min DBH, Max DBH
+parmsForm{ak bm cr sw sp bp sf lp ec em nc so tt ut wc ws cs ls ne se sn pn ca}:{*Args: Species, Multiplier, min DBH, Max DBH
 CrnMult   !1,10!   Parms(!2!, !3!, !4!, !5!, !6!)\n}
 
 //end keyword.base.CrnMult
@@ -4471,219 +4471,219 @@ f11:{numberBox Multiplier for species 11}
 f11v:{1.0}
 
 f12{ak bm ne ls cs wc pn ws se sn ca ie ci em so ec tt ut cr sw sp bp sf lp}:{numberBox Multiplier for species 12}
-f12v:{1.0}
+f12v{ak bm ne ls cs wc pn ws se sn ca ie ci em so ec tt ut cr sw sp bp sf lp}:{1.0}
 f13{ak bm ne ls cs wc pn ws se sn ca ie ci em so ec tt ut cr sw sp bp sf lp}:{numberBox Multiplier for species 13}
-f13v:{1.0}
+f13v{ak bm ne ls cs wc pn ws se sn ca ie ci em so ec tt ut cr sw sp bp sf lp}:{1.0}
 f14{bm ne ls cs wc pn ws se sn ca ie em ci so ec tt ut cr sw sp bp sf lp}:{numberBox Multiplier for species 14}
-f14v:{1.0}
-f15{bm ne ls cs wc pn ws se ws sn ca ie em ci so ec tt ut cr sw sp bp sf lp}:{numberBox Multiplier for species 15}
-f15v:{1.0}
+f14v{bm ne ls cs wc pn ws se sn ca ie em ci so ec tt ut cr sw sp bp sf lp}:{1.0}
+f15{bm ne ls cs wc pn ws se sn ca ie em ci so ec tt ut cr sw sp bp sf lp}:{numberBox Multiplier for species 15}
+f15v{bm ne ls cs wc pn ws se sn ca ie em ci so ec tt ut cr sw sp bp sf lp}:{1.0}
 f16{bm ne ls cs wc pn ws se sn ca ie em ci so ec tt ut cr sw sp bp sf lp}:{numberBox Multiplier for species 16}
-f16v:{1.0}
+f16v{bm ne ls cs wc pn ws se sn ca ie em ci so ec tt ut cr sw sp bp sf lp}:{1.0}
 f17{bm ne ls cs wc pn ws se sn ca ie em ci so ec tt ut cr sw sp bp sf lp}:{numberBox Multiplier for species 17}
-f17v:{1.0}
+f17v{bm ne ls cs wc pn ws se sn ca ie em ci so ec tt ut cr sw sp bp sf lp}:{1.0}
 f18{bm ne ls cs wc pn ws se sn ca ie em ci so ec tt ut cr sw sp bp sf lp}:{numberBox Multiplier for species 18}
-f18v:{1.0}
+f18v{bm ne ls cs wc pn ws se sn ca ie em ci so ec tt ut cr sw sp bp sf lp}:{1.0}
 f19{ne ls cs wc pn ws se sn ca ie em ci so ec ut cr sw sp bp sf lp}:{numberBox Multiplier for species 19}
-f19v:{1.0}
+f19v{ne ls cs wc pn ws se sn ca ie em ci so ec ut cr sw sp bp sf lp}:{1.0}
 f20{ne ls cs wc pn ws se sn ca ie so ec ut cr sw sp bp sf lp}:{numberBox Multiplier for species 20}
-f20v:{1.0}
+f20v{ne ls cs wc pn ws se sn ca ie so ec ut cr sw sp bp sf lp}:{1.0}
 f21{ne ls cs wc pn ws se sn ca ie so ec ut cr sw sp bp sf lp}:{numberBox Multiplier for species 21}
-f21v:{1.0}
+f21v{ne ls cs wc pn ws se sn ca ie so ec ut cr sw sp bp sf lp}:{1.0}
 f22{ne ls cs wc pn ws se sn ca ie so ec ut cr sw sp bp sf lp}:{numberBox Multiplier for species 22}
-f22v:{1.0}
+f22v{ne ls cs wc pn ws se sn ca ie so ec ut cr sw sp bp sf lp}:{1.0}
 f23{ne ls cs wc pn ws se sn ca ie so ec ut cr sw sp bp sf lp}:{numberBox Multiplier for species 23}
-f23v:{1.0}
+f23v{ne ls cs wc pn ws se sn ca ie so ec ut cr sw sp bp sf lp}:{1.0}
 f24{ne ls cs wc pn ws se sn ca so ec ut cr sw sp bp sf lp}:{numberBox Multiplier for species 24}
-f24v:{1.0}
+f24v{ne ls cs wc pn ws se sn ca so ec ut cr sw sp bp sf lp}:{1.0}
 f25{ne ls cs wc pn ws se sn ca so ec cr sw sp bp sf lp}:{numberBox Multiplier for species 25}
-f25v:{1.0}
+f25v{ne ls cs wc pn ws se sn ca so ec cr sw sp bp sf lp}:{1.0}
 f26{ne ls cs wc pn ws se sn ca so ec cr sw sp bp sf lp}:{numberBox Multiplier for species 26}
-f26v:{1.0}
+f26v{ne ls cs wc pn ws se sn ca so ec cr sw sp bp sf lp}:{1.0}
 f27{ne ls cs wc pn ws se sn ca so ec cr sw sp bp sf lp}:{numberBox Multiplier for species 27}
-f27v:{1.0}
+f27v{ne ls cs wc pn ws se sn ca so ec cr sw sp bp sf lp}:{1.0}
 f28{ne ls cs wc pn ws se sn ca so ec cr sw sp bp sf lp}:{numberBox Multiplier for species 28}
-f28v:{1.0}
+f28v{ne ls cs wc pn ws se sn ca so ec cr sw sp bp sf lp}:{1.0}
 f29{ne ls cs wc pn ws se sn ca so ec cr sw sp bp sf lp}:{numberBox Multiplier for species 29}
-f29v:{1.0}
+f29v{ne ls cs wc pn ws se sn ca so ec cr sw sp bp sf lp}:{1.0}
 f30{ne ls cs wc pn ws se sn ca so ec cr sw sp bp sf lp}:{numberBox Multiplier for species 30}
-f30v:{1.0}
+f30v{ne ls cs wc pn ws se sn ca so ec cr sw sp bp sf lp}:{1.0}
 f31{ne ls cs wc pn ws se sn ca so ec cr sw sp bp sf lp}:{numberBox Multiplier for species 31}
-f31v:{1.0}
+f31v{ne ls cs wc pn ws se sn ca so ec cr sw sp bp sf lp}:{1.0}
 f32{ne ls cs wc pn ws se sn ca so ec cr sw sp bp sf lp}:{numberBox Multiplier for species 32}
-f32v:{1.0}
+f32v{ne ls cs wc pn ws se sn ca so ec cr sw sp bp sf lp}:{1.0}
 f33{ne ls cs wc pn ws se sn ca so cr sw sp bp sf lp}:{numberBox Multiplier for species 33}
-f33v:{1.0}
+f33v{ne ls cs wc pn ws se sn ca so cr sw sp bp sf lp}:{1.0}
 f34{ne ls cs wc pn ws se sn ca cr sw sp bp sf lp}:{numberBox Multiplier for species 34}
-f34v:{1.0}
+f34v{ne ls cs wc pn ws se sn ca cr sw sp bp sf lp}:{1.0}
 f35{ne ls cs wc pn ws se sn ca cr sw sp bp sf lp}:{numberBox Multiplier for species 35}
-f35v:{1.0}
+f35v{ne ls cs wc pn ws se sn ca cr sw sp bp sf lp}:{1.0}
 f36{ne ls cs wc pn ws se sn ca cr sw sp bp sf lp}:{numberBox Multiplier for species 36}
-f36v:{1.0}
+f36v{ne ls cs wc pn ws se sn ca cr sw sp bp sf lp}:{1.0}
 f37{ne ls cs wc pn ws se sn ca cr sw sp bp sf lp}:{numberBox Multiplier for species 37}
-f37v:{1.0}
+f37v{ne ls cs wc pn ws se sn ca cr sw sp bp sf lp}:{1.0}
 f38{ne ls cs wc pn ws se sn ca cr sw sp bp sf lp}:{numberBox Multiplier for species 38}
-f38v:{1.0}
+f38v{ne ls cs wc pn ws se sn ca cr sw sp bp sf lp}:{1.0}
 f39{ne ls cs wc pn ws se sn ca}:{numberBox Multiplier for species 39}
-f39v:{1.0}
+f39v{ne ls cs wc pn ws se sn ca}:{1.0}
 f40{ne ls cs se sn ca ws}:{numberBox Multiplier for species 40}
-f40v:{1.0}
+f40v{ne ls cs se sn ca ws}:{1.0}
 f41{ne ls cs se sn ca ws}:{numberBox Multiplier for species 41}
-f41v:{1.0}
+f41v{ne ls cs se sn ca ws}:{1.0}
 f42{ne ls cs se sn ca ws}:{numberBox Multiplier for species 42}
-f42v:{1.0}
+f42v{ne ls cs se sn ca ws}:{1.0}
 f43{ne ls cs se sn ca ws}:{numberBox Multiplier for species 43}
-f43v:{1.0}
+f43v{ne ls cs se sn ca ws}:{1.0}
 f44{ne ls cs se sn ca}:{numberBox Multiplier for species 44}
-f44v:{1.0}
+f44v{ne ls cs se sn ca}:{1.0}
 f45{ne ls cs se sn ca}:{numberBox Multiplier for species 45}
-f45v:{1.0}
+f45v{ne ls cs se sn ca}:{1.0}
 f46{ne ls cs se sn ca}:{numberBox Multiplier for species 46}
-f46v:{1.0}
+f46v{ne ls cs se sn ca}:{1.0}
 f47{ne ls cs se sn ca}:{numberBox Multiplier for species 47}
-f47v:{1.0}
+f47v{ne ls cs se sn ca}:{1.0}
 f48{ne ls cs se sn ca}:{numberBox Multiplier for species 48}
-f48v:{1.0}
+f48v{ne ls cs se sn ca}:{1.0}
 f49{ne ls cs se sn ca}:{numberBox Multiplier for species 49}
-f49v:{1.0}
+f49v{ne ls cs se sn ca}:{1.0}
 f50{ne ls cs se sn}:{numberBox Multiplier for species 50}
-f50v:{1.0}
+f50v{ne ls cs se sn}:{1.0}
 f51{ne ls cs se sn}:{numberBox Multiplier for species 51}
-f51v:{1.0}
+f51v{ne ls cs se sn}:{1.0}
 f52{ne ls cs se sn}:{numberBox Multiplier for species 52}
-f52v:{1.0}
+f52v{ne ls cs se sn}:{1.0}
 f53{ne ls cs se sn}:{numberBox Multiplier for species 53}
-f53v:{1.0}
+f53v{ne ls cs se sn}:{1.0}
 f54{ne ls cs se sn}:{numberBox Multiplier for species 54}
-f54v:{1.0}
+f54v{ne ls cs se sn}:{1.0}
 f55{ne ls cs se sn}:{numberBox Multiplier for species 55}
-f55v:{1.0}
+f55v{ne ls cs se sn}:{1.0}
 f56{ne ls cs se sn}:{numberBox Multiplier for species 56}
-f56v:{1.0}
+f56v{ne ls cs se sn}:{1.0}
 f57{ne ls cs se sn}:{numberBox Multiplier for species 57}
-f57v:{1.0}
+f57v{ne ls cs se sn}:{1.0}
 f58{ne ls cs se sn}:{numberBox Multiplier for species 58}
-f58v:{1.0}
+f58v{ne ls cs se sn}:{1.0}
 f59{ne ls cs se sn}:{numberBox Multiplier for species 59}
-f59v:{1.0}
+f59v{ne ls cs se sn}:{1.0}
 f60{ne ls cs se sn}:{numberBox Multiplier for species 60}
-f60v:{1.0}
+f60v{ne ls cs se sn}:{1.0}
 f61{ne ls cs se sn}:{numberBox Multiplier for species 61}
-f61v:{1.0}
+f61v{ne ls cs se sn}:{1.0}
 f62{ne ls cs se sn}:{numberBox Multiplier for species 62}
-f62v:{1.0}
+f62v{ne ls cs se sn}:{1.0}
 f63{ne ls cs se sn}:{numberBox Multiplier for species 63}
-f63v:{1.0}
+f63v{ne ls cs se sn}:{1.0}
 f64{ne ls cs se sn}:{numberBox Multiplier for species 64}
-f64v:{1.0}
+f64v{ne ls cs se sn}:{1.0}
 f65{ne ls cs se sn}:{numberBox Multiplier for species 65}
-f65v:{1.0}
+f65v{ne ls cs se sn}:{1.0}
 f66{ne ls cs se sn}:{numberBox Multiplier for species 66}
-f66v:{1.0}
+f66v{ne ls cs se sn}:{1.0}
 f67{ne ls cs se sn}:{numberBox Multiplier for species 67}
-f67v:{1.0}
+f67v{ne ls cs se sn}:{1.0}
 f68{ne ls cs se sn}:{numberBox Multiplier for species 68}
-f68v:{1.0}
+f68v{ne ls cs se sn}:{1.0}
 f69{ne cs se sn}:{numberBox Multiplier for species 69}
-f69v:{1.0}
+f69v{ne cs se sn}:{1.0}
 f70{ne cs se sn}:{numberBox Multiplier for species 70}
-f70v:{1.0}
+f70v{ne cs se sn}:{1.0}
 f71{ne cs se sn}:{numberBox Multiplier for species 71}
-f71v:{1.0}
+f71v{ne cs se sn}:{1.0}
 f72{ne cs se sn}:{numberBox Multiplier for species 72}
-f72v:{1.0}
+f72v{ne cs se sn}:{1.0}
 f73{ne cs se sn}:{numberBox Multiplier for species 73}
-f73v:{1.0}
+f73v{ne cs se sn}:{1.0}
 f74{ne cs se sn}:{numberBox Multiplier for species 74}
-f74v:{1.0}
+f74v{ne cs se sn}:{1.0}
 f75{ne cs se sn}:{numberBox Multiplier for species 75}
-f75v:{1.0}
+f75v{ne cs se sn}:{1.0}
 f76{ne cs se sn}:{numberBox Multiplier for species 76}
-f76v:{1.0}
+f76v{ne cs se sn}:{1.0}
 f77{ne cs se sn}:{numberBox Multiplier for species 77}
-f77v:{1.0}
+f77v{ne cs se sn}:{1.0}
 f78{ne cs se sn}:{numberBox Multiplier for species 78}
-f78v:{1.0}
+f78v{ne cs se sn}:{1.0}
 f79{ne cs se sn}:{numberBox Multiplier for species 79}
-f79v:{1.0}
+f79v{ne cs se sn}:{1.0}
 f80{ne cs se sn}:{numberBox Multiplier for species 80}
-f80v:{1.0}
+f80v{ne cs se sn}:{1.0}
 f81{ne cs se sn}:{numberBox Multiplier for species 81}
-f81v:{1.0}
+f81v{ne cs se sn}:{1.0}
 f82{ne cs se sn}:{numberBox Multiplier for species 82}
-f82v:{1.0}
+f82v{ne cs se sn}:{1.0}
 f83{ne cs se sn}:{numberBox Multiplier for species 83}
-f83v:{1.0}
+f83v{ne cs se sn}:{1.0}
 f84{ne cs se sn}:{numberBox Multiplier for species 84}
-f84v:{1.0}
+f84v{ne cs se sn}:{1.0}
 f85{ne cs se sn}:{numberBox Multiplier for species 85}
-f85v:{1.0}
+f85v{ne cs se sn}:{1.0}
 f86{ne cs se sn}:{numberBox Multiplier for species 86}
-f86v:{1.0}
+f86v{ne cs se sn}:{1.0}
 f87{ne cs se sn}:{numberBox Multiplier for species 87}
-f87v:{1.0}
+f87v{ne cs se sn}:{1.0}
 f88{ne cs se sn}:{numberBox Multiplier for species 88}
-f88v:{1.0}
+f88v{ne cs se sn}:{1.0}
 f89{ne cs se sn}:{numberBox Multiplier for species 89}
-f89v:{1.0}
+f89v{ne cs se sn}:{1.0}
 f90{ne cs se sn}:{numberBox Multiplier for species 90}
-f90v:{1.0}
+f90v{ne cs se sn}:{1.0}
 f91{ne cs se}:{numberBox Multiplier for species 91}
-f91v:{1.0}
+f91v{ne cs se}:{1.0}
 f92{ne cs se}:{numberBox Multiplier for species 92}
-f92v:{1.0}
+f92v{ne cs se}:{1.0}
 f93{ne cs se}:{numberBox Multiplier for species 93}
-f93v:{1.0}
+f93v{ne cs se}:{1.0}
 f94{ne cs se}:{numberBox Multiplier for species 94}
-f94v:{1.0}
+f94v{ne cs se}:{1.0}
 f95{ne cs se}:{numberBox Multiplier for species 95}
-f95v:{1.0}
+f95v{ne cs se}:{1.0}
 f96{ne cs se}:{numberBox Multiplier for species 96}
-f96v:{1.0}
+f96v{ne cs se}:{1.0}
 f97{ne se}:{numberBox Multiplier for species 97}
-f97v:{1.0}
+f97v{ne se}:{1.0}
 f98{ne se}:{numberBox Multiplier for species 98}
-f98v:{1.0}
+f98v{ne se}:{1.0}
 f99{ne se}:{numberBox Multiplier for species 99}
-f99v:{1.0}
+f99v{ne se}:{1.0}
 f100{ne se}:{numberBox Multiplier for species 100}
-f100v:{1.0}
+f100v{ne se}:{1.0}
 f101{ne se}:{numberBox Multiplier for species 101}
-f101v:{1.0}
+f101v{ne se}:{1.0}
 f102{ne se}:{numberBox Multiplier for species 102}
-f102v:{1.0}
+f102v{ne se}:{1.0}
 f103{ne se}:{numberBox Multiplier for species 103}
-f103v:{1.0}
+f103v{ne se}:{1.0}
 f104{ne se}:{numberBox Multiplier for species 104}
-f104v:{1.0}
+f104v{ne se}:{1.0}
 f105{ne se}:{numberBox Multiplier for species 105}
-f105v:{1.0}
+f105v{ne se}:{1.0}
 f106{ne se}:{numberBox Multiplier for species 106}
-f106v:{1.0}
+f106v{ne se}:{1.0}
 f107{ne se}:{numberBox Multiplier for species 107}
-f107v:{1.0}
+f107v{ne se}:{1.0}
 f108{ne se}:{numberBox Multiplier for species 108}
-f108v:{1.0}
+f108v{ne se}:{1.0}
 f109{se}:{numberBox Multiplier for species 109}
-f109v:{1.0}
+f109v{se}:{1.0}
 f110{se}:{numberBox Multiplier for species 110}
-f110v:{1.0}
+f110v{se}:{1.0}
 f111{se}:{numberBox Multiplier for species 111}
-f111v:{1.0}
+f111v{se}:{1.0}
 f112{se}:{numberBox Multiplier for species 112}
-f112v:{1.0}
+f112v{se}:{1.0}
 f113{se}:{numberBox Multiplier for species 113}
-f113v:{1.0}
+f113v{se}:{1.0}
 f114{se}:{numberBox Multiplier for species 114}
-f114v:{1.0}
+f114v{se}:{1.0}
 f115{se}:{numberBox Multiplier for species 115}
-f115v:{1.0}
+f115v{se}:{1.0}
 f116{se}:{numberBox Multiplier for species 116}
-f116v:{1.0}
+f116v{se}:{1.0}
 f117{se}:{numberBox Multiplier for species 117}
-f117v:{1.0}
+f117v{se}:{1.0}
 f118{se}:{numberBox Multiplier for species 118}
-f118v:{1.0}
+f118v{se}:{1.0}
 
 answerForm:
 {ReadCorD
@@ -5937,7 +5937,7 @@ numbers:{1 2 3 4 5 6}
 
 parmsForm:{\
 * Arguments: PtNo, Attrib
-SetPthin  !1,10!     Parms(!2!, !3,,numbers!)}
+SetPThin  !1,10!     Parms(!2!, !3,,numbers!)}
 //end keyword.base.SetPThin
 
 
@@ -6138,105 +6138,105 @@ f1:{textEdit Specify an 2-10 character Species Group}
 f1:{}
 
 f2:{speciesSelection Species included in the group:}
-f2v:{deleteAll}
+f2v:{deleteAll __}
 f3:{speciesSelection Species included in the group:}
-f3v:{deleteAll}
+f3v:{deleteAll __}
 f4:{speciesSelection Species included in the group:}
-f4v:{deleteAll}
+f4v:{deleteAll __}
 f5:{speciesSelection Species included in the group:}
-f5v:{deleteAll}
+f5v:{deleteAll __}
 f6:{speciesSelection Species included in the group:}
-f6v:{deleteAll}
+f6v:{deleteAll __}
 f7:{speciesSelection Species included in the group:}
-f7v:{deleteAll}
+f7v:{deleteAll __}
 f8:{speciesSelection Species included in the group:}
-f8v:{deleteAll}
+f8v:{deleteAll __}
 f9:{speciesSelection Species included in the group:}
-f9v:{deleteAll}
+f9v:{deleteAll __}
 f10:{speciesSelection Species included in the group:}
-f10v:{deleteAll}
+f10v:{deleteAll __}
 f11:{speciesSelection Species included in the group:}
-f11v:{deleteAll}
+f11v:{deleteAll __}
 f12:{speciesSelection Species included in the group:}
-f12v:{deleteAll}
+f12v:{deleteAll __}
 f13{ak bm em ie ci cr so ec pn wc ws ca cs ls ne se sn tt ut}:{speciesSelection Species included in the group:}
-f13v:{deleteAll}
+f13v:{deleteAll __}
 f14{ak bm em ie ci cr so ec pn wc ws ca cs ls ne se sn tt ut}:{speciesSelection Species included in the group:}
-f14v:{deleteAll}
+f14v:{deleteAll __}
 f15{bm em ie cr ci so ec pn wc ws ca ws cs ls ne se sn tt ut}:{speciesSelection Species included in the group:}
-f15v:{deleteAll}
+f15v:{deleteAll __}
 f16{bm em ie cr ci so ec pn wc ws ca cs ls ne se sn tt ut}:{speciesSelection Species included in the group:}
-f16v:{deleteAll}
+f16v:{deleteAll __}
 f17{bm em ie cr ci so ec pn wc ws ca cs ls ne se sn tt ut}:{speciesSelection Species included in the group:}
-f17v:{deleteAll}
+f17v:{deleteAll __}
 f18{bm em ie cr ci so ec pn wc ws ca cs ls ne se sn tt ut}:{speciesSelection Species included in the group:}
-f18v:{deleteAll}
+f18v:{deleteAll __}
 f19{em ie cr ci so ec pn wc ca ws cs ls ne se sn ut}:{speciesSelection Species included in the group:}
-f19v:{deleteAll}
+f19v:{deleteAll __}
 f20{ie cr so ec pn wc ws ca cs ls ne se sn ut}:{speciesSelection Species included in the group:}
-f20v:{deleteAll}
+f20v:{deleteAll __}
 f21{ie cr so ec pn wc ws ca cs ls ne se sn ut}:{speciesSelection Species included in the group:}
-f21v:{deleteAll}
+f21v:{deleteAll __}
 f22{ie cr so ec pn wc ws ca cs ls ne se sn ut}:{speciesSelection Species included in the group:}
-f22v:{deleteAll}
+f22v:{deleteAll __}
 f23{ie cr so ec pn wc ws ca cs ls ne se sn ut}:{speciesSelection Species included in the group:}
-f23v:{deleteAll}
+f23v:{deleteAll __}
 f24{ie cr so ec pn wc ws ca cs ls ne se sn ut}:{speciesSelection Species included in the group:}
-f24v:{deleteAll}
+f24v:{deleteAll __}
 f25{cr so ec pn wc ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f25v:{deleteAll}
+f25v:{deleteAll __}
 f26{cr so ec pn wc ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f26v:{deleteAll}
+f26v:{deleteAll __}
 f27{cr so ec pn wc ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f27v:{deleteAll}
+f27v:{deleteAll __}
 f28{cr so ec pn wc ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f28v:{deleteAll}
+f28v:{deleteAll __}
 f29{cr so ec pn wc ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f29v:{deleteAll}
+f29v:{deleteAll __}
 f30{cr so ec pn wc ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f30v:{deleteAll}
+f30v:{deleteAll __}
 f31{cr so ec pn wc ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f31v:{deleteAll}
+f31v:{deleteAll __}
 f32{cr so ec pn wc ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f32v:{deleteAll}
+f32v:{deleteAll __}
 f33{cr so pn wc ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f33v:{deleteAll}
+f33v:{deleteAll __}
 f34{cr so pn wc ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f34v:{deleteAll}
+f34v:{deleteAll __}
 f35{cr pn wc ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f35v:{deleteAll}
+f35v:{deleteAll __}
 f36{cr pn wc ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f36v:{deleteAll}
+f36v:{deleteAll __}
 f37{cr pn wc ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f37v:{deleteAll}
+f37v:{deleteAll __}
 f38{cr pn wc ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f38v:{deleteAll}
+f38v:{deleteAll __}
 f39{pn wc ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f39v:{deleteAll}
+f39v:{deleteAll __}
 f40{pn wc ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f40v:{deleteAll}
+f40v:{deleteAll __}
 f41{ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f41v:{deleteAll}
+f41v:{deleteAll __}
 f42{ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f42v:{deleteAll}
+f42v:{deleteAll __}
 f43{ws ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f43v:{deleteAll}
+f43v:{deleteAll __}
 f44{ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f44v:{deleteAll}
+f44v:{deleteAll __}
 f45{ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f45v:{deleteAll}
+f45v:{deleteAll __}
 f46{ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f46v:{deleteAll}
+f46v:{deleteAll __}
 f47{ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f47v:{deleteAll}
+f47v:{deleteAll __}
 f48{ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f48v:{deleteAll}
+f48v:{deleteAll __}
 f49{ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f49v:{deleteAll}
+f49v:{deleteAll __}
 f50{ca cs ls ne se sn}:{speciesSelection Species included in the group:}
-f50v:{deleteAll}
+f50v:{deleteAll __}
 f51{cs ls ne se sn}:{speciesSelection Species included in the group:}
-f51v:{deleteAll}
+f51v:{deleteAll __}
 
 answerForm:{\
 SpGroup   !1,10!
@@ -25668,8 +25668,7 @@ Washoe pine
 Great basin bristlecone pine
 Bigcone Douglas-fir
 Mountain hemlock}
-speciesCode{ws}:
-{ALL SP DF WF JP RF PP LP WB WP PM SF KP FP CP LM MP GP WE GB BD MH}
+speciesCode{ws}:{ALL SP DF WF JP RF PP LP WB WP PM SF KP FP CP LM MP GP WE GB BD MH}
 
 f2v{bm}:
 {All affected species
@@ -25880,8 +25879,7 @@ Washoe pine
 Great basin bristlecone pine
 Bigcone Douglas-fir
 Mountain hemlock}
-speciesCode{ws}:
-{ALL SP DF WF JP RF PP LP WB WP PM SF KP FP CP LM MP GP WE GB BD MH}
+speciesCode{ws}:{ALL SP DF WF JP RF PP LP WB WP PM SF KP FP CP LM MP GP WE GB BD MH}
 
 f2v{bm}:
 {All affected species
@@ -26124,8 +26122,7 @@ Washoe pine
 Great basin bristlecone pine
 Bigcone Douglas-fir
 Mountain hemlock}
-speciesCode{ws}:
-{ALL SP DF WF JP RF PP LP WB WP PM SF KP FP CP LM MP GP WE GB BD MH}
+speciesCode{ws}:{ALL SP DF WF JP RF PP LP WB WP PM SF KP FP CP LM MP GP WE GB BD MH}
 
 f2v{bm}:
 {All affected species
@@ -26357,8 +26354,7 @@ Washoe pine
 Great basin bristlecone pine
 Bigcone Douglas-fir
 Mountain hemlock}
-speciesCode{ws}:
-{ALL SP DF WF JP RF PP LP WB WP PM SF KP FP CP LM MP GP WE GB BD MH}
+speciesCode{ws}:{ALL SP DF WF JP RF PP LP WB WP PM SF KP FP CP LM MP GP WE GB BD MH}
 
 f2v{bm}:
 {All affected species
@@ -26568,8 +26564,7 @@ Washoe pine
 Great basin bristlecone pine
 Bigcone Douglas-fir
 Mountain hemlock}
-speciesCode{ws}:
-{ALL SP DF WF JP RF PP LP WB WP PM SF KP FP CP LM MP GP WE GB BD MH}
+speciesCode{ws}:{ALL SP DF WF JP RF PP LP WB WP PM SF KP FP CP LM MP GP WE GB BD MH}
 
 f2v{bm}:
 {All affected species
@@ -26800,8 +26795,7 @@ Washoe pine
 Great basin bristlecone pine
 Bigcone Douglas-fir
 Mountain hemlock}
-speciesCode{ws}:
-{ALL SP DF WF JP RF PP LP WB WP PM SF KP FP CP LM MP GP WE GB BD MH}
+speciesCode{ws}:{ALL SP DF WF JP RF PP LP WB WP PM SF KP FP CP LM MP GP WE GB BD MH}
 
 f2v{bm}:
 {All affected species
@@ -27025,8 +27019,7 @@ Washoe pine
 Great basin bristlecone pine
 Bigcone Douglas-fir
 Mountain hemlock}
-speciesCode{ws}:
-{ALL SP DF WF JP RF PP LP WB WP PM SF KP FP CP LM MP GP WE GB BD MH}
+speciesCode{ws}:{ALL SP DF WF JP RF PP LP WB WP PM SF KP FP CP LM MP GP WE GB BD MH}
 
 f2v{bm}:
 {All affected species
