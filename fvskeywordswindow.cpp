@@ -227,7 +227,7 @@ void FVSKeywordsWindow::setExtensionCategoryKeywordModels()
 
 void FVSKeywordsWindow::on_extension_listView_clicked(const QModelIndex &index)
 {
-    qDebug() << "FVSKeywords Window Extension " << extensionsModel->data(index).toString() << " clicked.";
+    qDebug() << "FVSKeywords Window Extension " << extensionsModel->data(index).toString() << "(" << extenAbbrevName->key(extensionsModel->data(index).toString()) << ")" << " clicked.";
     ui->extension_listView->setCurrentIndex(index);
     categoriesModel->setStringList(extensionCategories->value(extenAbbrevName->key(extensionsModel->data(index).toString())));
     categoriesModel->sort(0);
