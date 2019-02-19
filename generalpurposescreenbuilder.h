@@ -58,8 +58,8 @@ private:
     void parseForm(int formIndex, QStringList &resultStrings, QVector<QString> acceptedInput);
 
     // Generic
-    bool validInput;
     int *year = NULL;
+    bool validInput, parmsFunc;
     QString *currentField = NULL;
     QVector<bool> defaultCheckValue;
     QVector<QString> parmsAnswerForm;
