@@ -1,5 +1,4 @@
-#ifndef FVSKEYWORDSWINDOW_H
-#define FVSKEYWORDSWINDOW_H
+#pragma once
 
 #include "generalpurposescreenbuilder.h"
 #include <QStringListModel>
@@ -17,7 +16,7 @@ class FVSKeywordsWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, QFile *parameters, QWidget *parent = 0);
+    explicit FVSKeywordsWindow(QMap<QString, qint64> *parmMainSectionMap, QFile *parameters, QWidget *parent = nullptr);
     void setExtensionCategoryKeywordModels();
     ~FVSKeywordsWindow();
 
@@ -55,5 +54,3 @@ private:
     QStringList *extensions, *categories, *extensionCategoryKeywords, *description, *mainSectionText;
     QMap<QString, QString> *extenAbbrevName, *categoryAbbreviationNames, *categoryKeywords, *keywordExtension, *varExten;
 };
-
-#endif // FVSKEYWORDSWINDOW_H

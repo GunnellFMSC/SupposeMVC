@@ -1,5 +1,4 @@
-#ifndef VARIANTEXTENSION_H
-#define VARIANTEXTENSION_H
+#pragma once
 
 #include <QStringListModel>
 #include <QStringList>
@@ -17,7 +16,7 @@ class VariantExtension : public QDialog
     Q_OBJECT
 
 public:
-    explicit VariantExtension(QMap<QString, QString> *variantExtensions, QMap<QString, QString> *variantAbbreviationNames, QMap<QString, QString> *extensionAbbreviationNames, QWidget *parent = 0);
+    explicit VariantExtension(QMap<QString, QString> *variantExtensions, QMap<QString, QString> *variantAbbreviationNames, QMap<QString, QString> *extensionAbbreviationNames, QWidget *parent = nullptr);
     QString startingVariant;
     ~VariantExtension();
 
@@ -35,5 +34,3 @@ private:
     QStringListModel *variantModel, *programModel, *extensionModel;
     QMap<QString, QString> *programVariant, *variantAbbreviationNamesMap, *programExtensions, *extensionAbbreviationNamesMap;
 };
-
-#endif // VARIANTEXTENSION_H

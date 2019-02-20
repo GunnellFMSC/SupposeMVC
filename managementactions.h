@@ -1,5 +1,4 @@
-#ifndef MANAGEMENTACTIONS_H
-#define MANAGEMENTACTIONS_H
+#pragma once
 
 #include "generalpurposescreenbuilder.h"
 #include <QStringListModel>
@@ -19,7 +18,7 @@ class ManagementActions : public QDialog
     Q_OBJECT
 
 public:
-    explicit ManagementActions(QMap<QString, qint64> *parmMainSectionMap, QFile *parameters, QWidget *parent = 0);
+    explicit ManagementActions(QMap<QString, qint64> *parmMainSectionMap, QFile *parameters, QWidget *parent = nullptr);
     QVector<GeneralPurposeScreenBuilder *> containerGPSB;
     void setTitlesActions();
     ~ManagementActions();
@@ -34,14 +33,12 @@ private slots:
     void on_ManagementTitles_listView_activated(const QModelIndex &index);
 
 private:
-    QFile *parm = NULL;
+    QFile *parm = nullptr;
     Ui::ManagementActions *ui;
-    QMap<QString, qint64> *parmMap = NULL;
-    QModelIndex *managementTitleIndex = NULL;
-    QMap<QString, QString> *categoryNumberTitle = NULL;
-    QStringList *mainSectionText = NULL, *description = NULL;
-    QMap<QString, QStringList> *categoryTitlesAndActions = NULL;
-    QStringListModel *managementTitles = NULL, *managementActions = NULL;
+    QMap<QString, qint64> *parmMap = nullptr;
+    QModelIndex *managementTitleIndex = nullptr;
+    QMap<QString, QString> *categoryNumberTitle = nullptr;
+    QStringList *mainSectionText = nullptr, *description = nullptr;
+    QMap<QString, QStringList> *categoryTitlesAndActions = nullptr;
+    QStringListModel *managementTitles = nullptr, *managementActions = nullptr;
 };
-
-#endif // MANAGEMENTACTIONS_H

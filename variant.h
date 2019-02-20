@@ -1,5 +1,4 @@
-#ifndef VARIANT_H
-#define VARIANT_H
+#pragma once
 
 #include <QString>
 #include <QObject>
@@ -33,5 +32,3 @@ signals:
     void variantChanged();
 
 };
-
-#endif // VARIANT_H
