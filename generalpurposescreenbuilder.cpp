@@ -485,8 +485,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     QStringList comboBoxProperties, longTitleTemp;
     QString fieldDescription, fieldType, fieldNum;
     QStringList variantList;
-    QLineEdit *tempLineEdit;
-    QLabel *tempLabel;
+    QLineEdit *tempLineEdit = nullptr;
+    QLabel *tempLabel = nullptr;
 
     auto variantListCheck = [&](QString line)->bool { qDebug() << "Variant list check lambda function used.";
         variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
@@ -1451,7 +1451,7 @@ void GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultSt
         qDebug() << answerSyntax << intHolder << answer;
         int columnSizeActual = intHolder.toInt();
         if(answer.contains("textEdit:"))
-            answer.remove("textEdit:"), textEdit = true;
+            answer.remove("textEdit:")/*, textEdit = true*/;
         if(answer.size() > 0)
         {
             if(answerSyntax.contains(")"))

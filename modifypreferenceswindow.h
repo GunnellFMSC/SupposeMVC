@@ -1,5 +1,4 @@
-#ifndef MODIFYPREFERENCESWINDOW_H
-#define MODIFYPREFERENCESWINDOW_H
+#pragma once
 
 #include <QDir>
 #include <QDebug>
@@ -18,8 +17,8 @@ class ModifyPreferencesWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit ModifyPreferencesWindow(QWidget *parent = 0);
-    explicit ModifyPreferencesWindow(QSettings &defaultPreferenceSettings, QWidget *parent = 0);
+    explicit ModifyPreferencesWindow(QWidget *parent = nullptr);
+    explicit ModifyPreferencesWindow(QSettings &defaultPreferenceSettings, QWidget *parent = nullptr);
 
     ~ModifyPreferencesWindow();
 
@@ -38,13 +37,11 @@ private slots:
 
 private:
     Ui::ModifyPreferencesWindow *ui;
-    QSettings *defaultPreferencesSettings = NULL;
+    QSettings *defaultPreferencesSettings = nullptr;
     QStringList *defaultPreferencesList = nullptr;
-    QStringListModel *defaultPreferencesModel = NULL;
+    QStringListModel *defaultPreferencesModel = nullptr;
 
     void displayFileContents();
     void updateFileContents();
     void keyPressEvent(QKeyEvent *event);
 };
-
-#endif // MODIFYPREFERENCESWINDOW_H

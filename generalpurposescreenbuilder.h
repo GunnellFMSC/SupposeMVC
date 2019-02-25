@@ -1,5 +1,4 @@
-#ifndef GENERALPURPOSESCREENBUILDER_H
-#define GENERALPURPOSESCREENBUILDER_H
+#pragma once
 
 #include <QTimer>
 #include <QQueue>
@@ -29,9 +28,9 @@ class GeneralPurposeScreenBuilder : public QDialog
     Q_OBJECT
 
 public:
-    GeneralPurposeScreenBuilder(QString windowTitle, QString description, QWidget *parent = 0);
-    GeneralPurposeScreenBuilder(QString window, QString category, QStringList MSText, int startYear, QWidget *parent = 0);
-    GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, int startYear, QWidget *parent = 0);
+    GeneralPurposeScreenBuilder(QString windowTitle, QString description, QWidget *parent = nullptr);
+    GeneralPurposeScreenBuilder(QString window, QString category, QStringList MSText, int startYear, QWidget *parent = nullptr);
+    GeneralPurposeScreenBuilder(QString keywordExtension, QStringList description, QStringList MSText, int startYear, QWidget *parent = nullptr);
     bool addDynamComboBox(QStringList comboBoxProperties, QFormLayout *dynamBody, QLabel *tempLabel, QString fieldNum);
     QString numberToQString(double number);
     ~GeneralPurposeScreenBuilder();
@@ -58,9 +57,9 @@ private:
     void parseForm(int formIndex, QStringList &resultStrings, QVector<QString> acceptedInput);
 
     // Generic
-    int *year = NULL;
+    int *year = nullptr;
     bool validInput, parmsFunc;
-    QString *currentField = NULL;
+    QString *currentField = nullptr;
     QVector<bool> defaultCheckValue;
     QVector<QString> parmsAnswerForm;
     QVector<QString> defaultLineValue;
@@ -75,11 +74,11 @@ private:
     QPushButton *acceptButton, *editButton, *resetButton, *cancelButton;
 
     // Schedule Box
-    QLabel *yearCycleLabel = NULL;
-    QWidget *scheduleBoxWidget = NULL;
-    QPushButton *conditionButton = NULL;
-    QLineEdit *yearCycleLine = NULL, *conditionLine = NULL;
-    QRadioButton *yearCycleRButton = NULL, *conditionRButton = NULL;
+    QLabel *yearCycleLabel = nullptr;
+    QWidget *scheduleBoxWidget = nullptr;
+    QPushButton *conditionButton = nullptr;
+    QLineEdit *yearCycleLine = nullptr, *conditionLine = nullptr;
+    QRadioButton *yearCycleRButton = nullptr, *conditionRButton = nullptr;
 
     // Special Window
     QVector<QRadioButton *> dynamRadioButtons;
@@ -92,5 +91,3 @@ private:
 //    QValidator *boundaries;
 
 //}
-
-#endif // GENERALPURPOSESCREENBUILDER_H
