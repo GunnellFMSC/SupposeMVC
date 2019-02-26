@@ -377,9 +377,9 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
     resetButton->setFont(*SupposeFont::instance());
     editButton->setFont(*SupposeFont::instance());
     setLayout(mainLayout);
-    QRect rectGPSB, screenActual = qApp->desktop()->availableGeometry();
-    rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? (dynamBody->sizeHint().width() * 1.1):(screenActual.width()*0.9));
-    rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? (mainLayout->sizeHint().height() * 1.1):(screenActual.height()*0.9));
+    QRect rectGPSB, screenActual = QGuiApplication::primaryScreen()->availableGeometry();
+    rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? int(dynamBody->sizeHint().width() * 1.1):int(screenActual.width()*0.9));
+    rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? int(mainLayout->sizeHint().height() * 1.1):int(screenActual.height()*0.9));
     this->setGeometry(rectGPSB);
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), screenActual)); // centers window (http://doc.qt.io/qt-5/qstyle.html#alignedRect, https://wiki.qt.io/How_to_Center_a_Window_on_the_Screen)
     validInput = true;
@@ -429,9 +429,9 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString windowTitle, QS
     resetButton->setFont(*SupposeFont::instance());
     editButton->setFont(*SupposeFont::instance());
     setLayout(mainLayout);
-    QRect rectGPSB, screenActual = qApp->desktop()->availableGeometry();
-    rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? (dynamBody->sizeHint().width() * 1.1):(screenActual.width()*0.9));
-    rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? (mainLayout->sizeHint().height() * 1.1):(screenActual.height()*0.9));
+    QRect rectGPSB, screenActual = QGuiApplication::primaryScreen()->availableGeometry();
+    rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? int(dynamBody->sizeHint().width() * 1.1): int(screenActual.width()*0.9));
+    rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? int(mainLayout->sizeHint().height() * 1.1): int(screenActual.height()*0.9));
     this->setGeometry(rectGPSB);
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), screenActual)); // centers window (http://doc.qt.io/qt-5/qstyle.html#alignedRect, https://wiki.qt.io/How_to_Center_a_Window_on_the_Screen)
     if(parent) // centers window on parent if given
@@ -1053,9 +1053,9 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     editButton->setFont(*SupposeFont::instance());
     setLayout(mainLayout);
     // sets initial window size with respect to contained objects and screen
-    QRect rectGPSB, screenActual = qApp->desktop()->availableGeometry();
-    rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? (dynamBody->sizeHint().width() * 1.1):(screenActual.width()*0.9));
-    rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? (mainLayout->sizeHint().height() * 1.1):(screenActual.height()*0.9));
+    QRect rectGPSB, screenActual = QGuiApplication::primaryScreen()->availableGeometry();
+    rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? int(dynamBody->sizeHint().width() * 1.1): int(screenActual.width()*0.9));
+    rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? int(mainLayout->sizeHint().height() * 1.1): int(screenActual.height()*0.9));
     this->setGeometry(rectGPSB);
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), screenActual)); // centers window (http://doc.qt.io/qt-5/qstyle.html#alignedRect, https://wiki.qt.io/How_to_Center_a_Window_on_the_Screen)
     validInput = true;
@@ -1126,7 +1126,7 @@ void GeneralPurposeScreenBuilder::accept()
 //                    acceptedInput.removeLast(); // placed inside conditional to only remove the extra slot from line edit
                 }
             }
-            else if(dynamLineEdits.at(i)->validator() != 0)
+            else if(dynamLineEdits.at(i)->validator() != nullptr)
             {
                 if(QVariant(dynamLineEdits.at(i)->validator()->property("bottom")).isValid() && QVariant(dynamLineEdits.at(i)->validator()->property("top")).isValid())
                     qDebug() << dynamLineEdits.at(i)->objectName() << "has lower bound of" << dynamLineEdits.at(i)->validator()->property("bottom").toString() << "and upper bound of" << dynamLineEdits.at(i)->validator()->property("top").toString();
@@ -1270,7 +1270,7 @@ void GeneralPurposeScreenBuilder::accept()
 void GeneralPurposeScreenBuilder::reset()
 {
     qDebug() << "Inside reset function" << resetButton->objectName();
-    if(yearCycleRButton != NULL)
+    if(yearCycleRButton != nullptr)
         yearCycleRButton->setChecked(true);
     qDebug() << "Resetting line edits";
     for (int i = 0; i < dynamLineEdits.size(); i++){
@@ -1546,12 +1546,12 @@ void GeneralPurposeScreenBuilder::selectionChange(QWidget* from, QWidget* to)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder::selectionChange";
     validInput = true;
-    if(from != NULL && to != NULL && to != resetButton && to != cancelButton)
+    if(from != nullptr && to != nullptr && to != resetButton && to != cancelButton)
         if(from->inherits("QLineEdit"))
         {
             qDebug() << "Selection changed from" << from->objectName() << "to" << to->objectName();
             QLineEdit *input = qobject_cast<QLineEdit*>(from);
-            if(input->validator() != 0)
+            if(input->validator() != nullptr)
             {
                 QString inputString = input->text();
                 qDebug() << input->validator()->objectName() << "was previously selected";
@@ -1767,7 +1767,7 @@ void GeneralPurposeScreenBuilder::inputErrorAlert(QLineEdit *input)
 // Ensures the font color is black, acceptButton is enabled, and 0 favored syntax
 void GeneralPurposeScreenBuilder::modifyInput(QLineEdit *input)
 {
-    if(input->validator() != 0)
+    if(input->validator() != nullptr)
     {
         QString inputString = input->text();
         QPalette palette;
