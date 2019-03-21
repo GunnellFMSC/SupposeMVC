@@ -85,7 +85,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
             if(line.contains("SproutingSpecies{"))
             {
                 QStringList variantList = QString(line.mid(line.indexOf("{")+1, (line.indexOf("}")-(line.indexOf("{")+1)))).split(" ");
-                (variantList.contains(Variant::abbrev())) ? dynamRadioButtons.at(0)->setChecked(true) : (dynamRadioButtons.at(0)->setHidden(true), dynamRadioButtons.at(1)->setHidden(true));
+                (variantList.contains(Variant::abbrev())) ? dynamRadioButtons.at(0)->setChecked(true) : (void(dynamRadioButtons.at(0)->setHidden(true)), dynamRadioButtons.at(1)->setHidden(true));
             }
             if(window.contains("Full") && line.contains("inGrowthDefault{"))
             {
@@ -211,8 +211,8 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
         percentile->setCurrentText("90th");
         dynamComboBoxes.append(percentile);
         // lambdas to switch between input fields, enabling the selected and disabling the not. The "," operator is used to insure the Parm file specifed non-selected input is disabled on the window's start-up.
-        connect(diameterRadioButton, &QRadioButton::toggled, [=]() {diameterRadioButton->isChecked() ? (diameterNumberBox->setDisabled(false), percentile->setDisabled(true)) : diameterNumberBox->setDisabled(true);});
-        connect(percentileRadioButton, &QRadioButton::toggled, [=]() {percentileRadioButton->isChecked() ? (percentile->setDisabled(false), diameterNumberBox->setDisabled(true)) : percentile->setDisabled(true);});
+        connect(diameterRadioButton, &QRadioButton::toggled, [=]() {diameterRadioButton->isChecked() ? (void(diameterNumberBox->setDisabled(false)), percentile->setDisabled(true)) : diameterNumberBox->setDisabled(true);});
+        connect(percentileRadioButton, &QRadioButton::toggled, [=]() {percentileRadioButton->isChecked() ? (void(percentile->setDisabled(false)), diameterNumberBox->setDisabled(true)) : percentile->setDisabled(true);});
         legacyTreesDiameterBox->addRow(percentileRadioButton, percentile);
         legacyTreesDiameterHolder->setLayout(legacyTreesDiameterBox);
         dynamBody->addRow(legacyTreesDiameterHolder);
@@ -265,7 +265,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
         prepCutResidualDensity->addRow(residualPercentRadio, residualPercentBox);
 
         // lambda to switch between both input fields, enabling the selected and disabling the not. A single lambda is sufficient because the default selected radio button cannot be altered in the Parm file.
-        connect(residualBasalRadio, &QRadioButton::toggled, [=]() {residualBasalRadio->isChecked() ? (residualBasalBox->setDisabled(false), residualPercentBox->setDisabled(true)) : (residualPercentBox->setDisabled(false), residualBasalBox->setDisabled(true));});
+        connect(residualBasalRadio, &QRadioButton::toggled, [=]() {residualBasalRadio->isChecked() ? (void(residualBasalBox->setDisabled(false)), residualPercentBox->setDisabled(true)) : (void(residualPercentBox->setDisabled(false)), residualBasalBox->setDisabled(true));});
         prepCutResidualDensityHolder->setLayout(prepCutResidualDensity);
         dynamBody->addRow(prepCutResidualDensityHolder);
 
@@ -317,7 +317,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
             dynamBody->addRow(residualCutHolder);
         }
         // lambda
-        connect(prepCutResidualDensityHolder, &QGroupBox::toggled, [=]() {prepCutResidualDensityHolder->isChecked() ? (toggleLabel->setText(toggleLabelName + ", years scheduled after prep cut:"), toggleInput->setVisible(true), residualBasalRadio->setEnabled(true), residualBasalBox->setEnabled(true) , (residualBasalRadio->isChecked() ? residualPercentBox->setEnabled(false) : residualBasalBox->setEnabled(false))) : (toggleLabel->setText(toggleLabelName), toggleInput->setVisible(false), residualBasalRadio->setEnabled(false), residualBasalBox->setEnabled(false));});
+        connect(prepCutResidualDensityHolder, &QGroupBox::toggled, [=]() {prepCutResidualDensityHolder->isChecked() ? (void(toggleLabel->setText(toggleLabelName + ", years scheduled after prep cut:")), void(toggleInput->setVisible(true)), void(residualBasalRadio->setEnabled(true)), void(residualBasalBox->setEnabled(true)), (residualBasalRadio->isChecked() ? residualPercentBox->setEnabled(false) : residualBasalBox->setEnabled(false))) : (void(toggleLabel->setText(toggleLabelName)), void(toggleInput->setVisible(false)), void(residualBasalRadio->setEnabled(false)), residualBasalBox->setEnabled(false));});
         prepCutResidualDensityHolder->setChecked(false);
 
         QCheckBox *removalCut = new QCheckBox;
@@ -338,7 +338,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
         dynamBody->addRow(new QLabel("Smallest diameter cut in removal cut: "), smallDiameterCutBox);
 
         // lambda
-        connect(removalCut, &QCheckBox::toggled, [=]() {removalCut->isChecked() ? (removalCutBox->setEnabled(true), removalCutResidualBox->setEnabled(true), smallDiameterCutBox->setEnabled(true)) : (removalCutBox->setEnabled(false), removalCutResidualBox->setEnabled(false), smallDiameterCutBox->setEnabled(false));});
+        connect(removalCut, &QCheckBox::toggled, [=]() {removalCut->isChecked() ? (void(removalCutBox->setEnabled(true)), void(removalCutResidualBox->setEnabled(true)), smallDiameterCutBox->setEnabled(true)) : (void(removalCutBox->setEnabled(false)), void(removalCutResidualBox->setEnabled(false)), smallDiameterCutBox->setEnabled(false));});
         removalCut->toggled(false);
     }
     else
@@ -377,9 +377,9 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString window, QString
     resetButton->setFont(*SupposeFont::instance());
     editButton->setFont(*SupposeFont::instance());
     setLayout(mainLayout);
-    QRect rectGPSB, screenActual = qApp->desktop()->availableGeometry();
-    rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? (dynamBody->sizeHint().width() * 1.1):(screenActual.width()*0.9));
-    rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? (mainLayout->sizeHint().height() * 1.1):(screenActual.height()*0.9));
+    QRect rectGPSB, screenActual = QGuiApplication::primaryScreen()->availableGeometry();
+    rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? int(dynamBody->sizeHint().width() * 1.1):int(screenActual.width()*0.9));
+    rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? int(mainLayout->sizeHint().height() * 1.1):int(screenActual.height()*0.9));
     this->setGeometry(rectGPSB);
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), screenActual)); // centers window (http://doc.qt.io/qt-5/qstyle.html#alignedRect, https://wiki.qt.io/How_to_Center_a_Window_on_the_Screen)
     validInput = true;
@@ -429,9 +429,9 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString windowTitle, QS
     resetButton->setFont(*SupposeFont::instance());
     editButton->setFont(*SupposeFont::instance());
     setLayout(mainLayout);
-    QRect rectGPSB, screenActual = qApp->desktop()->availableGeometry();
-    rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? (dynamBody->sizeHint().width() * 1.1):(screenActual.width()*0.9));
-    rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? (mainLayout->sizeHint().height() * 1.1):(screenActual.height()*0.9));
+    QRect rectGPSB, screenActual = QGuiApplication::primaryScreen()->availableGeometry();
+    rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? int(dynamBody->sizeHint().width() * 1.1): int(screenActual.width()*0.9));
+    rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? int(mainLayout->sizeHint().height() * 1.1): int(screenActual.height()*0.9));
     this->setGeometry(rectGPSB);
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), screenActual)); // centers window (http://doc.qt.io/qt-5/qstyle.html#alignedRect, https://wiki.qt.io/How_to_Center_a_Window_on_the_Screen)
     if(parent) // centers window on parent if given
@@ -808,10 +808,10 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 int maxCheckBoxFieldNumber =  dynamCheckBoxes.size() > 0 ? fieldNumber.match(dynamCheckBoxes.last()->objectName()).captured().remove("f").toInt() : 0;
                 qDebug() << maxCheckBoxFieldNumber << ((dynamCheckBoxes.size() > 0) ? dynamCheckBoxes.last()->objectName() : QString::number(0));
                 int maxFieldNumber = maxLineEditFieldNumber > maxComboBoxFieldNumber ?
-                                    (maxLineEditFieldNumber > maxCheckBoxFieldNumber ? (qDebug() << "Current field:" << dynamLineEdits.last()->objectName(), maxLineEditFieldNumber) :
-                                                                                       (qDebug() << "Current field:" << dynamCheckBoxes.last()->objectName(), maxCheckBoxFieldNumber)):
-                                    (maxComboBoxFieldNumber > maxCheckBoxFieldNumber ? (qDebug() << "Current field:" << dynamComboBoxes.last()->objectName(), maxComboBoxFieldNumber) :
-                                                                                       (qDebug() << "Current field:" << dynamCheckBoxes.last()->objectName(), maxCheckBoxFieldNumber));
+                                    (maxLineEditFieldNumber > maxCheckBoxFieldNumber ? (void(qDebug() << "Current field:" << dynamLineEdits.last()->objectName()), maxLineEditFieldNumber) :
+                                                                                       (void(qDebug() << "Current field:" << dynamCheckBoxes.last()->objectName()), maxCheckBoxFieldNumber)):
+                                    (maxComboBoxFieldNumber > maxCheckBoxFieldNumber ? (void(qDebug() << "Current field:" << dynamComboBoxes.last()->objectName()), maxComboBoxFieldNumber) :
+                                                                                       (void(qDebug() << "Current field:" << dynamCheckBoxes.last()->objectName()), maxCheckBoxFieldNumber));
                 qDebug() << maxFieldNumber << fieldValueNum;
                 return fieldValueNum == maxFieldNumber;
             };
@@ -829,7 +829,7 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
                 qDebug() << "Field value located" << (value = line.mid(line.indexOf("{")+1).remove("}"));
                 fieldNum = line.left(line.indexOf(":"));
                 line.remove(fieldNum + ":");
-                if(line.size() <= 1) valid = false, inField = true;
+                if(line.size() <= 1) void(valid = false), inField = true;
                 if(valid) line.remove("{");
             }
             if(currentField->contains("listButton", Qt::CaseInsensitive) && valid)
@@ -1053,9 +1053,9 @@ GeneralPurposeScreenBuilder::GeneralPurposeScreenBuilder(QString keywordExtensio
     editButton->setFont(*SupposeFont::instance());
     setLayout(mainLayout);
     // sets initial window size with respect to contained objects and screen
-    QRect rectGPSB, screenActual = qApp->desktop()->availableGeometry();
-    rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? (dynamBody->sizeHint().width() * 1.1):(screenActual.width()*0.9));
-    rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? (mainLayout->sizeHint().height() * 1.1):(screenActual.height()*0.9));
+    QRect rectGPSB, screenActual = QGuiApplication::primaryScreen()->availableGeometry();
+    rectGPSB.setWidth((dynamBody->sizeHint().width() * 1.1 < screenActual.width()*0.9) ? int(dynamBody->sizeHint().width() * 1.1): int(screenActual.width()*0.9));
+    rectGPSB.setHeight((mainLayout->sizeHint().height() * 1.1 < screenActual.height()*0.9) ? int(mainLayout->sizeHint().height() * 1.1): int(screenActual.height()*0.9));
     this->setGeometry(rectGPSB);
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, this->size(), screenActual)); // centers window (http://doc.qt.io/qt-5/qstyle.html#alignedRect, https://wiki.qt.io/How_to_Center_a_Window_on_the_Screen)
     validInput = true;
@@ -1113,7 +1113,7 @@ void GeneralPurposeScreenBuilder::accept()
     QVector<QString> acceptedInput(maxFieldNumber + 1/*dynamLineEdits.size() + dynamComboBoxes.size() + dynamCheckBoxes.size()*/, " ");
     if(validInput)
     {
-        (!dynamLineEdits.isEmpty()) ? acceptedInput.replace(0, dynamLineEdits.at(0)->text()), qDebug() << "Title:" << dynamLineEdits.at(0)->text() : qDebug() << "ERROR or secondary construction";
+        (!dynamLineEdits.isEmpty()) ? void(acceptedInput.replace(0, dynamLineEdits.at(0)->text())), qDebug() << "Title:" << dynamLineEdits.at(0)->text() : qDebug() << "ERROR or secondary construction";
         for (int i = 0; i < dynamLineEdits.size(); i++)
         {
             qDebug() << QString( i > 0 ? ("Selected value " + QString::number(i) + ":") : "Title:") << dynamLineEdits.at(i)->text();
@@ -1126,7 +1126,7 @@ void GeneralPurposeScreenBuilder::accept()
 //                    acceptedInput.removeLast(); // placed inside conditional to only remove the extra slot from line edit
                 }
             }
-            else if(dynamLineEdits.at(i)->validator() != 0)
+            else if(dynamLineEdits.at(i)->validator() != nullptr)
             {
                 if(QVariant(dynamLineEdits.at(i)->validator()->property("bottom")).isValid() && QVariant(dynamLineEdits.at(i)->validator()->property("top")).isValid())
                     qDebug() << dynamLineEdits.at(i)->objectName() << "has lower bound of" << dynamLineEdits.at(i)->validator()->property("bottom").toString() << "and upper bound of" << dynamLineEdits.at(i)->validator()->property("top").toString();
@@ -1222,9 +1222,9 @@ void GeneralPurposeScreenBuilder::accept()
                     else if(parmsAnswerForm.at(i).contains("answerForm:"))
                         answerFormIndex = i;
                     if(parmsAnswerForm.at(i).contains("parmsForm=answerForm"))
-                        parmsFormIndex = -2, parmsAnswerForm.remove(i--);
+                        void(parmsFormIndex = -2), parmsAnswerForm.remove(i--);
                     if(parmsAnswerForm.at(i).contains("answerForm=parmsForm"))
-                        answerFormIndex = -2, parmsAnswerForm.remove(i--);
+                        void(answerFormIndex = -2), parmsAnswerForm.remove(i--);
                 }
                 // parmsFormIndex == -1 means there is no parmsForm
                 if(parmsFormIndex > -1) parseForm(parmsFormIndex, parmsFormStrings, acceptedInput);
@@ -1270,7 +1270,7 @@ void GeneralPurposeScreenBuilder::accept()
 void GeneralPurposeScreenBuilder::reset()
 {
     qDebug() << "Inside reset function" << resetButton->objectName();
-    if(yearCycleRButton != NULL)
+    if(yearCycleRButton != nullptr)
         yearCycleRButton->setChecked(true);
     qDebug() << "Resetting line edits";
     for (int i = 0; i < dynamLineEdits.size(); i++){
@@ -1334,7 +1334,7 @@ void GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultSt
     {//
         qDebug() << parmsAnswerForm.at(i);
         bool read = true;
-        if(parmsAnswerForm.at(i).contains("}")) (read = false), parmsAnswerForm.replace(i, parmsAnswerForm.value(i).remove("}"));
+        if(parmsAnswerForm.at(i).contains("}")) void(read = false), parmsAnswerForm.replace(i, parmsAnswerForm.value(i).remove("}"));
         if(read && parmsAnswerForm.at(i).at(parmsAnswerForm.at(i).size()-1) == "\\")
         {
             parmsAnswerForm.replace(i, parmsAnswerForm.value(i).remove("\\") + parmsAnswerForm.value(i + 1));
@@ -1490,7 +1490,7 @@ void GeneralPurposeScreenBuilder::parseForm(int formIndex, QStringList &resultSt
     {// for each line in the Form
         if(previousValue != i) // insure only one pass of key's values
             foreach (QString answerLine, answerLineField.values(i))
-                resultStrings.size() > i ? (qDebug() << answerLine + " added for " + QString::number(i), resultStrings.replace(i, QString(resultStrings.at(i)).prepend(spacePrepender(fieldSyntaxAnswers, answerLine)))) : (qDebug() << answerLine + " appended for " + QString::number(i), resultStrings.append(spacePrepender(fieldSyntaxAnswers, answerLine)));
+                resultStrings.size() > i ? (void(qDebug() << answerLine + " added for " + QString::number(i)), resultStrings.replace(i, QString(resultStrings.at(i)).prepend(spacePrepender(fieldSyntaxAnswers, answerLine)))) : (void(qDebug() << answerLine + " appended for " + QString::number(i)), resultStrings.append(spacePrepender(fieldSyntaxAnswers, answerLine)));
         previousValue = i;
     }
     // if there are parms comments, prepend them to the resultStrings in reverse order
@@ -1546,12 +1546,12 @@ void GeneralPurposeScreenBuilder::selectionChange(QWidget* from, QWidget* to)
 {
     qDebug() << "Inside GeneralPurposeScreenBuilder::selectionChange";
     validInput = true;
-    if(from != NULL && to != NULL && to != resetButton && to != cancelButton)
+    if(from != nullptr && to != nullptr && to != resetButton && to != cancelButton)
         if(from->inherits("QLineEdit"))
         {
             qDebug() << "Selection changed from" << from->objectName() << "to" << to->objectName();
             QLineEdit *input = qobject_cast<QLineEdit*>(from);
-            if(input->validator() != 0)
+            if(input->validator() != nullptr)
             {
                 QString inputString = input->text();
                 qDebug() << input->validator()->objectName() << "was previously selected";
@@ -1767,7 +1767,7 @@ void GeneralPurposeScreenBuilder::inputErrorAlert(QLineEdit *input)
 // Ensures the font color is black, acceptButton is enabled, and 0 favored syntax
 void GeneralPurposeScreenBuilder::modifyInput(QLineEdit *input)
 {
-    if(input->validator() != 0)
+    if(input->validator() != nullptr)
     {
         QString inputString = input->text();
         QPalette palette;
@@ -1778,7 +1778,7 @@ void GeneralPurposeScreenBuilder::modifyInput(QLineEdit *input)
         input->setMaxLength(14);
         double userInput = inputString.toDouble();
         qDebug() << "Inside modifyInput function with lineEdit " + input->objectName() + " and value" << inputString;
-        if(userInput == 0)
+        if(userInput == 0.0)
             input->setText("0");
         if(input->validator()->objectName().contains("double") && !input->text().contains("."))
             input->setText(input->text() + ".0");
@@ -1893,7 +1893,7 @@ bool GeneralPurposeScreenBuilder::addDynamComboBox(QStringList comboBoxPropertie
 QString GeneralPurposeScreenBuilder::numberToQString(double number)
 {
     QString result = QString::number(number, 'f', 9); // format the number in standard notation with 9 decimals of precision
-    if(number == 0)
+    if(number == 0.0)
         result = "0";
     else if(result.endsWith("0"))
     {
